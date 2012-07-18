@@ -1,0 +1,10 @@
+#-e git://github.com/lakshmivyas/hyde.git#egg=hyde
+#-e git://github.com/earle/django-bootstrap.git#egg=bootstrap
+
+#fabric
+#cherrypy
+#cssmin
+#docutils
+
+jsmin
+cssmin

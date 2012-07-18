@@ -1,0 +1,40 @@
+{% extends "skeleton/_root.html" %}
+
+{% block all %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">	
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+		<title>
+			{% block title %}
+			{{ site.name }} : {{ page.module.name }} : {{ page.title }}
+			{% endblock %}
+		</title>
+
+		{% block css %}
+		<link rel="stylesheet" href="{{ site.url }}/media/css/bootstrap.css" type="text/css" />
+		{% block extra_css %}{% endblock %}
+		{% endblock %}
+		
+		{% block js %}
+		{% block extra_js %}{% endblock %}
+		{% endblock %}
+	</head>
+    <body data-spy="scroll" data-offset="50">
+        {% include "skeleton/_navigation.html" %}
+        {% include "skeleton/_breadcrumbs.html"%}
+		<div class="content">	
+            {% block header %}
+            {% include "skeleton/_header.html" %}
+            {% endblock %} 
+            {% block content %}{% endblock %}
+            {% block footer %}
+                {% include "skeleton/_footer.html" %}
+            {% endblock %}
+		</div>
+	</body>
+</html>
+{% endblock %}
