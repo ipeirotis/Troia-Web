@@ -9,13 +9,21 @@ HOST_NAME = "178.32.233.139"
 HOST_NAME = "ci.10clouds.com"
 PROJECT_NAME = "dsas"
 PROJECT_ROOT = os.path.join(USER_HOME, PROJECT_NAME)
+ENVIRONMENT_NAME = "virtualenv"
 STATIC_ROOT = os.path.join(USER_HOME, "static")
-SOURCE = os.path.join(PROJECT_ROOT, "bin", "activate")
+SOURCE = "source {}".format(
+        os.path.join(PROJECT_ROOT, ENVIRONMENT_NAME, "bin", "activate"))
 LOGIN = "{}@{}".format(USER_NAME, HOST_NAME)
 REPOSITORY = "git@github.com:borysiam/DSaS"
 
 def message(msg, *args):
     print colors.cyan("==>", bold=True), msg.format(*args)
+
+def prepare():
+    message(colors.blue("Preparing directories"))
+    with api.cd(STATIC_ROOT):
+        api.run("mkdir -p logs/nginx/")
+        api.run("mkdir -p services/nginx/")
 
 def clone(repository):
     message(colors.yellow("Clonning repository"))
@@ -23,7 +31,7 @@ def clone(repository):
         api.run("git clone {} {}".format(REPOSITORY, PROJECT_ROOT))
 
 def update():
-    message(colors.blue("Updating {} repository"))
+    message(colors.blue("Updating repository"))
     with api.cd(PROJECT_ROOT):
         api.run("git stash")
         api.run("git pull --rebase")
@@ -33,7 +41,7 @@ def create_env():
     message(colors.blue("Creating virtual environment"))
     with api.cd(PROJECT_ROOT):
         api.run("virtualenv --python=\"/usr/bin/python2.7\" --no-site-packages "
-                "virtualenv")
+                "{}".format(ENVIRONMENT_NAME))
 
 def update_env():
     message(colors.blue("Installing requirements"))
@@ -45,6 +53,7 @@ def generate():
     message(colors.blue("Generating static content"))
     with api.prefix(SOURCE):
         api.run("hyde -g -s \"{}\" -d \"{}\"".format(PROJECT_ROOT, STATIC_ROOT))
+    prepare()
 
 @api.hosts(LOGIN)
 def initialize():
