@@ -1,0 +1,32 @@
+{% extends "skeleton/_base.html" %}
+
+{% hyde 
+    title: "The Dawid-Skene Algorithm" 
+%}
+{% block header_content %}
+<p>
+    How it works?
+</p>
+{% endblock %}
+{% block content %}
+<div class="row-fluid">
+    <div class="span12">
+        {% restructuredtext %}
+The algorithm is a variation of the expectation-maximization algorithm 
+of Dawid and Skene from the paper.
+Maximum Likelihood Estimation of Observer Error-Rates Using the EM Algorithm, 
+Applied Statistics, Vol. 28, No. 1. (1979), pp. 20-28. The algorithm runs in 
+rounds, performing the following steps in each round
+
+#. Using the labels given by multiple workers, estimate the most likely "correct" label for each object.
+
+#. Based on the estimated correct answer for each object, compute the error rates for each worker.
+
+#. Taking into consideration the error rates for each worker, recompute the most likely "correct" label for each object.
+
+#. Go to step 2
+
+{% endrestructuredtext %}
+    </div>
+</div>
+{% endblock %}

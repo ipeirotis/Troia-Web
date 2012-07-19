@@ -1,22 +1,90 @@
 {% extends "skeleton/_base.html" %}
 
 {% hyde 
-    title: "Getting started" 
+    title: "About DSaS" 
 %}
 
-{% block content %}
+{% block header_content %}
+<p>
+    Mechanical Turk and other &quot;micro-outsourcing&quot; platforms allow the easy
+    collection of annotation data from a wide variety of onliner workers.
+    Unfortunately, the results returned back from the workers are of imperfect
+    quality: No worker is perfect and each worker commits different types of errors. 
+    Some workers are nothing more than spammers doing minimal, if any, real work.
+</p>
+<p>
+    DSaS (Dawid Skene as a Service) provides the set of web-methods which could be 
+    used for calculation and data storing.
+</p>
+<p>
+    <a data-toggle="modal" href="#learn_more" class="btn btn-medium btn-info">
+        <i class="icon-info-sign icon-white"></i>
+        Learn More
+</a>
+</p>
+{% endblock %}
 
+{% block content %}
+<div class="modal hide fade in" id="learn_more">
+    <div class="modal-header">
+        <button class="close" data-dismiss="modal">
+            <i class="icon-remove"></i>
+        </button>
+        <h3>About DSaS</h3>
+    </div>
+    <div class="modal-body">
 {% restructuredtext %}
 
-Getting started
-===============
+Get code
+========
 
-Mechanical Turk and other "micro-outsourcing" platforms allow the easy
-collection of annotation data from a wide variety of onliner workers.
-Unfortunately, the results returned back from the workers are of imperfect
-quality: No worker is perfect and each worker commits different types of errors. 
-Some workers are nothing more than spammers doing minimal, if any, real work.
+https://github.com/ipeirotis/DSaS
+
+Get started
+===========
+
+Setting up environment by getting
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* git - http://git-scm.com
+* maven - http://maven.apache.org/
+* tomcat - http://tomcat.apache.org/
+* mysql - http://www.mysql.com/
+
+Getting code from
+~~~~~~~~~~~~~~~~~
+
+https://github.com/ipeirotis/DSaS
+
+Building WAR file
+~~~~~~~~~~~~~~~~~
+
+::
+
+ mvn package
+ mvn package -Dmaven.test.skip=true 
+
+Setting up Tomcat 
+~~~~~~~~~~~~~~~~~
+
+Deploying WAR
+~~~~~~~~~~~~~
+
+To deploy .war file open your Tomcat web application manager that should be 
+under ``/manager/html`` location.
+
+Setting up the database
+~~~~~~~~~~~~~~~~~~~~~~~
+
+To set up the database you have to use information from two files that are 
+located in ``DSaS/src/main/resources/`` directory.
+
+Detailed tutorial is here LINK TO INSTALATION TUTORIAL
 
 {% endrestructuredtext %}
-
+    <div class="modal-footer">
+        <a class="btn" data-dismiss="modal" href="#">Close</a>
+    </div>
+</div>
 {% endblock %}
+
