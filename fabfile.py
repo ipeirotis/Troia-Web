@@ -1,14 +1,16 @@
+import os
+
 from fabric import colors, api
 
 
 USER_NAME = "dsas"
-USER_HOME = "/home/{}/".format(USER_NAME)
+USER_HOME = os.path.join("/home", USER_NAME)
 HOST_NAME = "178.32.233.139"
 HOST_NAME = "ci.10clouds.com"
 PROJECT_NAME = "dsas"
-PROJECT_ROOT = "/{}/{}/".format(USER_HOME, PROJECT_NAME)
-STATIC_ROOT = "/{}/static/".format(USER_HOME)
-SOURCE = "/{}/bin/activate".format(PROJECT_ROOT)
+PROJECT_ROOT = os.path.join(USER_HOME, PROJECT_NAME)
+STATIC_ROOT = os.path.join(USER_HOME, "static")
+SOURCE = os.path.join(PROJECT_ROOT, "bin", "activate")
 LOGIN = "{}@{}".format(USER_NAME, HOST_NAME)
 REPOSITORY = "git@github.com:borysiam/DSaS"
 
@@ -36,7 +38,8 @@ def create_env():
 def update_env():
     message(colors.blue("Installing requirements"))
     with api.cd(PROJECT_ROOT):
-        api.run('pip install -r requirements.txt')
+        with api.prefix(SOURCE):
+            api.run('pip install -r requirements.txt')
 
 def generate():
     message(colors.blue("Generating static content"))
