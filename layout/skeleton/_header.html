@@ -1,26 +1,2 @@
-{% comment %}
-{% include "skeleton/_navigation.html" %}
-{% include "skeleton/_breadcrumbs.html"%}
-
-{% block navigation %}
+{% block all %}
 {% endblock %}
-
-{% block breadcrumbs %}
-{% endblock %}
-
-{% block context_nav %}
-{% endblock %}
-
-<header class="jumbotron subhead">
-    <h1>{{ site.name }}</h1>
-    {% if site.description %}
-    <p class="lead">{{ site.description }}</p>
-</header>
-{% endcomment %}
-<header class="jumbotron subhead">
-    <h1>{{ page.title }}</h1>
-    {% comment %}
-    {% if page.description %}
-    {% endcomment %}
-    <p class="lead">This is the page description.</p>
-</header>

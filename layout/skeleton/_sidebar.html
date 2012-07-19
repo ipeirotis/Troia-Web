@@ -1,0 +1,24 @@
+{% block all %}
+<div class="well sidebar-nav">
+    <ul class="nav nav-list">
+        <li class="nav-header">
+            USEFUL LINKS
+        </li>
+        {% for list_page in node.pages %}
+            {% if list_page.display_in_list %}
+            <li {% ifequal list_page page %}class="active"
+                {% endifequal %}>
+                <a href="{{list_page.url}}">
+                    {% with list_page.name_without_extension|remove_date_prefix|unslugify as default_title %}
+                        {{list_page.title|default_if_none:default_title }}
+                    {%endwith%}</a>
+
+                    {% if page.excerpt %}
+                        {% render_excerpt list_page %}
+                    {% endif %}
+            </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

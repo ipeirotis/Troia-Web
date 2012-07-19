@@ -23,18 +23,44 @@
 		{% block extra_js %}{% endblock %}
 		{% endblock %}
 	</head>
-    <body data-spy="scroll" data-offset="50">
+    <body>
         {% include "skeleton/_navigation.html" %}
         {% include "skeleton/_breadcrumbs.html"%}
-		<div class="content">	
-            {% block header %}
-            {% include "skeleton/_header.html" %}
-            {% endblock %} 
-            {% block content %}{% endblock %}
-            {% block footer %}
-                {% include "skeleton/_footer.html" %}
-            {% endblock %}
-		</div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span3">
+                    {% include "skeleton/_sidebar.html" %}
+                </div>
+                <div class="span9">
+                    {% block header %}
+                    <div class="hero-unit">
+                        <h1>{{ page.title }}</h1>
+                        {% block header_content %}
+                        {% endblock %}
+                    </div>
+                    {% endblock %} 
+                    {% block content %}{% endblock %}
+                    {% block footer %}
+                        {% include "skeleton/_footer.html" %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+        <script src="/media/js/jquery.js"></script>
+        <script src="/media/js/bootstrap-alert.js"></script>
+        <script src="/media/js/bootstrap-button.js"></script>
+        <script src="/media/js/bootstrap-carousel.js"></script>
+        <script src="/media/js/bootstrap-collapse.js"></script>
+        <script src="/media/js/bootstrap-dropdown.js"></script>
+        <script src="/media/js/bootstrap.js"></script>
+        <script src="/media/js/bootstrap.min.js"></script>
+        <script src="/media/js/bootstrap-modal.js"></script>
+        <script src="/media/js/bootstrap-popover.js"></script>
+        <script src="/media/js/bootstrap-scrollspy.js"></script>
+        <script src="/media/js/bootstrap-tab.js"></script>
+        <script src="/media/js/bootstrap-tooltip.js"></script>
+        <script src="/media/js/bootstrap-transition.js"></script>
+        <script src="/media/js/bootstrap-typeahead.js"></script>
 	</body>
 </html>
 {% endblock %}
