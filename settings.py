@@ -49,9 +49,8 @@ APPEND_SLASH = False
 # should specify css/ie for the folder name. css/* is not supported (yet).
 
 # Extensions do not support wildcards.
-
 MEDIA_PROCESSORS = {
-    '*':{
+    '*': {
         '.css':('hydeengine.media_processors.TemplateProcessor',
                 'hydeengine.media_processors.CSSmin',),
         '.ccss':('hydeengine.media_processors.TemplateProcessor',
@@ -59,9 +58,6 @@ MEDIA_PROCESSORS = {
                 'hydeengine.media_processors.CSSmin',),
         '.sass':('hydeengine.media_processors.TemplateProcessor',
                 'hydeengine.media_processors.SASS',
-                'hydeengine.media_processors.CSSmin',),
-        '.less':('hydeengine.media_processors.TemplateProcessor',
-                'hydeengine.media_processors.LessCSS',
                 'hydeengine.media_processors.CSSmin',),
         '.styl':('hydeengine.media_processors.TemplateProcessor',
                 'hydeengine.media_processors.Stylus',
@@ -77,7 +73,7 @@ MEDIA_PROCESSORS = {
                 'hydeengine.media_processors.TemplateProcessor',
                 'hydeengine.media_processors.CoffeeScript',
                 'hydeengine.media_processors.JSmin',)
-    }
+    },
 }
 
 CONTENT_PROCESSORS = {
@@ -131,6 +127,8 @@ CLOSURE_COMPRILER = None
 # project page at http://ncannasse.fr/projects/hss
 #HSS_PATH = "./lib/hss-1.0-osx"
 HSS_PATH = None # if you don't want to use HSS
+
+LESS_CSS_PATH = "/usr/local/bin/lessc"
 
 #Django settings
 
