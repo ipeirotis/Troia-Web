@@ -138,3 +138,5 @@ INSTALLED_APPS = (
     'hydeengine',
     'django.contrib.webdesign',
 )
+
+CONTEXT = {'use_less_js': True}

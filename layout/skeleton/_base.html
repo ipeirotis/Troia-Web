@@ -14,7 +14,12 @@
                     page.module.name }} {% endifnotequal %}: {{ page.title }}
             
 			{% endblock %}
-		</title>
+        </title>
+
+        {% if use_less_js %}
+        <link rel="stylesheet/less" href="/media/less/bootstrap.less">
+        <script src="/media/js/less.js"></script>
+        {% endif %}
 
 		{% block css %}
 		<link rel="stylesheet" href="{{ site.url }}/media/css/bootstrap.css" type="text/css" />
