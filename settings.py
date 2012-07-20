@@ -13,8 +13,8 @@ BACKUP = False
 
 SITE_ROOT = "/"
 SITE_WWW_URL = "http://www.yoursite.com"
-SITE_NAME = "Your Site"
-SITE_AUTHOR = "Your Name"
+SITE_NAME = "DSaS"
+SITE_AUTHOR = "Panos Iperiotis"
 
 #URL Configuration
 GENERATE_ABSOLUTE_FS_URLS = False

@@ -15,6 +15,7 @@ SOURCE = "source {}".format(
         os.path.join(PROJECT_ROOT, ENVIRONMENT_NAME, "bin", "activate"))
 LOGIN = "{}@{}".format(USER_NAME, HOST_NAME)
 REPOSITORY = "git@github.com:borysiam/DSaS"
+LESSC = "lessc"
 
 def message(msg, *args):
     print colors.cyan("==>", bold=True), msg.format(*args)
@@ -49,6 +50,19 @@ def update_env():
         with api.prefix(SOURCE):
             api.run('pip install -r requirements.txt')
 
+def compile(input_dir, output_dir, files):
+    """ Compiles less and moves resultant css to another directory for
+        further processing using hyde. """
+    message(colors.blue("Compiling less from {} to {}".format(input_dir,
+                        output_dir)))
+    message(colors.blue("Files to compile: {}".format(", ".join(files))))
+    with api.cd(input_dir):
+        for file_name in files:
+            name, ext = file_name.rsplit(".", 1)
+            result_name = "{}.css".format(name)
+            api.run("{} {} > {}".format(LESSC, file_name,
+                                        os.path.join(output_dir, result_name)))
+
 def generate():
     message(colors.blue("Generating static content"))
     with api.prefix(SOURCE):
@@ -66,4 +80,7 @@ def deploy(update_env=False):
     update()
     if update_env:
         update_env()
+    media_root = os.path.join(PROJECT_NAME, "media")
+    compile(os.path.join(media_root, "less"), os.path.join(media_root, "css"),
+            ("bootstrap.less",))
     generate()
