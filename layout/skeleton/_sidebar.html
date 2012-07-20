@@ -2,23 +2,33 @@
 <div class="well sidebar-nav">
     <ul class="nav nav-list">
         <li class="nav-header">
-            USEFUL LINKS
+            MENU
         </li>
-        {% for list_page in node.pages %}
-            {% if list_page.display_in_list %}
-            <li {% ifequal list_page page %}class="active"
-                {% endifequal %}>
-                <a href="{{list_page.url}}">
-                    {% with list_page.name_without_extension|remove_date_prefix|unslugify as default_title %}
-                        {{list_page.title|default_if_none:default_title }}
-                    {%endwith%}</a>
-
-                    {% if page.excerpt %}
-                        {% render_excerpt list_page %}
-                    {% endif %}
-            </li>
-            {% endif %}
+        {% for module in site.children %}
+            {# TODO define something like NAVBAR_MODULE_NAME in settings file #}
+            {% ifequal module.name "documentation" %}
+                {% for list_page in module.pages %}
+                {% if list_page.display_in_list %}
+                <li {% ifequal list_page page %}class="active"{% endifequal %}>
+                    <a href="{{ list_page.url }}">{{ list_page.title }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+            {% endifequal %}
         {% endfor %}
+        {% comment %}
+        <!-- Show all modules and sites within. For example only... -->
+        {% for module in site.children %}
+        <li class="nav-header">
+            {{ module.name|unslugify }}
+        </li>
+            {% for list_page in module.pages %}
+            <li {% ifequal list_page page %}class="active"{% endifequal %}>
+                <a href="{{ list_page.url }}">{{ list_page.title }}</a>
+            </li>
+            {% endfor %}
+        {% endfor %}
+        {% endcomment %}
     </ul>
 </div>
 {% endblock %}

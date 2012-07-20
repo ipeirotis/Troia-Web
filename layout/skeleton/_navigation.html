@@ -9,22 +9,25 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="brand" href="./index.html">Bootstrap</a>
+            <a class="brand" href="./index.html">
+                <!--
+                <img src="/media/img/dsas.png" alt="dsas" height="18" />
+                -->
+                DSaS
+            </a>
             <div class="nav-collapse collapse">
                 <ul class="nav">
-                    <li {% ifequal page.module site.module %} class="selected" {% endifequal %}>
+                    <li {% ifequal page.module site.module %} class="active" {% endifequal %}>
                         <a href="{{ site.listing_url }}">Home</a>
                     </li>    
-                    {% comment %}
                     <li class="divider-vertical"></li>
                     {% for module in site.children %}
-                    <li{% ifequal page.module module %} class="active" {% endifequal %}>
+                    <li {% ifequal page.module module %}class="active"{% endifequal %}>
                         <a href="{{ module.listing_url }}">
                             {{ module.name|unslugify }}
                         </a>
                     </li>
                     {% endfor %}
-                    {% endcomment %}
                 </ul>
             </div>
         </div>

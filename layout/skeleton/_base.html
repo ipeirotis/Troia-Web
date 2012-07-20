@@ -40,11 +40,11 @@
                     </div>
                     {% endblock %} 
                     {% block content %}{% endblock %}
-                    {% block footer %}
-                        {% include "skeleton/_footer.html" %}
-                    {% endblock %}
                 </div>
             </div>
+            {% block footer %}
+                {% include "skeleton/_footer.html" %}
+            {% endblock %}
         </div>
         <script src="/media/js/jquery.js"></script>
         <script src="/media/js/bootstrap-alert.js"></script>
