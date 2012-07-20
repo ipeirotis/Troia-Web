@@ -80,7 +80,9 @@ def deploy(update_env=False):
     update()
     if update_env:
         update_env()
-    media_root = os.path.join(PROJECT_NAME, "media")
-    compile(os.path.join(media_root, "less"), os.path.join(media_root, "css"),
+    media_root = os.path.join(PROJECT_ROOT, "media")
+    css_dir = os.path.join(media_root, "css")
+    api.run("mkdir -p {}".format(css_dir))
+    compile(os.path.join(media_root, "less"), css_dir,
             ("bootstrap.less",))
     generate()
