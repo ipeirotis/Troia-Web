@@ -17,13 +17,13 @@
             <div class="nav-collapse collapse">
                 <ul class="nav">
                     <li {% ifequal page.module site.module %} class="active" {% endifequal %}>
-                        <a href="{{ site.listing_url }}">Home</a>
+                        <a href="{{ site.listing_url }}">HOME</a>
                     </li>    
                     <li class="divider-vertical"></li>
                     {% for module in site.children %}
                     <li {% ifequal page.module module %}class="active"{% endifequal %}>
                         <a href="{{ module.listing_url }}">
-                            {{ module.name|unslugify }}
+                            {{ module.name|unslugify|upper }}
                         </a>
                     </li>
                     {% endfor %}
