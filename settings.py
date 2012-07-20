@@ -56,9 +56,9 @@ MEDIA_PROCESSORS = {
         '.ccss':('hydeengine.media_processors.TemplateProcessor',
                 'hydeengine.media_processors.CleverCSS',
                 'hydeengine.media_processors.CSSmin',),
-        '.sass':('hydeengine.media_processors.TemplateProcessor',
-                'hydeengine.media_processors.SASS',
-                'hydeengine.media_processors.CSSmin',),
+#        '.sass':('hydeengine.media_processors.TemplateProcessor',
+#                'hydeengine.media_processors.SASS',
+#                'hydeengine.media_processors.CSSmin',),
         '.styl':('hydeengine.media_processors.TemplateProcessor',
                 'hydeengine.media_processors.Stylus',
                 'hydeengine.media_processors.CSSmin',),
@@ -139,4 +139,4 @@ INSTALLED_APPS = (
     'django.contrib.webdesign',
 )
 
-CONTEXT = {'use_less_js': True}
+CONTEXT = {'use_less_js': False}
