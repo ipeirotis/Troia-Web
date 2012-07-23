@@ -14,7 +14,7 @@ STATIC_ROOT = os.path.join(USER_HOME, "static")
 SOURCE = "source {}".format(
         os.path.join(PROJECT_ROOT, ENVIRONMENT_NAME, "bin", "activate"))
 LOGIN = "{}@{}".format(USER_NAME, HOST_NAME)
-REPOSITORY = "git@github.com:borysiam/DSaS"
+REPOSITORY = "git@github.com:10clouds/DSaS-Web"
 LESSC = "lessc"
 
 def message(msg, *args):

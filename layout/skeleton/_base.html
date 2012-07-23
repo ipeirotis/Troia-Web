@@ -10,8 +10,7 @@
         <meta name="author" content="">
 		<title>
 			{% block title %}
-            {{ site.name }} :{% ifnotequal site.name page.module.name %} {{
-                    page.module.name }} {% endifnotequal %}: {{ page.title }}
+            {{ site.name }} : {{ page.title }}
 			{% endblock %}
         </title>
 
