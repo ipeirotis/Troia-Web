@@ -32,7 +32,7 @@ You have to enter directory in with you want to have DSaS sources downloaded to 
 
 ::
  
-git clone https://github.com/tagasauris/DSaS.git
+    git clone https://github.com/tagasauris/DSaS.git
 
 It will download all files from git repository into "DSaS" directory so if command was issued from 
 */home/username/Documents* folder source files will end up with */home/username/Documents/DSaS* as a 
@@ -44,14 +44,14 @@ Building WAR file
 To build WAR file you should enter project main directory execute following command 
 ::
  
-mvn package
+    mvn package
 
 Sometimes maven will inform about build failure due to failed test, in this case you should 
 simply run maven without tests by calling a command with addnotational parameter
 
 ::
 
-mvn package -Dmaven.test.skip=true 
+    mvn package -Dmaven.test.skip=true 
 
 As a result *target* directory will appear, in it should be file called **GetAnotherLabel.war**  
 
@@ -65,7 +65,7 @@ following line into this file
 
 ::
 
- user username="administrator" password="drowssap" roles="admin,manager-gui" />
+    user username="administrator" password="drowssap" roles="admin,manager-gui" />
 
 This will create user *administrator* with password *drowssap* and all privileges that will be needed
 in this project.  
@@ -79,7 +79,7 @@ address:
 
 ::
  
-http://localhost:8080/manager/html
+    http://localhost:8080/manager/html
 
 Then you should find part of manager that allows you to upload and deploy .war files from disk.
 After that you should simply choose .war that was generated in previous step and deploy it.
@@ -87,7 +87,7 @@ To check if everything is working correctly you can open service that will ping 
 
 ::
   
-http://localhost:8080/GetAnotherLabel/rest/ping
+    http://localhost:8080/GetAnotherLabel/rest/ping
 
 Setting up a DB
 ---------------
