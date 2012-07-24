@@ -10,16 +10,15 @@
                 <span class="icon-bar"></span>
             </button>
             <a class="brand" href="/">
-
                 <img src="/media/img/logo_b.png" alt="dsas" />
-
             </a>
             <div class="nav-collapse collapse">
                 <ul class="nav">
-                    <li {% ifequal page.module site.module %} class="active" {% endifequal %}>
+                    <li {% ifequal page.module site.module %}class="active"{% endifequal %}>
                         <a href="{{ site.listing_url }}">HOME</a>
                     </li>    
                     <li class="divider-vertical"></li>
+                    {% comment %}
                     {% for module in site.children %}
                     <li {% ifequal page.module module %}class="active"{% endifequal %}>
                         <a href="{{ module.listing_url }}">
@@ -27,6 +26,7 @@
                         </a>
                     </li>
                     {% endfor %}
+                    {% endcomment %}
                 </ul>
             </div>
         </div>

@@ -13,11 +13,11 @@
             {{ module.name|unslugify }}
         </li>
                 {% for list_page in module.pages %}
-                {# {% if list_page.display_in_list %} #}
+                {% if list_page.display_in_list %}
                     <li {% ifequal list_page page %}class="active"{% endifequal %}>
                         <a href="{{ list_page.url }}">{{ list_page.title }}</a>
                     </li>
-                {# {% endif %} #}
+                {% endif %}
                 {% endfor %}
             {# {% endifequal %} #}
         {% endfor %}
