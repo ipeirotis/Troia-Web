@@ -18,15 +18,9 @@
                         <a href="{{ site.listing_url }}">HOME</a>
                     </li>    
                     <li class="divider-vertical"></li>
-                    {% comment %}
-                    {% for module in site.children %}
-                    <li {% ifequal page.module module %}class="active"{% endifequal %}>
-                        <a href="{{ module.listing_url }}">
-                            {{ module.name|unslugify|upper }}
-                        </a>
-                    </li>
-                    {% endfor %}
-                    {% endcomment %}
+                    <li {% ifnotequal page.module site.module %}class="active"{% endifnotequal %}>
+                        <a href="{{ site.listing_url }}">DOCUMENTATION</a>
+                    </li>    
                 </ul>
             </div>
         </div>
