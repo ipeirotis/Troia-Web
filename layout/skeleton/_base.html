@@ -36,9 +36,12 @@
         {% include "skeleton/_navigation.html" %}
         
         <div class="container">
-            {% include "skeleton/_breadcrumbs.html"%}
+            {% include "skeleton/_breadcrumbs.html" %}
             <div class="row-fluid">
-                <div class="span12">
+                <div class="span3">
+                    {% include "skeleton/_sidebar.html" %}
+                </div>
+                <div class="span9">
                     {% block header %}
                     <div>
                         <h1>{{ page.title }}</h1>
