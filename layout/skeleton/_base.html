@@ -13,7 +13,7 @@
             {{ site.name }} : {{ page.title }}
 			{% endblock %}
         </title>
-
+        <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
         {% if use_less_js %}
         <link rel="stylesheet/less" href="/media/less/bootstrap.less">
         <link rel="stylesheet/less" href="/media/less/dsas.less">     
@@ -31,6 +31,11 @@
 		{% block js %}
 		{% block extra_js %}{% endblock %}
 		{% endblock %}
+
+<link rel="icon" 
+      type="image/png" 
+      href="{{ site.url }}/media/img/f32.png">
+
 	</head>
     <body style="padding-top:76px;">
         {% include "skeleton/_navigation.html" %}
