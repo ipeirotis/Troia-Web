@@ -14,7 +14,7 @@ STATIC_ROOT = os.path.join(USER_HOME, "static")
 SOURCE = "source {}".format(
         os.path.join(PROJECT_ROOT, ENVIRONMENT_NAME, "bin", "activate"))
 LOGIN = "{}@{}".format(USER_NAME, HOST_NAME)
-REPOSITORY = "git@github.com:10clouds/Troia-Project.git"
+REPOSITORY = "git@github.com:10clouds/Troia-Web.git"
 LESSC = "lessc"
 
 def message(msg, *args):
