@@ -4,15 +4,17 @@
     title: "About project Troia" 
 %}
 
+{% block header %}{% endblock %}
+
 {% block content %}
 
-<div class="well">
-<img src="/media/img/troia_helmet.png" alt="dsas" style="float:left; margin: 0 10px 20px 0;" />
 
-<p>
+<img src="/media/img/troia_pic.png" alt="dsas" style="float:left; margin: 0 10px 0 0;" />
+
+<h3>
     <strong>Project Troia</strong> provides the set of web-methods which could be 
     used for calculation and data storing.
-</p>
+</h3>
 
 <p>
     Mechanical Turk and other &quot;micro-outsourcing&quot; platforms allow the easy
@@ -21,47 +23,14 @@
     quality: No worker is perfect and each worker commits different types of errors. 
     Some workers are nothing more than spammers doing minimal, if any, real work.
 </p>
-<br>
 
- <p><a class="btn-large btn-success" href="https://github.com/ipeirotis/Troia-Server"><i class="icon-download icon-white"></i> <strong>Get it now!</strong> Get latest code from <em>github</em></a></p>
 
-</div>
 
-<h1>Basic kickstart tutorial</h1>
-
-<h3><em>Step 1</em> <strong>Setting up environment by getting</strong></h3>
-<ul>
- <li>git - <a href="http://git-scm.com">git-scm.com</a> </li>
- <li>maven - <a href="http://maven.apache.org/">maven.apache.org</a> </li>
- <li>tomcat - <a href="http://tomcat.apache.org/">tomcat.apache.org</a> </li>
- <li>mysql - <a href="http://www.mysql.com/">www.mysql.com</a> </li>
-</ul>
+<div style="clear:both;"></div>
 
 <hr>
-<h3><em>Step 2</em> <strong>Getting code</strong></h3>
 
-<a class="btn btn-success" href="https://github.com/ipeirotis/Troia-Server"><i class="icon-download icon-white"></i> Get latest code from <em>github</em></a>
-<hr>
-<h3><em>Step 3</em> <strong>Building WAR file</strong></h3>
 
-<pre class="literal-block">mvn package</pre>
-
-<pre class="literal-block">mvn package -Dmaven.test.skip=true </pre>
-
-<p>or <a class="btn-mini btn-inverse" href="https://github.com/borysiam/Troia-Project"><i class="icon-download icon-white"></i> Get already build WAR</a></p>
-
-<hr>
-<h3><em>Step 4</em> <strong>Setting up Tomcat</strong> </h3>
-<hr>
-<h3><em>Step 5</em> <strong>Deploying WAR</strong></h3>
-
- <p>To deploy .war file open your Tomcat web application manager that should be under */manager/html* location.</p>
-<hr>
-<h3><em>Step 6</em> <strong>Setting up a DB</strong></h3>
-
- <p>To set up database you must use information from two files that are located in DSaS/src/main/resources/ folder </p>
-
- <p>Detailed tutorial is here >> LINK TO INSTALATION TUTORIAL << </p>
 
 
 
