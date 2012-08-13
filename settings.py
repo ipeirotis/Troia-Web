@@ -139,4 +139,4 @@ INSTALLED_APPS = (
     'django.contrib.webdesign',
 )
 
-CONTEXT = {'use_less_js': True}
+CONTEXT = {'use_less_js': False}
