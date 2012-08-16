@@ -12,7 +12,7 @@ SOURCE_ROOT = "{}/source".format(PROJECT_ROOT)
 ENVIRONMENT_NAME = "virtualenv"
 SOURCE = "source {}".format(
         os.path.join(PROJECT_ROOT, ENVIRONMENT_NAME, "bin", "activate"))
-REPOSITORY = "git@github.com:10clouds/Troia-Web.git"
+REPOSITORY = "git://github.com/10clouds/Troia-Web.git"
 LESSC = "lessc"
 
 USER = "{0}:{0}".format(env.user)

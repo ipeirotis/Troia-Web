@@ -1,6 +1,6 @@
 server {
-    listen   0.0.0.0;
-	server_name localhost troia.ipeirotis.com;
+    listen   80;
+	server_name troia troia.ipeirotis.com;
 
     access_log  /data/projects/troia-web/static/logs/nginx/dsas.access.log;
     error_log   /data/projects/troia-web/static/logs/nginx/dsas.error.log;
@@ -12,7 +12,7 @@ server {
 
         location /media  {
                 gzip on;
-                root /data/projects/troia-web;
+                root /data/projects/troia-web/static;
 		autoindex  off;
                 expires 60d;
         }
