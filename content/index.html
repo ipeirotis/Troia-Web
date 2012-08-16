@@ -30,7 +30,102 @@
 
 <hr>
 
+<h2>Instalation tutorial</h2>
 
+{% restructuredtext %}
+
+Setting up environment
+-----------------------
+
+Before setting up DSaS you have to configure environment on target computer
+so it can prepare and run this service. You have to download following software
+ 
+* git - http://git-scm.com
+* maven - http://maven.apache.org/
+* tomcat - http://tomcat.apache.org/
+* mysql - http://www.mysql.com/
+
+Note that if you have package manager, like Synaptic, you can simply download all this software with it.
+If you are going to use package manager remember to download *tomcat6-admin* package as well.
+As for servlet container you can use different one but this tutorial will be written with Tomcat in mind. 
+
+Getting code
+------------
+
+DSaS code is available at git hub under https://github.com/ipeirotis/DSaS address.
+You have to enter directory in with you want to have DSaS sources downloaded to and issue following command 
+
+::
+ 
+    git clone https://github.com/tagasauris/DSaS.git
+
+It will download all files from git repository into "DSaS" directory so if command was issued from 
+*/home/username/Documents* folder source files will end up with */home/username/Documents/DSaS* as a 
+project main directory.
+
+Building WAR file
+-----------------
+
+To build WAR file you should enter project main directory execute following command 
+::
+ 
+    mvn package
+
+Sometimes maven will inform about build failure due to failed test, in this case you should 
+simply run maven without tests by calling a command with addnotational parameter
+
+::
+
+    mvn package -Dmaven.test.skip=true 
+
+As a result *target* directory will appear, in it should be file called **GetAnotherLabel.war**  
+
+Setting up Tomcat
+-----------------
+
+To be able to use administrative functions of Tomcat you must create user with administrator privileges.
+You do that by modifying *tomcat-users.xml* file , if you are using Linux it's probably located at 
+*/etc/tomcat6/tomcat-users.xml* path. To create user with full required privileges you must add 
+following line into this file 
+
+::
+
+    user username="administrator" password="drowssap" roles="admin,manager-gui" />
+
+This will create user *administrator* with password *drowssap* and all privileges that will be needed
+in this project.  
+ 
+Deploying WAR
+-------------
+
+To deploy .war file open your Tomcat web application manager that should be under */manager/html* location.
+Do if you are setting up this software on same computer that you are working on manager will be up at following
+address:
+
+::
+ 
+    http://localhost:8080/manager/html
+
+Then you should find part of manager that allows you to upload and deploy .war files from disk.
+After that you should simply choose .war that was generated in previous step and deploy it.
+To check if everything is working correctly you can open service that will ping DSaS
+
+::
+  
+    http://localhost:8080/GetAnotherLabel/rest/ping
+
+Setting up a DB
+---------------
+
+To set up database you must use information from two files that are located in DSaS/src/main/resources/ folder
+
+* dawidskene.properties - that contains information about connection
+* dawidprojects.sql - that contains database schema
+ 
+In dawidprojects.sql you should change *id varchar(1000)* to *id varchar(100)* as larger number 
+can cause problems in some database engines.
+
+{% endrestructuredtext %}
 
 
 

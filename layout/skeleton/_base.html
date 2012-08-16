@@ -16,14 +16,13 @@
         <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
         {% if use_less_js %}
         <link rel="stylesheet/less" href="/media/less/bootstrap.less">
-        <link rel="stylesheet/less" href="/media/less/dsas.less">     
+        <link rel="stylesheet/less" href="/media/less/troia.less">     
         <script src="/media/js/less.js"></script>
         {% endif %}
 
 		{% block css %}
         {% if not use_less_js %}
-        <link rel="stylesheet" href="{{ site.url }}/media/css/bootstrap.css" type="text/css" />
-        <link rel="stylesheet" href="{{ site.url }}/media/css/dsas.css" type="text/css" />     
+        <link rel="stylesheet" href="{{ site.url }}/media/css/bootstrap.css" type="text/css" /> 
         {% endif %}
 		{% block extra_css %}{% endblock %}
 		{% endblock %}
