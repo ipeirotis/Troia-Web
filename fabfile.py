@@ -84,5 +84,5 @@ def deploy(update_env=False):
     css_dir = os.path.join(media_root, "css")
     api.run("mkdir -p {}".format(css_dir))
     compile(os.path.join(media_root, "less"), css_dir,
-            ("dsas.less", "bootstrap.less",))
+            ("troia.less", "bootstrap.less",))
     generate()
