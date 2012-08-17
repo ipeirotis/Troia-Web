@@ -93,13 +93,26 @@ def initialize():
 
 
 @task
-def deploy(update_environment=False):
+def deploy(update_environment=False, update_nginx=False):
     update()
     if update_environment:
         update_env()
-    media_root = os.path.join(SOURCE_ROOT, "media")
-    css_dir = os.path.join(media_root, "css")
-    run("mkdir -p {}".format(css_dir))
-    compile(os.path.join(media_root, "less"), css_dir,
-            ("troia.less", "bootstrap.less",))
+    media_root = "{}/media".format(SOURCE_ROOT)
+    css_path = "{}/css".format(media_root)
+    less_path = "{}/less".format(media_root)
+    run("mkdir -p {}".format(css_path))
+    compile(less_path, css_path, ("troia.less", "bootstrap.less"))
     generate()
+    # Make sure that all directories are created.
+    run("mkdir -p {}".format(os.path.join(media_root, "downloads")))
+    # Update nginx configuration.
+    if update_nginx:
+        ngnx_path = "/etc/nginx"
+        available_path = "{}/sites-available/troia".format(ngnx_path)
+        enabled_path = "{}/sites-enabled/troia".format(ngnx_path)
+        conf_path = "{}/conf/nginx/sites-available/troia".format(SOURCE_ROOT)
+        sudo("cp {} {}".format(conf_path, available_path))
+        sudo("ln -fs {} {}".format(available_path, enabled_path))
+        setmode(available_path, owner=USER)
+        setmode(enabled_path, owner=USER)
+        sudo("service nginx reload")
