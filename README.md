@@ -35,8 +35,25 @@ The website can be served locally (using Cherrypy webserver) with command:
 
     hyde -w -s path/to/website/source/ -d path/to/resultant/website
     
-For the deployment on remote machine use fabric commands (``initialize`` for the first deployment and ``deploy`` for each
-update of existing website):
+Deployment
+----------
+
+It is convinient to add your ssh public key to authorized_keys on the destination host.
+
+For the first deployment some initialization is required. You can do this with command:
 
     fab initialize
-    fab deploy
+    
+This will create directory structure of the project. Then run command:
+
+    fab deploy -H host -u username
+    
+For update the Python's virtual environment use option ``update_environment``:
+
+    fab deploy:update_environment=True -H host -u username
+    
+One can also reload nginx configuration with option ``update_nginx``:
+
+    fab deploy:update_nginx=True -H host -u username
+    
+Both options are turn off as default.
