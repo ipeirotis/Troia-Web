@@ -81,141 +81,153 @@ access to it services. All methods throw IOException if connection to Troia fail
 +===========================================================================================================+
 |Pings Troia, used to check if service is working at all and returns information about exact moment of ping.|
 +-----------------------------------------------------------------------------------------------------------+
+|**String pingDatabase()**                                                                                  |
++-----------------------------------------------------------------------------------------------------------+
+|Adds and removes one row in database. Used for checking if database is working.                            |
+|Returns information about results of database operations.                                                  |
++-----------------------------------------------------------------------------------------------------------+
+|**String reset()**                                                                                         |
++-----------------------------------------------------------------------------------------------------------+
+|Restets DawidSkene model, in other words removes request with id of one that called                        |
+|this method from database. It returns information about success or failue of operation.                    |
++-----------------------------------------------------------------------------------------------------------+
+|**boolean exists()**                                                                                       |
++-----------------------------------------------------------------------------------------------------------+
+|Return True if Troia contains request with id of one that called this method.                              |
++-----------------------------------------------------------------------------------------------------------+
+|**String loadCategories(Collection<Category> categories)**                                                 |
++-----------------------------------------------------------------------------------------------------------+
+|Uploads categories, given as a argument, to data model of this request.                                    |
+|Returns String with information about category count and their JSONified form.                             |
++-----------------------------------------------------------------------------------------------------------+
+|**String loadMisclassificationCosts(Collection<MisclassificationCost> costs)**                             |
++-----------------------------------------------------------------------------------------------------------+
+|Uploads misclassification costs, given as a argument, to data model of this request.                       |
+|Returns String  with information about number of misclassification costs added.                            |
++-----------------------------------------------------------------------------------------------------------+
+|**String loadLabel(Label label)**                                                                          |
++-----------------------------------------------------------------------------------------------------------+
+|Uploads a single worker assigned label to data model of this request and                                   |
+|returns String describing added label.                                                                     |
++-----------------------------------------------------------------------------------------------------------+
+|**String loadLabels(Collection<Label> labels)**                                                            |
++-----------------------------------------------------------------------------------------------------------+
+|Uploads a collection of labels to data model of this request and                                           |
+|returns String describing number of labels added.                                                          |
++-----------------------------------------------------------------------------------------------------------+
+|**String loadGoldLabel(GoldLabel label)**                                                                  |
++-----------------------------------------------------------------------------------------------------------+
+|Uploads a single gold label to data model of this request and                                              |
+|returns String describing added label.                                                                     |
++-----------------------------------------------------------------------------------------------------------+
+|**String loadGoldLabels(Collection<GoldLabel> labels)**                                                    |
++-----------------------------------------------------------------------------------------------------------+
+|Uploads a collection of gold labels to data model of this request and                                      |
+|returns String describing number of labels added.                                                          |
++-----------------------------------------------------------------------------------------------------------+
+|**String majorityVote(String objectName)**                                                                 |
++-----------------------------------------------------------------------------------------------------------+
+|Computes majority vote for object with name given as parameter.                                            |
+|Returns name of category with highest probability of fitting given object.                                 |
++-----------------------------------------------------------------------------------------------------------+
+|**Map<String, String> majorityVotes(Collection<String> objects)**                                          |
++-----------------------------------------------------------------------------------------------------------+
+|Computes majority vote for group of objects with names included in                                         |
+|collection that's given as a parameter. *If this function is called without                                |
+|parameter majority vote is computed for all objects held in request data model.*                           |
+|Returns map that assigns name of category to object name.                                                  |
++-----------------------------------------------------------------------------------------------------------+
+|**Map<String, Double> objectProb(String objectName)**                                                      |
++-----------------------------------------------------------------------------------------------------------+
+|Computes category probabilities for object with given name and                                             |
+|returns map that associates category name with it probability.                                             |
++-----------------------------------------------------------------------------------------------------------+
+|**Map<String, Map<String, Double>> objectProbs(Collection<String> objects)**                               |
++-----------------------------------------------------------------------------------------------------------+
+|Computes category probabilities for group of objects with names included in                                |
+|collection that's given as a parameter.                                                                    |
+|Returns map that associates object names with their probability maps.                                      |
++-----------------------------------------------------------------------------------------------------------+
+|**Map<String, Double> objectProb(String object, double entropy)**                                          |
++-----------------------------------------------------------------------------------------------------------+
+|Calculates object probabilities and returns them only if their                                             |
+|entropy is equal or above level given as a parameter. If                                                   |
+|entropy is smaller then parameter this function returns                                                    |
+|empty map.                                                                                                 |
++-----------------------------------------------------------------------------------------------------------+
+|**String printObjectsProbs(double entropy)**                                                               |
++-----------------------------------------------------------------------------------------------------------+
+|Creates String with readable representation of probabilities of the                                        |
+|objects that have probability distributions with entropy higher than the                                   |
+|given threshold.                                                                                           |
++-----------------------------------------------------------------------------------------------------------+
+|**String computeBlocking(int iterations)**                                                                 |
++-----------------------------------------------------------------------------------------------------------+
+|Runs Dawid-Skene algorithm, with given number of iterations, on request data and returns string            |
+|that describes how many iterations were execudet and how much time                                         |
+|it took.                                                                                                   |
++-----------------------------------------------------------------------------------------------------------+
+|**String printWorkerSummary(boolean verbose)**                                                             |
++-----------------------------------------------------------------------------------------------------------+
+|Prepares String with summaries of all workers that participated in                                         |
+|this request. It is possible to set if summaries should be detailed or not.                                |
++-----------------------------------------------------------------------------------------------------------+
+|**String printPriors()**                                                                                   |
++-----------------------------------------------------------------------------------------------------------+
+|Returns priorities of all classes from this request in readable format.                                    |
++-----------------------------------------------------------------------------------------------------------+
+|**Map<String, Double> classPriors()**                                                                      |
++-----------------------------------------------------------------------------------------------------------+
+|Function retrieves priorities of all classes in request and puts them in                                   |
+|map that associates class name with it priority.                                                           |
++-----------------------------------------------------------------------------------------------------------+
 
-+-------------------------------------------------------------------------------+
-|String pingDatabase()                                                          |
-+===============================================================================+
-|Adds and removes one row in database. Used for checking if database is working.|
-|Returns information about results of database operations.                      |
-+-------------------------------------------------------------------------------+
+Example of implementation
+-------------------------
+After explaining available functionalities we can now show example of client implementation.
+To be able to use this client you must include TroiaJavaClient-1.0.jar in your project libraries.
+Then you need to have already generated labels from another part of program as Troia
+only analyzes labels and do not provide functionality raleted to label gathering.
+To do that you need to write factory that will create objects of *Label* class from data
+returned by your label gatherer. Because Label is identified by worker and object name
+you must remember to implement simillar identification method in gatherer if possible and
+to transform it if not. After that you can create collection of gold labels with are 
+in fact objects with known categories, this will rise quality of Troia results and will
+make possible to detect misclassification repeated by all workers. This is minimum that 
+is required for Troia to execute, so now that we have prepared this data we can create 
+request. To do that we need to create *TroiaRequest* object with constructor takes three parameters
 
-+---------------------------------------------------------------------------------------+
-|String reset()                                                                         |
-+=======================================================================================+
-|Restets DawidSkene model, in other words removes request with id of one that called    |
-|this method from database. It returns information about success or failue of operation.|
-+---------------------------------------------------------------------------------------+
+ - serviceUrl : URL address of Troia service
+ - requestId : Identifier string with must be quinque for each request
+ - timeout : Time after with connection with service is considered broken
 
-+-----------------------------------------------------------------------------+
-|boolean exists()                                                             |
-+=============================================================================+
-|Return True if Troia contains request with id of one that called this method.|
-+-----------------------------------------------------------------------------+
+Example of constructor that creates request called "TestRequest" and connecting to instance
+of Troia on localhost is shown below.
+::
 
-+------------------------------------------------------------------------------+
-|String loadCategories(Collection<Category> categories)                        |
-+==============================================================================+
-|Uploads categories, given as a argument, to data model of this request.       |
-|Returns String with information about category count and their JSONified form.|
-+------------------------------------------------------------------------------+
+ try{
+  TroiaRequest request = new TroiaRequest("localhost:8080/GetAnotherLabel","TestRequest",1000);
+ }catch(MalformedURLException e){
+  logger.error("Malformed URL of Troia service");
+ }
 
-+------------------------------------------------------------------------------------+
-|String loadMisclassificationCosts(Collection<MisclassificationCost> costs)          |
-+====================================================================================+
-|Uploads misclassification costs, given as a argument, to data model of this request.|
-|Returns String  with information about number of misclassification costs added.     |
-+------------------------------------------------------------------------------------+
+Then we need to upload our data to server using *loadLabels* and *loadGoldLabels*.
+Each of those functions can throw IOException if there are problems with connection
+to Troia service provider.
+When all data is uploaded to request we finally can tell Troia to run Dawid-Skene
+algorithm on our labels. To do that we use *computeBlocking* function, it takes 
+one argument that indicates how many times algorithm will be executed for data set.
+Usually three executions of algorithm are optimal.
+After Dawid-Skene algorithm will process our labels we need to get results and to do that
+we can use *majorityVotes* method that will return map that associates object name with
+name of category that have highest probability. So to print out categories of processed objects
+following code should be written
+:: 
+ 
+ Map<String,String> categories = request.majorityVotes();
 
-+------------------------------------------------------------------------+
-|String loadLabel(Label label)                                           |
-+========================================================================+
-|Uploads a single worker assigned label to data model of this request and|
-|returns String describing added label.                                  |
-+------------------------------------------------------------------------+
+ Collection<String> categoryNames = categories.keySet();
 
-+----------------------------------------------------------------+
-|String loadLabels(Collection<Label> labels)                     |
-+================================================================+
-|Uploads a collection of labels to data model of this request and|
-|returns String describing number of labels added.               |
-+----------------------------------------------------------------+
-
-+-------------------------------------------------------------+
-|String loadGoldLabel(GoldLabel label)                        |
-+=============================================================+
-|Uploads a single gold label to data model of this request and|
-|returns String describing added label.                       |
-+-------------------------------------------------------------+
-
-+---------------------------------------------------------------------+
-|String loadGoldLabels(Collection<GoldLabel> labels)                  |
-+=====================================================================+
-|Uploads a collection of gold labels to data model of this request and|
-|returns String describing number of labels added.                    |
-+---------------------------------------------------------------------+
-
-+--------------------------------------------------------------------------+
-|String majorityVote(String objectName)                                    |
-+==========================================================================+
-|Computes majority vote for object with name given as parameter.           |
-|Returns name of category with highest probability of fitting given object.|
-+--------------------------------------------------------------------------+
-
-+------------------------------------------------------------------------------------+
-|Map<String, String> majorityVotes(Collection<String> objects)                       |
-+====================================================================================+
-|Computes majority vote for group of objects with names included in                  |
-|collection that's given as a parameter. **If this function is called without        |
-|parameter majority vote is computed for all objects held in request data model.**   |
-|Returns map that assigns name of category to object name.                           |
-+------------------------------------------------------------------------------------+
-
-+--------------------------------------------------------------+
-|Map<String, Double> objectProb(String objectName)             |
-+==============================================================+
-|Computes category probabilities for object with given name and|
-|returns map that associates category name with it probability.|
-+--------------------------------------------------------------+
-
-+---------------------------------------------------------------------------+
-|Map<String, Map<String, Double>> objectProbs(Collection<String> objects)   |
-+===========================================================================+
-|Computes category probabilities for group of objects with names included in|
-|collection that's given as a parameter.                                    |
-|Returns map that associates object names with their probability maps.      |
-+---------------------------------------------------------------------------+
-
-+--------------------------------------------------------------+
-|Map<String, Double> objectProb(String object, double entropy) |
-+==============================================================+
-|Calculates object probabilities and returns them only if their|
-|entropy is equal or above level given as a parameter. If      |
-|entropy is smaller then parameter this function returns       |
-|empty map.                                                    |
-+--------------------------------------------------------------+
-
-+------------------------------------------------------------------------+
-|String printObjectsProbs(double entropy)                                |
-+========================================================================+
-|Creates String with readable representation of probabilities of the     |
-|objects that have probability distributions with entropy higher than the|
-|given threshold.                                                        |
-+------------------------------------------------------------------------+
-
-+------------------------------------------------------------------------------------------------+
-|String computeBlocking(int iterations)                                                          |
-+================================================================================================+
-|Runs Dawid-Skene algorithm, with given number of iterations, on request data and returns string |
-|that describes how many iterations were execudet and how much time                              |
-|it took.                                                                                        |
-+------------------------------------------------------------------------------------------------+
-
-+---------------------------------------------------------------------------+
-|String printWorkerSummary(boolean verbose)                                 |
-+===========================================================================+
-|Prepares String with summaries of all workers that participated in         |
-|this request. It is possible to set if summaries should be detailed or not.|
-+---------------------------------------------------------------------------+
-
-+-----------------------------------------------------------------------+
-|String printPriors()                                                   |
-+=======================================================================+
-|Returns priorities of all classes from this request in readable format.|
-+-----------------------------------------------------------------------+
-
-+-------------------------------------------------------------------------+
-|Map<String, Double> classPriors()                                        |
-+=========================================================================+
-|Function retrieves priorities of all classes in request and puts them in |
-|map that associates class name with it priority.                         |
-+-------------------------------------------------------------------------+
+ for (String categoryName : categoryNames) {
+  System.out.println(categoryName+" category is "+categories.get(categoryName));
+ }
