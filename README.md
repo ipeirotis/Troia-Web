@@ -40,20 +40,27 @@ Deployment
 
 It is convinient to add your ssh public key to authorized_keys on the destination host.
 
-For the first deployment some initialization is required. You can do this with command:
-
-    fab initialize
-    
-This will create directory structure of the project. Then run command:
+There is a fabric script that does all deployment for you. Just run the following:
 
     fab deploy -H host -u username
     
-For update the Python's virtual environment use option ``update_environment``:
+For an update the Python's virtual environment use ``update_environment=True`` option:
 
     fab deploy:update_environment=True -H host -u username
-    
-One can also reload nginx configuration with option ``update_nginx``:
 
-    fab deploy:update_nginx=True -H host -u username
+If the server configuration has been changed, one can reload it with ``update_server`` command:
+
+    fab update_server -H host -u username
     
-Both options are turn off as default.
+The following command compiles and exposes the ``GetAnotherLabel.war`` file on the website. 
+
+    fab update_war -H host -u username
+    
+Both ``update_server`` and ``update_war`` commands can be ran after the successful deployment using respectively
+``update_server=True`` and ``update_war=True`` options:
+
+    fab deploy:update_war=True -H host -u username
+    fab deploy:update_server=True -H host -u username
+    fab deploy:update_war=True,update_server=True -H host -u username
+        
+All options for ``deploy`` command are set to ``False`` as default.
