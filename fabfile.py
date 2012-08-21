@@ -2,19 +2,24 @@ import os
 
 from fabric import colors
 from fabric.api import cd, env, prefix, run, sudo, task
+from fabric.tasks import execute
+from fabric.contrib.files import exists
 
 
-PROJECT_NAME = "troia-web"
+PROJECT_NAME = "troia-staging"
 PROJECTS_ROOT = "/data/projects"
 PROJECT_ROOT = "{}/{}".format(PROJECTS_ROOT, PROJECT_NAME)
 STATIC_ROOT = "{}/static".format(PROJECT_ROOT)
 SOURCE_ROOT = "{}/source".format(PROJECT_ROOT)
-ENVIRONMENT_NAME = "virtualenv"
-SOURCE = "source {}".format(
-        os.path.join(PROJECT_ROOT, ENVIRONMENT_NAME, "bin", "activate"))
-REPOSITORY = "git://github.com/10clouds/Troia-Web.git"
-LESSC = "lessc"
+WEB_SOURCE_ROOT = "{}/Troia-Web".format(SOURCE_ROOT)
+WAR_SOURCE_ROOT = "{}/Troia-Server".format(SOURCE_ROOT)
+ENVIRONMENT_ROOT = "{}/virtualenv".format(PROJECT_ROOT)
+ENVIRONMENT_SOURCE = "source {}/bin/activate".format(ENVIRONMENT_ROOT)
 
+WEB_REPOSITORY = "git://github.com/10clouds/Troia-Web.git"
+WAR_REPOSITORY = "git://github.com/ipeirotis/Troia-Server.git"
+
+LESSC = "lessc"
 USER = "{0}:{0}".format(env.user)
 
 
@@ -29,30 +34,47 @@ def setmode(path, recursive=False, perms=None, owner=None):
     if owner:
         sudo("chown {} {} {}".format(recursive, owner, path))
 
+def clone_or_update(path, repo):
+    """ Updates a local repository or clones it. """
+    run("""
+        if cd {path} && git status; then
+            echo "Local repository exists. Updating"
+            git stash;
+            git pull --rebase;
+            git diff;
+        elif cd {path}; then
+            echo "Local repository exists but it is not a git repository".
+            exit 255;
+        else
+            git clone {repo} {path};
+        fi""".format(path=path, repo=repo))
 
-def update():
-    message(colors.blue("Updating repository"))
-    with cd(SOURCE_ROOT):
-        run("git stash")
-        run("git pull --rebase")
-        run("git diff")
-
-
-def create_env():
-    message(colors.blue("Creating virtual environment"))
-    with cd(PROJECT_ROOT):
-        sudo("virtualenv --python=\"/usr/bin/python2.7\" --no-site-packages "
-             "{}".format(ENVIRONMENT_NAME))
-        setmode("{}/{}".format(PROJECT_ROOT, ENVIRONMENT_NAME),
-                recursive=True, owner=USER)
-
-
-def update_env():
-    message(colors.blue("Installing requirements"))
-    with cd(SOURCE_ROOT):
-        with prefix(SOURCE):
-            run('pip install -r requirements.txt')
-
+def ensure(path, update=False, requirements_path=None):
+    """ Ensures environment already exists (creates if missing). """
+    splitted = path.rsplit("/", 1)
+    if len(splitted) == 2:
+        root = splitted[0]
+        name = splitted[1]
+    else:
+        raise Exception("Invalid path for virtual environment {}".format(path))
+    run("""
+        if cd {path}/bin && source activate; then
+            echo "Virtual environment exists";
+        elif cd {path}; then
+            echo "Virtual environment already exist but can not be activated";
+            exit 255
+        else
+            echo "Virtual environment does not exist. Creating the new one";
+            cd {root} && virtualenv --python=/usr/bin/python2.7 \
+                                    --no-site-packages {name} \
+                      && pip install -r {requirements_path}
+        fi;
+        """.format(path=path, name=name, root=root,
+                   requirements_path=requirements_path))
+    if update:
+        run("""
+            cd source {path}/bin/activate && pip install -r {requirements_path}
+            """)
 
 def compile(input_dir, output_dir, files):
     """ Compiles less and moves resultant css to another directory for
@@ -67,52 +89,68 @@ def compile(input_dir, output_dir, files):
             run("{} {} > {}".format(LESSC, file_name,
                                     os.path.join(output_dir, result_name)))
 
-
-def generate():
+def generate(source_root=SOURCE_ROOT, static_root=STATIC_ROOT,
+             environment_source=ENVIRONMENT_SOURCE):
     message(colors.blue("Generating static content"))
-    # Ensure static subdirectory exists.
-    sudo("mkdir -p {}".format(STATIC_ROOT))
-    setmode(STATIC_ROOT, recursive=True, owner=USER)
-    with prefix(SOURCE):
-        run("hyde -g -s \"{}\" -d \"{}\"".format(SOURCE_ROOT, STATIC_ROOT))
-    # Prepares directories structure for nginx.
+    # Ensure the static subdirectory exists.
+    run("mkdir -p {}".format(static_root))
+    with prefix(environment_source):
+        run("hyde -g -s \"{}\" -d \"{}\"".format(source_root, static_root))
+    # Prepares some directories structure for nginx.
     message(colors.blue("Preparing directories structure"))
-    with cd(STATIC_ROOT):
+    with cd(static_root):
         run("mkdir -p logs/nginx/")
         run("mkdir -p services/nginx/")
 
+@task
+def update_server():
+    """ Updates server configuration. """
+    ngnx_path = "/etc/nginx"
+    available_path = "{}/sites-available/troia".format(ngnx_path)
+    enabled_path = "{}/sites-enabled/troia".format(ngnx_path)
+    conf_path = "{}/conf/nginx/sites-available/troia".format(SOURCE_ROOT)
+    sudo("cp {} {}".format(conf_path, available_path))
+    sudo("ln -fs {} {}".format(available_path, enabled_path))
+    setmode(available_path, owner=USER)
+    setmode(enabled_path, owner=USER)
+    sudo("service nginx reload")
 
 @task
-def initialize():
-    message(colors.yellow("Initializing project structure"))
-    sudo("mkdir -p {}".format(SOURCE_ROOT))
-    setmode(SOURCE_ROOT, recursive=True, owner=USER)
-    run("git clone {} {}".format(REPOSITORY, SOURCE_ROOT))
-    create_env()
-    update_env()
-
+def update_war():
+    """ Builds a war file and exposes it on the website. """
+    clone_or_update(WAR_SOURCE_ROOT, WAR_REPOSITORY)
+    source = "{}/target/GetAnotherLabel.war".format(WAR_SOURCE_ROOT)
+    media = "{}/media".format(STATIC_ROOT)
+    destination = "{}/downloads".format(media)
+    with cd(WAR_SOURCE_ROOT):
+        run("mvn package -Dmaven.test.skip=true")
+    run("cp {} {}".format(source, destination))
 
 @task
-def deploy(update_environment=False, update_nginx=False):
-    update()
-    if update_environment:
-        update_env()
+def deploy(update_environment=False, update_war=False,
+           update_server=False):
+    """ Synchronizes the website content with the repository. """
+    if not exists(PROJECTS_ROOT):
+        message(colors.yellow("Initializing project structure"))
+        sudo("mkdir -p {}".format(SOURCE_ROOT))
+        setmode(SOURCE_ROOT, recursive=True, owner=USER)
+
+    # Project root alredy exists. Current remote user is assummed to be an
+    # onwer of the directory.
+    clone_or_update(WEB_SOURCE_ROOT, WEB_REPOSITORY)
+    ensure(update=update_environment, path=ENVIRONMENT_ROOT,
+           requirements_path="{}/requirements.txt".format(WEB_SOURCE_ROOT))
     media_root = "{}/media".format(SOURCE_ROOT)
     css_path = "{}/css".format(media_root)
     less_path = "{}/less".format(media_root)
     run("mkdir -p {}".format(css_path))
     compile(less_path, css_path, ("troia.less", "bootstrap.less"))
-    generate()
+    generate(source_root=SOURCE_ROOT, static_root=STATIC_ROOT,
+             environment_source=ENVIRONMENT_SOURCE)
     # Make sure that all directories are created.
     run("mkdir -p {}".format(os.path.join(media_root, "downloads")))
-    # Update nginx configuration.
-    if update_nginx:
-        ngnx_path = "/etc/nginx"
-        available_path = "{}/sites-available/troia".format(ngnx_path)
-        enabled_path = "{}/sites-enabled/troia".format(ngnx_path)
-        conf_path = "{}/conf/nginx/sites-available/troia".format(SOURCE_ROOT)
-        sudo("cp {} {}".format(conf_path, available_path))
-        sudo("ln -fs {} {}".format(available_path, enabled_path))
-        setmode(available_path, owner=USER)
-        setmode(enabled_path, owner=USER)
-        sudo("service nginx reload")
+    # Update server configuration.
+    if update_server:
+        execute(update_server)
+    if update_war:
+        execute(update_war)
