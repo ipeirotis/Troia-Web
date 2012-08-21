@@ -3,7 +3,7 @@ import os
 from fabric import colors
 from fabric.api import cd, env, prefix, run, sudo, task
 from fabric.tasks import execute
-from fabric.contrib.files import exists
+from fabric.contrib.files import exists, upload_template
 
 
 PROJECT_NAME = "troia-staging"
@@ -21,6 +21,10 @@ WAR_REPOSITORY = "git://github.com/ipeirotis/Troia-Server.git"
 
 LESSC = "lessc"
 USER = "{0}:{0}".format(env.user)
+
+INTERPRETTER = "/usr/bin/python2.7" # Desired Python interpretter.
+SERVICE_PREFIX = "service "
+# SERVICE_PREFIX = "/etc/rc.d/" # In case of FreeBSD init convention.
 
 
 def message(msg, *args):
@@ -49,7 +53,8 @@ def clone_or_update(path, repo):
             git clone {repo} {path};
         fi""".format(path=path, repo=repo))
 
-def ensure(path, update=False, requirements_path=None):
+def ensure(path, update=False, requirements_path=None,
+           interpretter=INTERPRETTER):
     """ Ensures environment already exists (creates if missing). """
     splitted = path.rsplit("/", 1)
     if len(splitted) == 2:
@@ -65,16 +70,16 @@ def ensure(path, update=False, requirements_path=None):
             exit 255
         else
             echo "Virtual environment does not exist. Creating the new one";
-            cd {root} && virtualenv --python=/usr/bin/python2.7 \
-                                    --no-site-packages {name} \
-                      && pip install -r {requirements_path}
-        fi;
-        """.format(path=path, name=name, root=root,
+            cd {root} && virtualenv --python={interpretter} \
+                                    --no-site-packages {name};
+            source {path}/bin/activate && pip install -r {requirements_path};
+        fi
+        """.format(path=path, name=name, root=root, interpretter=interpretter,
                    requirements_path=requirements_path))
     if update:
         run("""
-            cd source {path}/bin/activate && pip install -r {requirements_path}
-            """)
+            source {path}/bin/activate && pip install -r {requirements_path}
+            """.format(path=path, requirements_path=requirements_path))
 
 def compile(input_dir, output_dir, files):
     """ Compiles less and moves resultant css to another directory for
@@ -89,11 +94,12 @@ def compile(input_dir, output_dir, files):
             run("{} {} > {}".format(LESSC, file_name,
                                     os.path.join(output_dir, result_name)))
 
-def generate(source_root=SOURCE_ROOT, static_root=STATIC_ROOT,
+def generate(source_root=WEB_SOURCE_ROOT, static_root=STATIC_ROOT,
              environment_source=ENVIRONMENT_SOURCE):
     message(colors.blue("Generating static content"))
     # Ensure the static subdirectory exists.
     run("mkdir -p {}".format(static_root))
+    print environment_source
     with prefix(environment_source):
         run("hyde -g -s \"{}\" -d \"{}\"".format(source_root, static_root))
     # Prepares some directories structure for nginx.
@@ -105,15 +111,18 @@ def generate(source_root=SOURCE_ROOT, static_root=STATIC_ROOT,
 @task
 def update_server():
     """ Updates server configuration. """
-    ngnx_path = "/etc/nginx"
-    available_path = "{}/sites-available/troia".format(ngnx_path)
-    enabled_path = "{}/sites-enabled/troia".format(ngnx_path)
-    conf_path = "{}/conf/nginx/sites-available/troia".format(SOURCE_ROOT)
-    sudo("cp {} {}".format(conf_path, available_path))
+    server_root = "/etc/nginx"
+    local_root = os.path.dirname(os.path.abspath(__name__))
+    local_path = os.path.join(local_root, "conf", "nginx", "sites-available",
+                              "troia")
+    available_path = "{}/sites-available/troia".format(server_root)
+    enabled_path ="{}/sites-enabled/troia".format(server_root)
+    context = {"project_root": PROJECT_ROOT, "project_name": PROJECT_NAME}
+    upload_template(local_path, available_path, use_sudo=True, context=context)
     sudo("ln -fs {} {}".format(available_path, enabled_path))
     setmode(available_path, owner=USER)
     setmode(enabled_path, owner=USER)
-    sudo("service nginx reload")
+    sudo("{}nginx reload")
 
 @task
 def update_war():
@@ -121,7 +130,7 @@ def update_war():
     clone_or_update(WAR_SOURCE_ROOT, WAR_REPOSITORY)
     source = "{}/target/GetAnotherLabel.war".format(WAR_SOURCE_ROOT)
     media = "{}/media".format(STATIC_ROOT)
-    destination = "{}/downloads".format(media)
+    destination = "{}/downloads/".format(media)
     with cd(WAR_SOURCE_ROOT):
         run("mvn package -Dmaven.test.skip=true")
     run("cp {} {}".format(source, destination))
@@ -130,25 +139,25 @@ def update_war():
 def deploy(update_environment=False, update_war=False,
            update_server=False):
     """ Synchronizes the website content with the repository. """
-    if not exists(PROJECTS_ROOT):
+    if not exists(PROJECT_ROOT):
         message(colors.yellow("Initializing project structure"))
         sudo("mkdir -p {}".format(SOURCE_ROOT))
-        setmode(SOURCE_ROOT, recursive=True, owner=USER)
+        setmode(PROJECT_ROOT, recursive=True, owner=USER)
 
     # Project root alredy exists. Current remote user is assummed to be an
     # onwer of the directory.
     clone_or_update(WEB_SOURCE_ROOT, WEB_REPOSITORY)
     ensure(update=update_environment, path=ENVIRONMENT_ROOT,
            requirements_path="{}/requirements.txt".format(WEB_SOURCE_ROOT))
-    media_root = "{}/media".format(SOURCE_ROOT)
+    media_root = "{}/media".format(WEB_SOURCE_ROOT)
     css_path = "{}/css".format(media_root)
     less_path = "{}/less".format(media_root)
     run("mkdir -p {}".format(css_path))
     compile(less_path, css_path, ("troia.less", "bootstrap.less"))
-    generate(source_root=SOURCE_ROOT, static_root=STATIC_ROOT,
+    generate(source_root=WEB_SOURCE_ROOT, static_root=STATIC_ROOT,
              environment_source=ENVIRONMENT_SOURCE)
-    # Make sure that all directories are created.
-    run("mkdir -p {}".format(os.path.join(media_root, "downloads")))
+    # Ensure downloads directory exists.
+    run("mkdir -p {}/media/downloads".format(STATIC_ROOT))
     # Update server configuration.
     if update_server:
         execute(update_server)

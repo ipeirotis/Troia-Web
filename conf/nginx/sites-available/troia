@@ -2,17 +2,17 @@ server {
     listen   80;
 	server_name troia troia.ipeirotis.com;
 
-    access_log  /data/projects/troia-web/static/logs/nginx/dsas.access.log;
-    error_log   /data/projects/troia-web/static/logs/nginx/dsas.error.log;
+    access_log  %(project_root)s/static/logs/nginx/%(project_name)s.access.log;
+    error_log   %(project_root)s/static/logs/nginx/%(project_name)s.error.log;
 
-	root /data/projects/troia-web/static;
+	root %(project_root)s/static;
 	index index.html index.htm;
 
 	#rewrite ^/s/(.*)$ /media/$1 last;
 
         location /media  {
                 gzip on;
-                root /data/projects/troia-web/static;
+                root %(project_root)s/static;
 		autoindex  off;
                 expires 60d;
         }
@@ -21,33 +21,10 @@ server {
 
 		try_files $uri $uri/ /index.html;
 		
-		# gzip on;
-		# expires -1;
-
-                #auth_basic            "Restricted";
-                #auth_basic_user_file  /etc/nginx/htpasswd;
-
-		# proxy_read_timeout 300;
-		# proxy_connect_timeout 300;
-
-                # host and port to fastcgi server
-                # fastcgi_pass unix:/home/urlannotator/urlannotator-staging/services/nginx/fastcgi.socket;
-                # fastcgi_pass 127.0.0.1:8081;
-                # fastcgi_param PATH_INFO $fastcgi_script_name;
-                # fastcgi_param REQUEST_METHOD $request_method;
-                # fastcgi_param QUERY_STRING $query_string;
-                # fastcgi_param CONTENT_TYPE $content_type;
-                # fastcgi_param CONTENT_LENGTH $content_length;
-                # fastcgi_param SERVER_PROTOCOL $server_protocol;
-                # fastcgi_param SERVER_PORT $server_port;
-                # fastcgi_param SERVER_NAME $server_name;
-                # fastcgi_pass_header Authorization;
-                # fastcgi_intercept_errors off;
-
         }
 
         location = /robots.txt {
-                root /data/projects/troia-web;
+                root %(project_root)s;
         }
 
 
