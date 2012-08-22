@@ -194,57 +194,6 @@ access to it services. All methods throw IOException if connection to Troia fail
 +-----------------------------------------------------------------------------------------------------------+
 
 
-Example of implementation
--------------------------
-After explaining available functionalities we can now show example of client implementation.
-To be able to use this client you must include TroiaJavaClient-1.0.jar in your project libraries.
-Then you need to have already generated labels from another part of program as Troia
-only analyzes labels and do not provide functionality raleted to label gathering.
-To do that you need to write factory that will create objects of *Label* class from data
-returned by your label gatherer. Because Label is identified by worker and object name
-you must remember to implement simillar identification method in gatherer if possible and
-to transform it if not. After that you can create collection of gold labels with are 
-in fact objects with known categories, this will rise quality of Troia results and will
-make possible to detect misclassification repeated by all workers. This is minimum that 
-is required for Troia to execute, so now that we have prepared this data we can create 
-request. To do that we need to create *TroiaRequest* object with constructor takes three parameters
-
- - serviceUrl : URL address of Troia service
- - requestId : Identifier string with must be quinque for each request
- - timeout : Time after with connection with service is considered broken
-
-Example of constructor that creates request called "TestRequest" and connecting to instance
-of Troia on localhost is shown below.
-::
-
- try{
-  TroiaRequest request = new TroiaRequest("localhost:8080/GetAnotherLabel","TestRequest",1000);
- }catch(MalformedURLException e){
-  logger.error("Malformed URL of Troia service");
- }
-
-Then we need to upload our data to server using *loadLabels* and *loadGoldLabels*.
-Each of those functions can throw IOException if there are problems with connection
-to Troia service provider.
-When all data is uploaded to request we finally can tell Troia to run Dawid-Skene
-algorithm on our labels. To do that we use *computeBlocking* function, it takes 
-one argument that indicates how many times algorithm will be executed for data set.
-Usually three executions of algorithm are optimal.
-After Dawid-Skene algorithm will process our labels we need to get results and to do that
-we can use *majorityVotes* method that will return map that associates object name with
-name of category that have highest probability. So to print out categories of processed objects
-following code should be written
-:: 
- 
- Map<String,String> categories = request.majorityVotes();
-
- Collection<String> categoryNames = categories.keySet();
-
- for (String categoryName : categoryNames) {
-  System.out.println(categoryName+" category is "+categories.get(categoryName));
- }
-
-
 {% endrestructuredtext %}
     </div>
 </div>
