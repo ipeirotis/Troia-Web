@@ -165,6 +165,7 @@ To process uploaded data you have to call *computeBlocking* function that
 takes number of iterations with Dawid-Skene algorithm will be run as a parameter.
 Three iterations are usually optimal number.
 ::
+
  try{
   request.computeBlocking(3);
  }catch(IOException e){
@@ -178,6 +179,7 @@ them from server. Best way to do this is to download all of them at once as usin
 lot of single object requests will put a lot of strain on server.
 To do that you should call following code 
 ::
+
  try{
   Map<String,String> labels = request.majorityVotes();
  }catch(IOException e){
