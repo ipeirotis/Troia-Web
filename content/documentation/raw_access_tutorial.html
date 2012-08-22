@@ -11,18 +11,18 @@
 
 What "raw access" means and why you should do it other way
 ----------------------------------------------------------
-DSaS is service that runs on server and takes requests from clients via HTTP protocol.
+Troia is service that runs on server and takes requests from clients via HTTP protocol.
 More precisely it uses POST and GET methods to send request data.
 This tutorial will focus on how to use this service without any client libraries henceforth 
-"raw access" in title. This way of using DSaS is depreciated as it not only requires some
+"raw access" in title. This way of using Troia is depreciated as it not only requires some
 knowledge of service inside structure but also means that each time service provider will
 change something in his code you will have to manually update all changes instead of just
 updating client. This way of access and tutorial are dedicated to people who want to use
-DSaS from that do not yet have client libraries created.
+Troia from that do not yet have client libraries created.
 
 Service address
 ---------------
-To call services provided by DSaS you have to call HTTP connection to correct location.
+To call services provided by Troia you have to call HTTP connection to correct location.
 Correct format is as follows 
 
 ::
@@ -30,9 +30,9 @@ Correct format is as follows
     http://<host>:<port>/<path>/rest/<service> 
 
 Where:
- - <host> is address of host providing DSaS
+ - <host> is address of host providing Troia
  - <port> is port on with service is available
- - <path> is path in with DSaS files are located on server
+ - <path> is path in with Troia files are located on server
  - <service> is name of service that's going to be called
 
 So for example if service is set up on local host in server path "GetAnotherLabel" with port 8080
@@ -44,11 +44,11 @@ configured address for ping service will look like that :
 
 Requests
 --------
-Almost all services provided by DSaS work on requests, each request contains set of objects,
+Almost all services provided by Troia work on requests, each request contains set of objects,
 workers, labels annotated by workers and gold labels. Request are identified by text id for
 example "TestRequest" or "PornNoPornAnno_12.06.12". That's why requests must contain parameter
 with name **id** and value of request identifier. Only services that do not require this parameter
-are basic DSaS functionality tests : "ping" and "pingDB".
+are basic Troia functionality tests : "ping" and "pingDB".
 
 Services overwiew
 -----------------
@@ -84,10 +84,10 @@ Services ping and pingDB do not send any parameters so request method is irrelev
 JSON usage
 ----------
 Most of those services send strings created by serializing objects with JSON as responses and require
-similar format of parameter input. It means that to be able to correctly use DSaS you will have 
+similar format of parameter input. It means that to be able to correctly use Troia you will have 
 to recreate some of those objects on client side or alternatively manually parse JSON strings into
-processable output. DSaS is written in Java and uses *com.google.gson.Gson* class for serialization.
-Below there is a description of classes that need to be recreated for simple use of DSaS services,
+processable output. Troia is written in Java and uses *com.google.gson.Gson* class for serialization.
+Below there is a description of classes that need to be recreated for simple use of Troia services,
 of course their names and methods are not important.
 
 Category
@@ -128,11 +128,11 @@ Services detailed description
 This part of tutorial contains detailed description of available services.
 **When parameters or return values are described as objects it means that in reality
 they are or should be string resulting from JSON serialization.** For more detail on that
-you should check part of this tutorial dealing with JSON usage in DSaS.
+you should check part of this tutorial dealing with JSON usage in Troia.
 
 ping
 ~~~~
-Ping is service used for testing if DSaS server is up. If yes it should return string containing info
+Ping is service used for testing if Troia server is up. If yes it should return string containing info
 about date and hour of service realization for example : 
  
 ::
@@ -141,7 +141,7 @@ about date and hour of service realization for example :
 
 pingDB
 ~~~~~~
-This is service used for testing if databases server used by DSaS is up and accessible for modifications.
+This is service used for testing if databases server used by Troia is up and accessible for modifications.
 It tries to add and remove form database request with one category and id "1234512345".
 Response of this service is string containing information similar to ping but also description
 of actions it took towards database. Example of pingDB output :
@@ -156,7 +156,7 @@ of actions it took towards database. Example of pingDB output :
 
 reset
 ~~~~~
-Removes request with given id from DSaS database and writes simple string if removal was succesfull.
+Removes request with given id from Troia database and writes simple string if removal was succesfull.
 Parameters :
 
 - ``id`` : ``string``
@@ -298,8 +298,8 @@ Parameters:
 getDawidSkene
 ~~~~~~~~~~~~~
 Returns whole Dawid-Skene model for request with given id. Using this service requires recreating whole
-DSaS object model and is outside of this tutorial range. If you want to use it you have to get highly
-familiar with DSaS source code.
+Troia object model and is outside of this tutorial range. If you want to use it you have to get highly
+familiar with Troia source code.
 Parameters:
 
 - ``id`` : ``string``
