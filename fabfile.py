@@ -22,9 +22,12 @@ WAR_REPOSITORY = "git://github.com/ipeirotis/Troia-Server.git"
 LESSC = "lessc"
 USER = "{0}:{0}".format(env.user)
 
-INTERPRETTER = "/usr/bin/python2.7" # Desired Python interpretter.
+# Desired Python interpretter.
+INTERPRETTER = "/usr/bin/python2.7"
+# Path to your maven binaries.
+MVN = "/opt/maven/bin/mvn"
 SERVICE_PREFIX = "service "
-# SERVICE_PREFIX = "/etc/rc.d/" # In case of FreeBSD init convention.
+# SERVICE_PREFIX = "/etc/rc.d/"  # In case of FreeBSD init convention.
 
 
 def message(msg, *args):
@@ -37,6 +40,7 @@ def setmode(path, recursive=False, perms=None, owner=None):
         sudo("chmod {} {} {}".format(recursive, perms, path))
     if owner:
         sudo("chown {} {} {}".format(recursive, owner, path))
+
 
 def clone_or_update(path, repo):
     """ Updates a local repository or clones it. """
@@ -52,6 +56,7 @@ def clone_or_update(path, repo):
         else
             git clone {repo} {path};
         fi""".format(path=path, repo=repo))
+
 
 def ensure(path, update=False, requirements_path=None,
            interpretter=INTERPRETTER):
@@ -81,6 +86,7 @@ def ensure(path, update=False, requirements_path=None,
             source {path}/bin/activate && pip install -r {requirements_path}
             """.format(path=path, requirements_path=requirements_path))
 
+
 def compile(input_dir, output_dir, files):
     """ Compiles less and moves resultant css to another directory for
         further processing using hyde. """
@@ -93,6 +99,7 @@ def compile(input_dir, output_dir, files):
             result_name = "{}.css".format(name)
             run("{} {} > {}".format(LESSC, file_name,
                                     os.path.join(output_dir, result_name)))
+
 
 def generate(source_root=WEB_SOURCE_ROOT, static_root=STATIC_ROOT,
              environment_source=ENVIRONMENT_SOURCE):
@@ -108,6 +115,7 @@ def generate(source_root=WEB_SOURCE_ROOT, static_root=STATIC_ROOT,
         run("mkdir -p logs/nginx/")
         run("mkdir -p services/nginx/")
 
+
 @task
 def update_server():
     """ Updates server configuration. """
@@ -116,13 +124,14 @@ def update_server():
     local_path = os.path.join(local_root, "conf", "nginx", "sites-available",
                               "troia")
     available_path = "{}/sites-available/troia".format(server_root)
-    enabled_path ="{}/sites-enabled/troia".format(server_root)
+    enabled_path = "{}/sites-enabled/troia".format(server_root)
     context = {"project_root": PROJECT_ROOT, "project_name": PROJECT_NAME}
     upload_template(local_path, available_path, use_sudo=True, context=context)
     sudo("ln -fs {} {}".format(available_path, enabled_path))
     setmode(available_path, owner=USER)
     setmode(enabled_path, owner=USER)
-    sudo("{}nginx reload")
+    sudo("{}nginx reload".format(SERVICE_PREFIX))
+
 
 @task
 def update_war():
@@ -132,8 +141,9 @@ def update_war():
     media = "{}/media".format(STATIC_ROOT)
     destination = "{}/downloads/".format(media)
     with cd(WAR_SOURCE_ROOT):
-        run("mvn package -Dmaven.test.skip=true")
+        run("{} package -Dmaven.test.skip=true".format(MVN))
     run("cp {} {}".format(source, destination))
+
 
 @task
 def deploy(update_environment=False, update_war=False,
