@@ -37,7 +37,7 @@
 Setting up environment
 -----------------------
 
-Before setting up DSaS you have to configure environment on target computer
+Before setting up Troia you have to configure environment on target computer
 so it can prepare and run this service. You have to download following software
  
 * git - http://git-scm.com
@@ -52,15 +52,15 @@ As for servlet container you can use different one but this tutorial will be wri
 Getting code
 ------------
 
-DSaS code is available at git hub under https://github.com/ipeirotis/DSaS address.
-You have to enter directory in with you want to have DSaS sources downloaded to and issue following command 
+Troia code is available at git hub under https://github.com/ipeirotis/DSaS address.
+You have to enter directory in with you want to have Troia sources downloaded to and issue following command 
 
 ::
  
-    git clone https://github.com/tagasauris/DSaS.git
+    git clone https://github.com/tagasauris/Troia.git
 
-It will download all files from git repository into "DSaS" directory so if command was issued from 
-*/home/username/Documents* folder source files will end up with */home/username/Documents/DSaS* as a 
+It will download all files from git repository into "Troia" directory so if command was issued from 
+*/home/username/Documents* folder source files will end up with */home/username/Documents/Troia* as a 
 project main directory.
 
 Building WAR file
@@ -115,7 +115,7 @@ address:
 
 Then you should find part of manager that allows you to upload and deploy .war files from disk.
 After that you should simply choose .war that was generated in previous step and deploy it.
-To check if everything is working correctly you can open service that will ping DSaS
+To check if everything is working correctly you can open service that will ping Troia
 
 ::
   
@@ -124,7 +124,7 @@ To check if everything is working correctly you can open service that will ping 
 Setting up a DB
 ---------------
 
-To set up database you must use information from two files that are located in DSaS/src/main/resources/ folder
+To set up database you must use information from two files that are located in Troia/src/main/resources/ folder
 
 * dawidskene.properties - that contains information about connection
 * dawidprojects.sql - that contains database schema

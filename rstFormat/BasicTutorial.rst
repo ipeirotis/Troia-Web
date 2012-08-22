@@ -1,16 +1,16 @@
 ===========
-DSaS Basics
+Troia Basics
 ===========
 
-What is DSaS
+What is Troia
 ------------
-DSaS acronym stands for "Dawid Skene as Service" and this is exactly what it is.
+Troia acronym stands for "Dawid Skene as Service" and this is exactly what it is.
 To be more precise it's web service that provides labeling based on algorithm first
 described by Dawid and Skene hence it's name.
 
 Why use it
 ----------
-DSaS provides high quality labeling service in environment with noisy 
+Troia provides high quality labeling service in environment with noisy 
 labels. This means that unlike naive approaches it does not assume that
 all workers are equal. That is very important if you are getting workers
 from services like MTurk as there is now way to assure their level of quality.
@@ -30,12 +30,12 @@ Terminology
  - Gold label : object with correct category assigned, can be used to test workers
  - Misclassification cost : cost of incorrect class assignment  
  - Request : set of objects, classes, labels, workers and gold labels
- - DSaS data model : same as request
+ - Troia data model : same as request
 
 
 Basic usage
 -----------
-For most simple use of DSaS service you have to create a request with unique ID and then
+For most simple use of Troia service you have to create a request with unique ID and then
 populate this request with objects and categories. For best quality of results
 you also should add some gold labels if possible. After that you can use some other service (like MTurk)
 to create labels and then add those labels to request. With all this data in request you can call 
@@ -55,7 +55,7 @@ errors. If we put black chair among blue ones consequences will be same as if we
 black ones. However if classification aim is to determine if mushroom is poisonous or not situation is
 radically different. Classifying non-poisonous one as poisonous will only mean that we picked up one mushroom less
 than we could but classifying poisonous as harmless will result in our death. For classifications like that 
-DSaS provides misclassification cost maps in with you can set different values of costs.
+Troia provides misclassification cost maps in with you can set different values of costs.
 For mushroom example it would look like that 
 
  - poisonous->poisonous = 0
@@ -65,9 +65,9 @@ For mushroom example it would look like that
 
 Thanks to that algorithm will assign harmless label to object only if there is strong bias towards that.
 
-How to actually use DSaS
+How to actually use Troia
 ------------------------
-For tutorial on how to implement DSaS in your project you should 
+For tutorial on how to implement Troia in your project you should 
 read tutorial for either Java or Python client or, if you don't want
-to use neither of those languages, on raw access to DSaS.
-If you want to set up your own DSaS server you should read DSaS installation tutorial.  
+to use neither of those languages, on raw access to Troia.
+If you want to set up your own Troia server you should read DSaS installation tutorial.  
