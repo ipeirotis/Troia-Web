@@ -1,21 +1,7 @@
-{% extends "skeleton/_base.html" %}
+=============
+Project Troia
+=============
 
-{% hyde 
-    title: "About project Troia" 
-%}
-
-{% block header %}{% endblock %}
-
-{% block content %}
-
-<h1>Project Troia</h1>
-<hr /> 
-<! 
-    XXX header is not displayed (in the RST) 
-    when there is the only one on the page 
--->
-
-{% restructuredtext %}
 **Troia** is a quality control web service for crowdsourcing applications.
 
 Mechanical Turk and other crowdsourcing platforms allow for easy online
@@ -27,7 +13,3 @@ results.
 Troia provides the infrastructure for estimating the quality of the data 
 collected through crowdsourcing and also provides estimates for the quality of
 the participating users.
-{% endrestructuredtext %}
-
-
-{% endblock %}
