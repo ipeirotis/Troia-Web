@@ -1,0 +1,70 @@
+{% extends "skeleton/_base.html" %}
+{% hyde
+    title: "Python client tutorial"
+%}
+
+{% block content %}
+
+<div class="row-fluid">
+    <div class="span12">
+{% restructuredtext %}
+
+============================================
+Basic Troia implementation tutorial (Python)
+============================================
+
+This document assumes that you know what **Troia** project is about and have already setup its server.
+
+When describing code we will assume that you have setup **Troia** server to work locally on port 8080 with default URL to it.
+In such case URL prefix should look like:
+
+  http://localhost:8080/GetAnotherLabel/rest/
+
+We also assume that you have installed **Troia-Python-Client**.
+If you didn't you should go to its documentation to see how this can be done.
+
+
+Simple script - if you want to skip tutorial and see some action quickly
+------------------------------------------------------------------------
+
+There is script **test/test_on_data.py** that when given a folder with files:
+
+- *costs*
+- *correct*
+- *input*
+
+sends this data to Troia using client.
+This good place to start looking if you would like to see this in action.
+You can run this file on any folder in **test/examples**
+
+
+Tutorial
+--------
+
+Main class that gives access to most of available methods is **TrojaClient**.
+You can import it:
+
+  from troia_client import TroiaClient
+
+Now let's create instance:
+
+    tc = TroiaClient('http://localhost:8080/GetAnotherLabel/rest/', None)
+
+This last argument defines timeout in seconds on rest requests.
+*None* or value not greater than 0 disables this timeout.
+
+To check whether everything is ok just type:
+
+    tc.ping()
+
+You should get current time as string. In my case it was:
+
+    '"processing request at: 2012-08-29T11:53:14.828+02:00"'
+
+
+
+
+{% endrestructuredtext %}
+    </div>
+</div>
+{% endblock %}
