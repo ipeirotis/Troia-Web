@@ -1,0 +1,243 @@
+{% extends "skeleton/_base.html" %}
+{% hyde
+    title: "Java client tutorial"
+%}
+
+{% block content %}
+
+<div class="row-fluid">
+    <div class="span12">
+{% restructuredtext %}
+
+==========================================
+Basic Troia implementation tutorial (Java)
+==========================================
+Tutorial introduction
+---------------------
+We have a set of web pages, being classifier by online workers, as being "porn" or "not porn". We do not know neither the correct classification of the pages nor how good the workers are in this particular task.
+
+In our simple example, we will have five workers (worker1 to worker5), and five URLs that need to be classified. We have two classes: porn and notporn.
+
+The URLs that need to be classified are
+::
+
+ http://sunnyfun.com
+ http://sex-mission.com
+ http://google.com
+ http://youporn.com
+ http://yahoo.com
+
+The workers assigned the following labels:
+::
+
+ worker1 http://sunnyfun.com	porn
+ worker1 http://sex-mission.com	porn
+ worker1 http://google.com	porn
+ worker1 http://youporn.com	porn
+ worker1 http://yahoo.com	porn
+ worker2 http://sunnyfun.com	notporn
+ worker2 http://sex-mission.com	porn
+ worker2 http://google.com	notporn
+ worker2 http://youporn.com	porn
+ worker2 http://yahoo.com	porn
+ worker3 http://sunnyfun.com	notporn
+ worker3 http://sex-mission.com	porn
+ worker3 http://google.com	notporn
+ worker3 http://youporn.com	porn
+ worker3 http://yahoo.com	notporn
+ worker4 http://sunnyfun.com	notporn
+ worker4 http://sex-mission.com	porn
+ worker4 http://google.com	notporn
+ worker4 http://youporn.com	porn
+ worker4 http://yahoo.com	notporn
+ worker5 http://sunnyfun.com	porn
+ worker5 http://sex-mission.com	notporn
+ worker5 http://google.com	porn
+ worker5 http://youporn.com	notporn
+ worker5 http://yahoo.com	porn
+
+Goal: The goal is to find the correct class of each example using the labels provided by the workers.
+
+Workers have varying levels of quality:
+
+ - worker1 is lazy, and gives the answer porn all the time
+ - worker2 is ok but not great. For example, labeled http://yahoo.com as porn even though it is notporn
+ - worker3 and worker4 are high-quality workers
+ - worker5 is malicious, giving always the incorrect answer, trying to fool the system
+
+Of course, we do not know the correct category for the URLs and we do not know the quality of the workers beforehand.
+
+
+Creating request
+----------------
+To use Troia you must create request and upload your data to it.
+Requests are represented by objects of aptly named class *TroiaRequest* that
+allow you to use functionalities located at Troia server.
+Each object of TroiaRequest is configured with three parameters
+
+ - Service URL with is address of Troia service
+ - Request ID  with is used by Troia to identify requests
+ - Timeout that sets time, in milliseconds, after with lack of response from Troia will indicate broke connection
+
+Because request id is used to identify requests it must be unique in scope of Troia server, that means that in your
+code each request must have unique pair of service URL and request id. TroiaRequest constructor validates url format
+and if it's malformed it throws a exception.
+Here is example of code that is used for creation of request for Troia server located on localhost.
+::
+
+  try{
+   TroiaRequest request = new TroiaRequest("www.project-troia.com:8080/GetAnotherLabel","PornOrNot",1000);
+  }catch(MalformedURLException e){
+   System.out.println("Malformed URL of Troia service");
+  }
+
+After request was created without exception thrown you can be assured that URL was not malformed
+but it don't mean that there is actually Troia server at it. To check if given address is really 
+that of Troia service you can use *ping* function with sends simple request and checks if service
+at given address is able to process it.
+::
+
+ try{
+  request.ping();
+ }catch(IOException e){
+  System.out.println("There is no Troia service at given URL");
+ }
+
+Preparing and uploading data
+----------------------------
+
+If ping was executed without exception thrown you know that you created request to correct address
+but still there is one more issue that must be taken care of before uploading data.
+As it was already written request id must be unique in Troia server so you must check if there is no
+request with given id in server already, to do this you must write following code 
+::
+
+ try{
+  if(!request.exists()||allowUpdate){
+   request.loadCategories(categories);
+   request.loadLabels(labels); 
+  }else{
+   System.out.println("Request with this id exists and updating is not allowed");
+  }
+ }catch(IOException e){
+  System.out.println("Connection to Troia is broken"); 
+ }
+
+We must look at this code in a little more detail as there are two things that 
+may not be obvious at first. First of all this part of code is inside try-catch
+segment because even if ping confirmed working connection to Troia server it's 
+possible for connection to break after that so each functions that uses server
+can throw IOException. Another interesting part is "if" statement as beside calling
+*exists* function that returns true if request with given id exists at server there
+is allowUpdate variable. That is boolean that indicates if you want update existing
+request as it is possible to add more labels to already posted and processed request.
+
+After creating request and testing connection you have to prepare gathered data 
+for uploading.First you must create *Label* object for each label that you
+have gathered. Each label consists of object name , worker name and category name.
+Before uploading labels you will have to prepare categories to upload.
+Java client have functionality that allows you to extract classes from your 
+labels without any problems, you just have to call
+::
+
+ Collection<Category> categories = CategoryFactory.getInstance().extractCategories(labelCollection);
+
+
+
+Where labelsCollection is of *Collection<Label>* class that contains labels that will be processed.
+This will create categories with default misclassification costs, with means that all misclassifications
+will be treated equally. This situation may be satisfactionary in simplest cases but many times, this 
+example included, it's not enough. It should be clear that if we want to use our classification engine
+to create list of porn free websites situation in with pornographic content slips trough is much more 
+serious than one in with non-porn site will be omitted from our list. To inform Troia what we don't want 
+to treat all misclassifications equally we must create misclassification matrix. This is actually a map
+that associates category names, of correct one and one classified to object, to misclassification cost.
+So to create this "misclassification matrix" you have to do something like that :
+::
+
+ Map<String,Map<String,Double>> matrix = new HashMap<String,Map<String,Double>();
+ Map<String,Double> vector = new HashMap<String,Double>();
+ matrix.add("porn",vector);
+ vector.add("porn",0);
+ vector.add("not-porn",0.5);
+ vector = new HashMap<String,Double>();
+ matrix.add("not-porn",vector);
+ vector.add("porn",1);
+ vector.add("not-porn",0);
+
+To crate categories with those misclassification costs you have to simply use following function
+::
+
+ Collection<Category> categories = CategoryFactory.getInstance().extractCategories(labelCollection,matrix);
+
+Then to initialise request you have to upload categories to Troia server with following code
+::
+
+ try{
+  request.loadCategories(categories);
+ }catch(IOException e){
+  System.out.println("Connection to Troia is broken");
+ }
+ 
+
+After that you can finally send labels to server. 
+::
+
+ try{
+  request.loadLabels(labelsCollection);
+ }catch(IOException e){
+  System.out.println("Connection to Troia is broken");
+ }
+ 
+After labels have been uploaded to Troia server you
+can finally process it and download results.
+
+Processing data and fetching results
+------------------------------------
+To process uploaded data you have to call *computeBlocking* function that
+takes number of iterations with Dawid-Skene algorithm will be run as a parameter.
+Three iterations are usually optimal number.
+::
+
+ try{
+  request.computeBlocking(3);
+ }catch(IOException e){
+  System.out.println("Connection to Troia is broken");
+ }
+
+This code executes Dawid-Skene algorithm, with is heart of Troia projects, three
+times on labels uploaded in previous steps. After that Troia server already holds
+labels with improved quality but if you want to use them you still have to download 
+them from server. Best way to do this is to download all of them at once as using
+lot of single object requests will put a lot of strain on server.
+To do that you should call following code 
+::
+
+ try{
+  Map<String,String> labels = request.majorityVotes();
+ }catch(IOException e){
+  System.out.println("Connection to Troia is broken");
+ }
+
+Resulting map associates object name with category name generated by Troia service.  
+
+Downloading tutorial application
+--------------------------------
+To get application that is ecample of what was discussed here you can get Java client
+from github with "with-tutorial" branch. This version of code contains addnotational
+folder called "tutorialApp" with is a Java project on it's own. There you should review
+source file called TroiaExample.java.
+You can also download only a tutorial code from git under following link
+
+.. raw:: html
+
+    <a class="btn btn-info" href="https://github.com/10clouds/Troia-Java-Client/tree/with-tutorial/tutorialApp">
+        <i class="icon-download icon-white"></i>
+        Download tutorial code
+    </a>
+
+
+{% endrestructuredtext %}
+    </div>
+</div>
+{% endblock %}

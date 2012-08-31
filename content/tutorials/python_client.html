@@ -1,0 +1,53 @@
+{% extends "skeleton/_base.html" %}
+{% hyde
+    title: "Python client tutorial"
+%}
+
+{% block content %}
+
+<div class="row-fluid">
+    <div class="span12">
+{% restructuredtext %}
+
+============================================
+Basic Troia implementation tutorial (Python)
+============================================
+
+This document assumes that you know what **Troia** project is about and have already setup its server.
+
+When describing code we will assume that you have setup **Troia** server to work locally on port 8080 with default URL to it.
+In such case URL prefix should look like:
+
+  http://localhost:8080/GetAnotherLabel/rest/
+
+We also assume that you have installed **Troia-Python-Client**.
+If you didn't you should go to its documentation to see how this can be done.
+
+
+Simple script - if you want to skip tutorial and see some action quickly
+------------------------------------------------------------------------
+
+There is script **test/test_on_data.py** available in official Python client repository https://github.com/10clouds/Troia-Python-Client/blob/master/test/test_on_data.py.
+When given a folder with files:
+
+- *costs*
+- *correct*
+- *input*
+
+it sends this data to Troia using Python client.
+This good place to start looking if you would like to see this in action.
+You can run this file on any folder in **test/examples**
+
+
+Tutorial
+--------
+
+TODO
+
+Currently we recommend seeing how this is done in example script: https://github.com/10clouds/Troia-Python-Client/blob/master/test/test_on_data.py
+
+
+{% endrestructuredtext %}
+    </div>
+</div>
+{% endblock %}
