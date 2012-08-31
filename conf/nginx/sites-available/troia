@@ -17,6 +17,11 @@ server {
         expires 60d;
     }
 
+    location /apidocs {
+        root %(project_root)s;
+        autoindex  off;
+    }
+
     location / {
         try_files $uri $uri/ /index.html;
     }
@@ -25,10 +30,6 @@ server {
         root %(project_root)s;
     }
 
-    location = /apidoc {
-        root %(project_root)s/apidoc
-        try_files index.html
-    }
 
     error_page  404  /404.html;
 }
