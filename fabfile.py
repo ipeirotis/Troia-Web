@@ -11,13 +11,16 @@ PROJECTS_ROOT = "/data/projects"
 PROJECT_ROOT = "{}/{}".format(PROJECTS_ROOT, PROJECT_NAME)
 STATIC_ROOT = "{}/static".format(PROJECT_ROOT)
 SOURCE_ROOT = "{}/source".format(PROJECT_ROOT)
-WEB_SOURCE_ROOT = "{}/Troia-Web".format(SOURCE_ROOT)
-WAR_SOURCE_ROOT = "{}/Troia-Server".format(SOURCE_ROOT)
+APIDOC_ROOT = "{}/apidoc".format(PROJECT_ROOT)
+TROIA_WEB_SOURCE_ROOT = "{}/Troia-Web".format(SOURCE_ROOT)
+TROIA_SERVER_SOURCE_ROOT = "{}/Troia-Server".format(SOURCE_ROOT)
+TROIA_CLIENT_SOURCE_ROOT = "{}/Troia-Java-Client".format(SOURCE_ROOT)
 ENVIRONMENT_ROOT = "{}/virtualenv".format(PROJECT_ROOT)
 ENVIRONMENT_SOURCE = "source {}/bin/activate".format(ENVIRONMENT_ROOT)
 
-WEB_REPOSITORY = "git://github.com/10clouds/Troia-Web.git"
-WAR_REPOSITORY = "git://github.com/ipeirotis/Troia-Server.git"
+TROIA_WEB_REPOSITORY = "git://github.com/10clouds/Troia-Web.git"
+TROIA_SERVER_REPOSITORY = "git://github.com/ipeirotis/Troia-Server.git"
+TROIA_CLIENT_REPOSITORY = "git://github.com/10clouds/Troia-Java-Client.git"
 
 LESSC = "lessc"
 USER = "{0}:{0}".format(env.user)
@@ -87,6 +90,16 @@ def ensure(path, update=False, requirements_path=None,
             """.format(path=path, requirements_path=requirements_path))
 
 
+def build_and_copy(source_root, source, destination, repository, cp_prefix="cp",
+                   mvn_command="{} package -Dmaven.test.skip=true".format(MVN)):
+    """ Builds maven project and copies results to the specified place. """
+    clone_or_update(source_root, repository)
+    with cd(source_root):
+        run(mvn_command)
+    run("{} {} {}".format(cp_prefix, source, destination))
+
+
+
 def compile(input_dir, output_dir, files):
     """ Compiles less and moves resultant css to another directory for
         further processing using hyde. """
@@ -101,7 +114,7 @@ def compile(input_dir, output_dir, files):
                                     os.path.join(output_dir, result_name)))
 
 
-def generate(source_root=WEB_SOURCE_ROOT, static_root=STATIC_ROOT,
+def generate(source_root=TROIA_WEB_SOURCE_ROOT, static_root=STATIC_ROOT,
              environment_source=ENVIRONMENT_SOURCE):
     message(colors.blue("Generating static content"))
     # Ensure the static subdirectory exists.
@@ -134,15 +147,25 @@ def update_server():
 
 
 @task
-def update_war():
-    """ Builds a war file and exposes it on the website. """
-    clone_or_update(WAR_SOURCE_ROOT, WAR_REPOSITORY)
-    source = "{}/target/GetAnotherLabel.war".format(WAR_SOURCE_ROOT)
-    media = "{}/media".format(STATIC_ROOT)
-    destination = "{}/downloads/".format(media)
-    with cd(WAR_SOURCE_ROOT):
-        run("{} package -Dmaven.test.skip=true".format(MVN))
-    run("cp {} {}".format(source, destination))
+def update_troia_server():
+    """ Builds the Troia-Server war file and exposes it on the website.
+    """
+    build_and_copy(
+        source_root=TROIA_SERVER_SOURCE_ROOT, 
+        source="{}/target/GetAnotherLabel.war".format(TROIA_SERVER_SOURCE_ROOT),
+        destination="{}/media/downloads".format(STATIC_ROOT),
+        repository=TROIA_SERVER_REPOSITORY)
+
+
+@task
+def update_troia_client():
+    build_and_copy(
+        source_root=TROIA_CLIENT_SOURCE_ROOT,
+        source="{}/target/site/apidocs".format(TROIA_CLIENT_SOURCE_ROOT),
+        destination=PROJECT_ROOT,
+        repository=TROIA_CLIENT_REPOSITORY,
+        mvn_command="{} javadoc:javadoc".format(MVN),
+        cp_prefix="cp -rf ")
 
 
 @task
@@ -156,15 +179,16 @@ def deploy(update_environment=False, update_war=False,
 
     # Project root alredy exists. Current remote user is assummed to be an
     # onwer of the directory.
-    clone_or_update(WEB_SOURCE_ROOT, WEB_REPOSITORY)
+    clone_or_update(TROIA_WEB_SOURCE_ROOT, TROIA_WEB_REPOSITORY)
     ensure(update=update_environment, path=ENVIRONMENT_ROOT,
-           requirements_path="{}/requirements.txt".format(WEB_SOURCE_ROOT))
-    media_root = "{}/media".format(WEB_SOURCE_ROOT)
+           requirements_path="{}/requirements.txt"
+                             .format(TROIA_WEB_SOURCE_ROOT))
+    media_root = "{}/media".format(TROIA_WEB_SOURCE_ROOT)
     css_path = "{}/css".format(media_root)
     less_path = "{}/less".format(media_root)
     run("mkdir -p {}".format(css_path))
     compile(less_path, css_path, ("troia.less", "bootstrap.less"))
-    generate(source_root=WEB_SOURCE_ROOT, static_root=STATIC_ROOT,
+    generate(source_root=TROIA_WEB_SOURCE_ROOT, static_root=STATIC_ROOT,
              environment_source=ENVIRONMENT_SOURCE)
     # Ensure downloads directory exists.
     run("mkdir -p {}/media/downloads".format(STATIC_ROOT))
