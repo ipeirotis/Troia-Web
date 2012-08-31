@@ -114,7 +114,8 @@ request with given id in server already, to do this you must write following cod
 
  try{
   if(!request.exists()||allowUpdate){
-   //DATA UPLOAD CODE 
+   request.loadCategories(categories);
+   request.loadLabels(labels); 
   }else{
    System.out.println("Request with this id exists and updating is not allowed");
   }
