@@ -30,10 +30,10 @@ INTERPRETTER = "/usr/bin/python2.7"
 # Path to your maven binaries.
 MVN = "/opt/maven/bin/mvn"
 SERVICE_PREFIX = "service "
-# SERVICE_PREFIX = "/etc/rc.d/"  # In case of FreeBSD init convention.
+# SERVICE_PREFIX = "/etc/rc.d/"  # In case of BSD init convention.
 
 
-def message(msg, *args):
+def message(msg, *args, **kwargs):
     print colors.cyan("==>", bold=True), msg.format(*args)
 
 
@@ -45,20 +45,23 @@ def setmode(path, recursive=False, perms=None, owner=None):
         sudo("chown {} {} {}".format(recursive, owner, path))
 
 
+def install(environment_path, requirements_path):
+    with prefix("source {}/bin/activate".format(environment_path)):
+        run("pip install -r {}".format(requirements_path))
+
+
 def clone_or_update(path, repo):
     """ Updates a local repository or clones it. """
-    run("""
-        if cd {path} && git status; then
-            echo "Local repository exists. Updating"
-            git stash;
-            git pull --rebase;
-            git diff;
-        elif cd {path}; then
-            echo "Local repository exists but it is not a git repository".
-            exit 255;
-        else
-            git clone {repo} {path};
-        fi""".format(path=path, repo=repo))
+    exists = False
+    with cd(path):
+        if run("git status", warn_only=True) == 0:
+            message("Local repository found. Updating")
+            exists = True
+        else:
+            raise Exception("Local repository is not empty but is not "
+                            "a git repository")
+    if not exists:
+        run("git clone {repo} {path}", repo=repo, path=path)
 
 
 def ensure(path, update=False, requirements_path=None,
@@ -70,24 +73,22 @@ def ensure(path, update=False, requirements_path=None,
         name = splitted[1]
     else:
         raise Exception("Invalid path for virtual environment {}".format(path))
-    run("""
-        if cd {path}/bin && source activate; then
-            echo "Virtual environment exists";
-        elif cd {path}; then
-            echo "Virtual environment already exist but can not be activated";
-            exit 255
-        else
-            echo "Virtual environment does not exist. Creating the new one";
-            cd {root} && virtualenv --python={interpretter} \
-                                    --no-site-packages {name};
-            source {path}/bin/activate && pip install -r {requirements_path};
-        fi
-        """.format(path=path, name=name, root=root, interpretter=interpretter,
-                   requirements_path=requirements_path))
-    if update:
-        run("""
-            source {path}/bin/activate && pip install -r {requirements_path}
-            """.format(path=path, requirements_path=requirements_path))
+    exists = False
+    with cd("{}/bin".format(path)):
+        if run("source activate", warn_only=True) == 0:
+            message("Virtual environment exists")
+            exists = True
+        else:
+            raise Exception("Virtual environment broken")
+    if not exists:
+        message("Virtual environment does not exist. Creating a new one")
+        with cd(root):
+            run("""virtualenv --python={interpretter} 
+                              --no-site-packages {name}"""
+                .format(interpretter=INTERPRETTER, name=name))
+        install(path, requirements_path)
+    if exists and update:
+        install(path, requirements_path)
 
 
 def build_and_copy(source_root, source, destination, repository, cp_prefix="cp",
@@ -97,7 +98,6 @@ def build_and_copy(source_root, source, destination, repository, cp_prefix="cp",
     with cd(source_root):
         run(mvn_command)
     run("{} {} {}".format(cp_prefix, source, destination))
-
 
 
 def compile(input_dir, output_dir, files):
