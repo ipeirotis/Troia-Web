@@ -27,13 +27,14 @@ If you didn't you should go to its documentation to see how this can be done.
 Simple script - if you want to skip tutorial and see some action quickly
 ------------------------------------------------------------------------
 
-There is script **test/test_on_data.py** that when given a folder with files:
+There is script **test/test_on_data.py** available in official Python client repository https://github.com/10clouds/Troia-Python-Client/blob/master/test/test_on_data.py.
+When given a folder with files:
 
 - *costs*
 - *correct*
 - *input*
 
-sends this data to Troia using client.
+it sends this data to Troia using Python client.
 This good place to start looking if you would like to see this in action.
 You can run this file on any folder in **test/examples**
 
@@ -41,27 +42,9 @@ You can run this file on any folder in **test/examples**
 Tutorial
 --------
 
-Main class that gives access to most of available methods is **TrojaClient**.
-You can import it:
+TODO
 
-  from troia_client import TroiaClient
-
-Now let's create instance:
-
-    tc = TroiaClient('http://localhost:8080/GetAnotherLabel/rest/', None)
-
-This last argument defines timeout in seconds on rest requests.
-*None* or value not greater than 0 disables this timeout.
-
-To check whether everything is ok just type:
-
-    tc.ping()
-
-You should get current time as string. In my case it was:
-
-    '"processing request at: 2012-08-29T11:53:14.828+02:00"'
-
-
+Currently we recommend seeing how this is done in example script: https://github.com/10clouds/Troia-Python-Client/blob/master/test/test_on_data.py
 
 
 {% endrestructuredtext %}
