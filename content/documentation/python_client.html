@@ -7,6 +7,8 @@
 
 <div class="row-fluid">
     <div class="span12">
+
+
 {% restructuredtext %}
 
 ============================================
@@ -44,106 +46,315 @@ If you see some date on the screen than this means that it worked fine
 API documentation
 -----------------
 
-.. function:: ping()
-
-    Sends test request - returns current time as string
-
-
-
-    def reset(self, idd=None):
-        return self._do_request_get("reset", {'id': idd})
-
-    def exists(self, idd=None):
-        r = self._do_request_get("exists", {'id': idd})
-        return r.lower() in ['true', 't']
-
-    def _generate_miss_costs(self, labels, label):
-        d = dict([(x, 1.) for x in labels if x != label])
-        d[label] = 0.
-        return d
-
-    def load_categories_def_costs(self, categories, idd=None):
-        categories = [{'name':c, 'prior':self.PRIORITY,
-             'misclassification_cost':self._generate_miss_costs(categories, c)}
-                                                for c in categories]
-        return self._do_request_post("loadCategories",
-                                {'id': idd, 'categories': categories})
-
-    def load_categories(self, categories, idd=None):
-        '''costs should be iterable with iterables in form:
-        (name, dict-misclassification_cost { class_ : cost })
-        priority is not used in this version
-        '''
-        categories = [
-            {'name':c, 'prior':self.PRIORITY, 'misclassification_cost':d}
-                                                for c, d in categories]
-        return self._do_request_post("loadCategories",
-                                {'id': idd, 'categories': categories})
-
-    def load_costs(self, costs, idd=None):
-        return self._do_request_post("loadCosts",
-                                {'id': idd, 'costs': costs})
-
-    def _create_assign_label(self, worker, objectn, category):
-        return {'workerName': worker, 'objectName': objectn,
-                                            'categoryName': category}
-
-    def load_worker_assigned_label(self, worker, objectn, category, idd=None):
-        data = self._create_assign_label(worker, objectn, category)
-        return self._do_request_post("loadWorkerAssignedLabel",
-                                        {'id': idd, 'data': data})
-
-    def load_worker_assigned_labels(self, data, idd=None):
-        data = [self._create_assign_label(w, o, c) for w, o, c in data]
-        return self._do_request_post("loadWorkerAssignedLabels",
-                                        {'id': idd, 'data': data})
-
-    def _create_gold_label(self, objectn, category):
-        return {"objectName": objectn, "correctCategory": category}
-
-    def load_gold_label(self, objectn, category, idd=None):
-        data = self._create_gold_label(objectn, category)
-        return self._do_request_post("loadGoldLabel", {'id': idd, 'data': data})
-
-    def load_gold_labels(self, data, idd=None):
-        data = [self._create_gold_label(on, c) for on, c in data]
-        return self._do_request_post("loadGoldLabels",
-                                         {'id': idd, 'data': data})
-
-    def majority_vote(self, objectName, idd=None):
-        return self._do_request_get("majorityVote",
-                                        {'id': idd, 'objectName': objectName})
-
-    def majority_votes(self, idd=None):
-        return json.loads(self._do_request_get("majorityVotes", {'id': idd}))
-
-    def compute_blocking(self, iterations, idd=None):
-        return self._do_request_get("computeBlocking",
-                                        {'id': idd, 'iterations': iterations})
-
-    def print_worker_summary(self, verbose, idd=None):
-        return self._do_request_get("printWorkerSummary",
-                                        {'id': idd, 'verbose': verbose})
-
-    def print_objects_probs(self, entropy, idd=None):
-        return self._do_request_get("printObjectsProbs",
-                                        {'id': idd, 'entropy': entropy})
-
-    def object_probs(self, obj, idd=None):
-        return json.loads(
-                self._do_request_get("objectProbs", {'id': idd, 'object': obj}))
-
-    def print_priors(self, idd=None):
-        return self._do_request_get("printPriors", {'id': idd})
-
-    def class_priors(self, idd=None):
-        return self._do_request_get("classPriors", {'id': idd})
-
-    def get_dawid_skene(self, idd=None):
-        return json.loads(self._do_request_get("getDawidSkene", {'id': idd}))
-
-
 {% endrestructuredtext %}
+
+
+<dl class="class">
+<dt id="troia_client.rest_troia_client.TroiaClient">
+<em class="property">class </em><tt class="descclassname">troia_client.rest_troia_client.</tt><tt class="descname">TroiaClient</tt><big>(</big><em>base_url</em>, <em>timeout=0.25</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class providing wrappers for all REST request</p>
+<table class="docutils field-list" frame="void" rules="none">
+<colgroup><col class="field-name">
+<col class="field-body">
+</colgroup><tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>base_url</strong> – address at which Troia server is running</li>
+<li><strong>timeout</strong> – timeout on requests to Troia server. <em>None</em> or &lt;= 0 value indicates disabled timeout.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Note :</th><td class="field-body"><p class="first last">Job ID can be often omitted. In such case it is taken some default ID</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="troia_client.rest_troia_client.TroiaClient.PRIORITY">
+<tt class="descname">PRIORITY</tt><em class="property"> = 1.0</em><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.PRIORITY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default priority</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.class_priors">
+<tt class="descname">class_priors</tt><big>(</big><em>idd=None</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.class_priors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns class priorities in gvien job</p>
+<table class="docutils field-list" frame="void" rules="none">
+<colgroup><col class="field-name">
+<col class="field-body">
+</colgroup><tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idd</strong> – ID of the job which class priorities we want</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.compute_blocking">
+<tt class="descname">compute_blocking</tt><big>(</big><em>iterations</em>, <em>idd=None</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.compute_blocking" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts computations in blocking mode.
+See Troia server documentation for more informations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<colgroup><col class="field-name">
+<col class="field-body">
+</colgroup><tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>iterations</strong> – integer with number of iterations to perform</li>
+<li><strong>idd</strong> – job ID</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.exists">
+<tt class="descname">exists</tt><big>(</big><em>idd=None</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if job with given ID exists</p>
+<table class="docutils field-list" frame="void" rules="none">
+<colgroup><col class="field-name">
+<col class="field-body">
+</colgroup><tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idd</strong> – ID of the job to be checked</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.get_dawid_skene">
+<tt class="descname">get_dawid_skene</tt><big>(</big><em>idd=None</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.get_dawid_skene" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns quite big dictionary. See Troia server documentation for more info.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<colgroup><col class="field-name">
+<col class="field-body">
+</colgroup><tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idd</strong> – ID of the job which results we want</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.load_categories">
+<tt class="descname">load_categories</tt><big>(</big><em>categories</em>, <em>idd=None</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.load_categories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load categories to Troia server with their cost matrices.
+Costs should be iterable with iterables in form:</p>
+<blockquote>
+<div>(name, dict-misclassification_cost { <a href="#id2"><span class="problematic" id="id3">class_</span></a> : cost })</div></blockquote>
+<p>Only default priority is used</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.load_categories_def_costs">
+<tt class="descname">load_categories_def_costs</tt><big>(</big><em>categories</em>, <em>idd=None</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.load_categories_def_costs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads to Troia server given categories.
+It uses <strong>PRIORITY</strong> as default and generates default cost matrix
+for them (1. on error, 0. otherwise)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<colgroup><col class="field-name">
+<col class="field-body">
+</colgroup><tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>categories</strong> – list of categories ids</li>
+<li><strong>idd</strong> – job ID</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.load_costs">
+<tt class="descname">load_costs</tt><big>(</big><em>costs</em>, <em>idd=None</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.load_costs" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.load_gold_label">
+<tt class="descname">load_gold_label</tt><big>(</big><em>objectn</em>, <em>category</em>, <em>idd=None</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.load_gold_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds gold sample into job</p>
+<table class="docutils field-list" frame="void" rules="none">
+<colgroup><col class="field-name">
+<col class="field-body">
+</colgroup><tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>objectn</strong> – id of the gold object</li>
+<li><strong>category</strong> – true category for this object</li>
+<li><strong>idd</strong> – job ID</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.load_gold_labels">
+<tt class="descname">load_gold_labels</tt><big>(</big><em>data</em>, <em>idd=None</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.load_gold_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adding many gold samples at once</p>
+<table class="docutils field-list" frame="void" rules="none">
+<colgroup><col class="field-name">
+<col class="field-body">
+</colgroup><tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> – iterable of tuples in form (object_id, label)</li>
+<li><strong>idd</strong> – job ID</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.load_worker_assigned_label">
+<tt class="descname">load_worker_assigned_label</tt><big>(</big><em>worker</em>, <em>objectn</em>, <em>category</em>, <em>idd=None</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.load_worker_assigned_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds information that given worker voted on given object with given label
+:param worker: worker id
+:param objectn: object id
+:param category: assigned label</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.load_worker_assigned_labels">
+<tt class="descname">load_worker_assigned_labels</tt><big>(</big><em>data</em>, <em>idd=None</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.load_worker_assigned_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adding many votes at once</p>
+<table class="docutils field-list" frame="void" rules="none">
+<colgroup><col class="field-name">
+<col class="field-body">
+</colgroup><tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> – iterable with tuples in form (worker_id, object_id, label)</li>
+<li><strong>idd</strong> – job ID</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.majority_vote">
+<tt class="descname">majority_vote</tt><big>(</big><em>objectName</em>, <em>idd=None</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.majority_vote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns label? for given object using majority votes rule</p>
+<table class="docutils field-list" frame="void" rules="none">
+<colgroup><col class="field-name">
+<col class="field-body">
+</colgroup><tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>objectName</strong> – id of object that we want know label</li>
+<li><strong>idd</strong> – job ID</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.majority_votes">
+<tt class="descname">majority_votes</tt><big>(</big><em>idd=None</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.majority_votes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns labels for all objects using
+<em>majority voting algorithm</em>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<colgroup><col class="field-name">
+<col class="field-body">
+</colgroup><tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idd</strong> – job ID</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.object_probs">
+<tt class="descname">object_probs</tt><big>(</big><em>obj</em>, <em>idd=None</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.object_probs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns given object probability distribution over labels</p>
+<table class="docutils field-list" frame="void" rules="none">
+<colgroup><col class="field-name">
+<col class="field-body">
+</colgroup><tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>obj</strong> – object id which probability distribution we want</li>
+<li><strong>idd</strong> – ID of the job which class priorities we want</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.ping">
+<tt class="descname">ping</tt><big>(</big><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.ping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends test request. Should return string with current date</p>
+<table class="docutils field-list" frame="void" rules="none">
+<colgroup><col class="field-name">
+<col class="field-body">
+</colgroup><tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">string with current date</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.print_objects_probs">
+<tt class="descname">print_objects_probs</tt><big>(</big><em>entropy</em>, <em>idd=None</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.print_objects_probs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.print_priors">
+<tt class="descname">print_priors</tt><big>(</big><em>idd=None</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.print_priors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns print friendly class priorities in given job</p>
+<table class="docutils field-list" frame="void" rules="none">
+<colgroup><col class="field-name">
+<col class="field-body">
+</colgroup><tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idd</strong> – ID of the job which class priorities we want</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.print_worker_summary">
+<tt class="descname">print_worker_summary</tt><big>(</big><em>verbose</em>, <em>idd=None</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.print_worker_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns printable workers summary</p>
+<table class="docutils field-list" frame="void" rules="none">
+<colgroup><col class="field-name">
+<col class="field-body">
+</colgroup><tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>verbose</strong> – definies how much verbose return should be</li>
+<li><strong>idd</strong> – job ID</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="troia_client.rest_troia_client.TroiaClient.reset">
+<tt class="descname">reset</tt><big>(</big><em>idd=None</em><big>)</big><a class="headerlink" href="#troia_client.rest_troia_client.TroiaClient.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets job with given ID</p>
+<table class="docutils field-list" frame="void" rules="none">
+<colgroup><col class="field-name">
+<col class="field-body">
+</colgroup><tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idd</strong> – ID of the job to which data should be reseted</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
     </div>
 </div>
 {% endblock %}
