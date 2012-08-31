@@ -142,6 +142,9 @@ labels without any problems, you just have to call
 
  Collection<Category> categories = CategoryFactory.getInstance().extractCategories(labelCollection);
 
+
+
+Where labelsCollection is of *Collection<Label>* class that contains labels that will be processed.
 This will create categories with default misclassification costs, with means that all misclassifications
 will be treated equally. This situation may be satisfactionary in simplest cases but many times, this 
 example included, it's not enough. It should be clear that if we want to use our classification engine
@@ -185,8 +188,6 @@ After that you can finally send labels to server.
  }catch(IOException e){
   System.out.println("Connection to Troia is broken");
  }
-
-Where labelsCollection is of *Collection<Label>* class.
  
 After labels have been uploaded to Troia server you
 can finally process it and download results.
