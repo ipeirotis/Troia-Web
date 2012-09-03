@@ -1,7 +1,7 @@
--e git://github.com/hyde/hyde.git#egg=hyde
+-e git://github.com/lakshmivyas/hyde.git#egg=hyde
 -e git://github.com/earle/django-bootstrap.git#egg=bootstrap
 
 
-jsmin
-cssmin
-docutils
+jsmin==2.0.2
+cssmin==0.1.4
+docutils==0.9.1

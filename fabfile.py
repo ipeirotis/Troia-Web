@@ -1,7 +1,7 @@
 import os
 
 from fabric import colors
-from fabric.api import cd, env, prefix, run, sudo, task
+from fabric.api import cd, env, prefix, run, sudo, settings, task
 from fabric.tasks import execute
 from fabric.contrib.files import exists, upload_template
 
@@ -54,14 +54,12 @@ def clone_or_update(path, repo):
     """ Updates a local repository or clones it. """
     exists = False
     with cd(path):
-        if run("git status", warn_only=True) == 0:
-            message("Local repository found. Updating")
-            exists = True
-        else:
-            raise Exception("Local repository is not empty but is not "
-                            "a git repository")
+        with settings(warn_only=True):
+            if run("git status").return_code == 0:
+                message("Local repository found. Updating")
+                exists = True
     if not exists:
-        run("git clone {repo} {path}", repo=repo, path=path)
+        run("git clone {} {}".format(repo, path))
 
 
 def ensure(path, update=False, requirements_path=None,
@@ -75,15 +73,14 @@ def ensure(path, update=False, requirements_path=None,
         raise Exception("Invalid path for virtual environment {}".format(path))
     exists = False
     with cd("{}/bin".format(path)):
-        if run("source activate", warn_only=True) == 0:
-            message("Virtual environment exists")
-            exists = True
-        else:
-            raise Exception("Virtual environment broken")
+        with settings(warn_only=True):
+            if run("source activate").return_code == 0:
+                message("Virtual environment exists")
+                exists = True
     if not exists:
         message("Virtual environment does not exist. Creating a new one")
         with cd(root):
-            run("""virtualenv --python={interpretter} 
+            run("""virtualenv --python={interpretter} \
                               --no-site-packages {name}"""
                 .format(interpretter=INTERPRETTER, name=name))
         install(path, requirements_path)
@@ -174,7 +171,7 @@ def deploy(update_environment=False, update_war=False,
     """ Synchronizes the website content with the repository. """
     if not exists(PROJECT_ROOT):
         message(colors.yellow("Initializing project structure"))
-        sudo("mkdir -p {}".format(SOURCE_ROOT))
+        sudo("mkdir -p {}".format(PROJECT_ROOT))
         setmode(PROJECT_ROOT, recursive=True, owner=USER)
 
     # Project root alredy exists. Current remote user is assummed to be an

@@ -1,2 +1,2 @@
-fabric
-cherrypy
+fabric==1.4.3
+cherrypy==3.2.2
