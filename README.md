@@ -58,4 +58,4 @@ The following command compiles and exposes the ``GetAnotherLabel.war`` file on t
 
 Another command exists for generating the Troia Java Client API docs:
 
-    fab update_troia_server -H host -u username
+    fab update_troia_client -H host -u username
