@@ -38,7 +38,7 @@ The website can be served locally (using Cherrypy webserver) with command:
 Deployment
 ----------
 
-It is convinient to add your ssh public key to authorized_keys on the destination host.
+It is convinient to add your ssh public key to ``authorized_keys`` on the destination host.
 
 There is a fabric script that does all deployment for you. Just run the following:
 
@@ -52,15 +52,10 @@ If the server configuration has been changed, one can reload it with ``update_se
 
     fab update_server -H host -u username
     
-The following command compiles and exposes the ``GetAnotherLabel.war`` file on the website. 
+The following command compiles and exposes the ``GetAnotherLabel.war`` file on the website:
 
-    fab update_war -H host -u username
-    
-Both ``update_server`` and ``update_war`` commands can be ran after the successful deployment using respectively
-``update_server=True`` and ``update_war=True`` options:
+    fab update_troia_server -H host -u username
 
-    fab deploy:update_war=True -H host -u username
-    fab deploy:update_server=True -H host -u username
-    fab deploy:update_war=True,update_server=True -H host -u username
-        
-All options for ``deploy`` command are set to ``False`` as default.
+Another command exists for generating the Troia Java Client API docs:
+
+    fab update_troia_server -H host -u username
