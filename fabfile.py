@@ -55,8 +55,8 @@ def clone_or_update(path, repo):
     exists = False
     with cd(path):
         with settings(warn_only=True):
-            if run("git status").return_code == 0:
-                message("Local repository found. Updating")
+            if run("git status && git stash && git pull --rebase && git diff").return_code == 0:
+                message("Local repository found and updated")
                 exists = True
     if not exists:
         run("git clone {} {}".format(repo, path))
