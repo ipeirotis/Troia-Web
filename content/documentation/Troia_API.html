@@ -9,16 +9,8 @@
     <div class="span12">
 {% restructuredtext %}
 
-What "raw access" means and why you should do it other way
-----------------------------------------------------------
-Troia is service that runs on server and takes requests from clients via HTTP protocol.
-More precisely it uses POST and GET methods to send request data.
-This tutorial will focus on how to use this service without any client libraries henceforth 
-"raw access" in title. This way of using Troia is depreciated as it not only requires some
-knowledge of service inside structure but also means that each time service provider will
-change something in his code you will have to manually update all changes instead of just
-updating client. This way of access and tutorial are dedicated to people who want to use
-Troia from that do not yet have client libraries created.
+Troia is service that runs within tomcat server and takes requests from via HTTP.
+It uses POST and GET methods to send request data.
 
 Service address
 ---------------
@@ -30,10 +22,11 @@ Correct format is as follows
     http://<host>:<port>/<path>/rest/<service> 
 
 Where:
- - <host> is address of host providing Troia
- - <port> is port on with service is available
- - <path> is path in with Troia files are located on server
- - <service> is name of service that's going to be called
+
+- <host> is address of host providing Troia
+- <port> is port on with service is available
+- <path> is path in with Troia files are located on server
+- <service> is name of service that's going to be called
 
 So for example if service is set up on local host in server path "GetAnotherLabel" with port 8080
 configured address for ping service will look like that :

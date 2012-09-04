@@ -10,22 +10,28 @@
 {% restructuredtext %}
 
 ===========================================
-Java client library
+Java client
 ===========================================
 
-How to use
-----------
+This document assumes that you know what Troia project is about and have already setup its server.
+
 To use Troia service you must create a request with unique ID and service URL configured.
 Then you must execute three steps :
  
- - data upload
- - algorithm execution (computeBlocking)
- - results download
+- data upload
+- algorithm execution (computeBlocking)
+- results download
 
 It is possible to download results before executing algorithm but that will result in 
-worthless data, so you must be sure that you called *computeBlocking* function before 
+an incomplete data, so you must be sure that you called *computeBlocking* function before 
 downloading results. 
 
+.. raw:: html
+
+    <a class="btn btn-info" href="/apidocs">
+        <i class="icon-info-sign icon-white"></i>
+        Javadoc
+    </a>
 
 Client classes
 --------------
@@ -37,6 +43,7 @@ not create any sort of object model so data verification must be handled in outs
 
 Basic classes
 ------------- 
+
 Category
 ~~~~~~~~
 Category contains information about category name and it misclassification cost.
@@ -60,6 +67,7 @@ Category from holds name of category that was
 
 Factories
 ---------
+
 CategoryFactory
 ~~~~~~~~~~~~~~~
 Allows simple creation of category class objects.
@@ -86,15 +94,6 @@ Sometimes, especially in Troia inter works descriptions, request may be called T
 side request is identified by service URL and request ID. Request object to not contain any data besides
 that required for it identification, however it provides access to data stored in Troia server and enables
 access to it services. All methods throw IOException if connection to Troia failed.
-
-For more information visit:
-
-.. raw:: html
-
-    <a class="btn btn-info" href="/apidocs">
-        <i class="icon-info-sign icon-white"></i>
-        Package documentation site
-    </a>
 
 {% endrestructuredtext %}
     </div>
