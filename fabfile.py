@@ -18,9 +18,9 @@ TROIA_CLIENT_SOURCE_ROOT = "{}/Troia-Java-Client".format(SOURCE_ROOT)
 ENVIRONMENT_ROOT = "{}/virtualenv".format(PROJECT_ROOT)
 ENVIRONMENT_SOURCE = "source {}/bin/activate".format(ENVIRONMENT_ROOT)
 
-TROIA_WEB_REPOSITORY = "git://github.com/10clouds/Troia-Web.git"
+TROIA_WEB_REPOSITORY = "git://github.com/ipeirotis/Troia-Web.git"
 TROIA_SERVER_REPOSITORY = "git://github.com/ipeirotis/Troia-Server.git"
-TROIA_CLIENT_REPOSITORY = "git://github.com/10clouds/Troia-Java-Client.git"
+TROIA_CLIENT_REPOSITORY = "git://github.com/ipeirotis/Troia-Java-Client.git"
 
 LESSC = "lessc"
 USER = "{0}:{0}".format(env.user)
