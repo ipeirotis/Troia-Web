@@ -58,6 +58,7 @@ The workers assigned the following labels:
 
 Goal: The goal is to find the correct class of each example using the labels provided by the workers.
 
+
 Workers have varying levels of quality:
 
  - worker1 is lazy, and gives the answer porn all the time
@@ -68,159 +69,169 @@ Workers have varying levels of quality:
 Of course, we do not know the correct category for the URLs and we do not know the quality of the workers beforehand.
 
 
-Creating request
-----------------
-To use Troia you must create request and upload your data to it.
-Requests are represented by objects of aptly named class *TroiaRequest* that
-allow you to use functionalities located at Troia server.
-Each object of TroiaRequest is configured with three parameters
+Processing data file
+--------------------
+Before we start using Troia server we must prepare data in form that 
+it can process. To do that we must parse text file, in this example it's
+done by object of DataFileProcessor class. 
+{% endrestructuredtext %}
+<pre style='color:#000000;background:#f1f0f0;'>package tutorial<span style='color:#806030; '>;</span>
 
- - Service URL with is address of Troia service
- - Request ID  with is used by Troia to identify requests
- - Timeout that sets time, in milliseconds, after with lack of response from Troia will indicate broke connection
+<span style='color:#400000; font-weight:bold; '>import</span> troiaClient<span style='color:#806030; '>.</span>Label<span style='color:#806030; '>;</span>
+<span style='color:#400000; font-weight:bold; '>import</span> troiaClient<span style='color:#806030; '>.</span>GoldLabel<span style='color:#806030; '>;</span>
+<span style='color:#400000; font-weight:bold; '>import</span> java<span style='color:#806030; '>.</span>util<span style='color:#806030; '>.</span>Collection<span style='color:#806030; '>;</span>
+<span style='color:#400000; font-weight:bold; '>import</span> java<span style='color:#806030; '>.</span>io<span style='color:#806030; '>.</span><span style='color:#806030; '>*</span><span style='color:#806030; '>;</span>
+<span style='color:#400000; font-weight:bold; '>import</span> java<span style='color:#806030; '>.</span>util<span style='color:#806030; '>.</span>Scanner<span style='color:#806030; '>;</span>
+<span style='color:#400000; font-weight:bold; '>import</span> java<span style='color:#806030; '>.</span>util<span style='color:#806030; '>.</span>ArrayList<span style='color:#806030; '>;</span>
 
-Because request id is used to identify requests it must be unique in scope of Troia server, that means that in your
-code each request must have unique pair of service URL and request id. TroiaRequest constructor validates url format
-and if it's malformed it throws a exception.
-Here is example of code that is used for creation of request for Troia server located on localhost.
-::
-
-  try{
-   TroiaRequest request = new TroiaRequest("www.project-troia.com:8080/GetAnotherLabel","PornOrNot",1000);
-  }catch(MalformedURLException e){
-   System.out.println("Malformed URL of Troia service");
-  }
-
-After request was created without exception thrown you can be assured that URL was not malformed
-but it don't mean that there is actually Troia server at it. To check if given address is really 
-that of Troia service you can use *ping* function with sends simple request and checks if service
-at given address is able to process it.
-::
-
- try{
-  request.ping();
- }catch(IOException e){
-  System.out.println("There is no Troia service at given URL");
- }
-
-Preparing and uploading data
-----------------------------
-
-If ping was executed without exception thrown you know that you created request to correct address
-but still there is one more issue that must be taken care of before uploading data.
-As it was already written request id must be unique in Troia server so you must check if there is no
-request with given id in server already, to do this you must write following code 
-::
-
- try{
-  if(!request.exists()||allowUpdate){
-   request.loadCategories(categories);
-   request.loadLabels(labels); 
-  }else{
-   System.out.println("Request with this id exists and updating is not allowed");
-  }
- }catch(IOException e){
-  System.out.println("Connection to Troia is broken"); 
- }
-
-We must look at this code in a little more detail as there are two things that 
-may not be obvious at first. First of all this part of code is inside try-catch
-segment because even if ping confirmed working connection to Troia server it's 
-possible for connection to break after that so each functions that uses server
-can throw IOException. Another interesting part is "if" statement as beside calling
-*exists* function that returns true if request with given id exists at server there
-is allowUpdate variable. That is boolean that indicates if you want update existing
-request as it is possible to add more labels to already posted and processed request.
-
-After creating request and testing connection you have to prepare gathered data 
-for uploading.First you must create *Label* object for each label that you
-have gathered. Each label consists of object name , worker name and category name.
-Before uploading labels you will have to prepare categories to upload.
-Java client have functionality that allows you to extract classes from your 
-labels without any problems, you just have to call
-::
-
- Collection<Category> categories = CategoryFactory.getInstance().extractCategories(labelCollection);
+<span style='color:#3f5fbf; '>/**</span>
+<span style='color:#3f5fbf; '>&#xa0;* Class used for processing data files.</span>
+<span style='color:#3f5fbf; '>&#xa0;*/</span>
+public class DataFilesProcessor <span style='color:#806030; '>{</span>
 
 
+    <span style='color:#3f5fbf; '>/**</span>
+<span style='color:#3f5fbf; '>&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;* This function generates labels from file.</span>
+<span style='color:#3f5fbf; '>&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;* File must be formatted as follows &lt;worker>&lt;tab>&lt;object>&lt;tab>&lt;label></span>
+<span style='color:#3f5fbf; '>&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;* </span><span style='color:#7f9fbf; font-weight:bold; '>@param</span><span style='color:#3f5fbf; '> filename Name of file containing worker assigned labels.</span>
+<span style='color:#3f5fbf; '>&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;* </span><span style='color:#7f9fbf; font-weight:bold; '>@return</span><span style='color:#3f5fbf; '> Collection of labels extracted from files.</span>
+<span style='color:#3f5fbf; '>&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;*/</span>    
+    public Collection<span style='color:#806030; '>&lt;</span>Label<span style='color:#806030; '>></span> parseLabels<span style='color:#806030; '>(</span><span style='color:#800040; '>String</span> filename<span style='color:#806030; '>)</span> throws IOException<span style='color:#806030; '>{</span>
+    File dataFile <span style='color:#806030; '>=</span> new File<span style='color:#806030; '>(</span>filename<span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+    Scanner scanner <span style='color:#806030; '>=</span> new Scanner<span style='color:#806030; '>(</span>dataFile<span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+    <span style='color:#800040; '>String</span> line<span style='color:#806030; '>;</span>
+    <span style='color:#800040; '>String</span><span style='color:#806030; '>[</span><span style='color:#806030; '>]</span> inputData<span style='color:#806030; '>;</span>
+    Collection<span style='color:#806030; '>&lt;</span>Label<span style='color:#806030; '>></span> labels <span style='color:#806030; '>=</span> new ArrayList<span style='color:#806030; '>&lt;</span>Label<span style='color:#806030; '>></span><span style='color:#806030; '>(</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+    <span style='color:#400000; font-weight:bold; '>while</span><span style='color:#806030; '>(</span>scanner<span style='color:#806030; '>.</span>hasNextLine<span style='color:#806030; '>(</span><span style='color:#806030; '>)</span><span style='color:#806030; '>)</span><span style='color:#806030; '>{</span>
+        line <span style='color:#806030; '>=</span> scanner<span style='color:#806030; '>.</span>nextLine<span style='color:#806030; '>(</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+        inputData <span style='color:#806030; '>=</span> line<span style='color:#806030; '>.</span>split<span style='color:#806030; '>(</span><span style='color:#800000; '>"</span><span style='color:#0f6900; '>\t</span><span style='color:#800000; '>"</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+        <span style='color:#400000; font-weight:bold; '>if</span><span style='color:#806030; '>(</span>inputData<span style='color:#806030; '>.</span>length<span style='color:#806030; '>!</span><span style='color:#806030; '>=</span><span style='color:#c00000; '>3</span><span style='color:#806030; '>)</span><span style='color:#806030; '>{</span>
+        throw new IOException<span style='color:#806030; '>(</span><span style='color:#800000; '>"</span><span style='color:#e60000; '>Incorrect file format </span><span style='color:#0f6900; '>\"</span><span style='color:#800000; '>"</span><span style='color:#806030; '>+</span>line<span style='color:#806030; '>+</span><span style='color:#800000; '>"</span><span style='color:#0f6900; '>\"</span><span style='color:#800000; '>"</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+        <span style='color:#806030; '>}</span><span style='color:#400000; font-weight:bold; '>else</span><span style='color:#806030; '>{</span>
+        labels<span style='color:#806030; '>.</span>add<span style='color:#806030; '>(</span>new Label<span style='color:#806030; '>(</span>inputData<span style='color:#806030; '>[</span><span style='color:#c00000; '>0</span><span style='color:#806030; '>]</span><span style='color:#806030; '>,</span>inputData<span style='color:#806030; '>[</span><span style='color:#c00000; '>1</span><span style='color:#806030; '>]</span><span style='color:#806030; '>,</span>inputData<span style='color:#806030; '>[</span><span style='color:#c00000; '>2</span><span style='color:#806030; '>]</span><span style='color:#806030; '>)</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+        <span style='color:#806030; '>}</span>
+    <span style='color:#806030; '>}</span>
+    System<span style='color:#806030; '>.</span>out<span style='color:#806030; '>.</span>println<span style='color:#806030; '>(</span>labels<span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+        <span style='color:#400000; font-weight:bold; '>return</span> labels<span style='color:#806030; '>;</span>
+    <span style='color:#806030; '>}</span>
 
-Where labelsCollection is of *Collection<Label>* class that contains labels that will be processed.
-This will create categories with default misclassification costs, with means that all misclassifications
-will be treated equally. This situation may be satisfactionary in simplest cases but many times, this 
-example included, it's not enough. It should be clear that if we want to use our classification engine
-to create list of porn free websites situation in with pornographic content slips trough is much more 
-serious than one in with non-porn site will be omitted from our list. To inform Troia what we don't want 
-to treat all misclassifications equally we must create misclassification matrix. This is actually a map
-that associates category names, of correct one and one classified to object, to misclassification cost.
-So to create this "misclassification matrix" you have to do something like that :
-::
 
- Map<String,Map<String,Double>> matrix = new HashMap<String,Map<String,Double>();
- Map<String,Double> vector = new HashMap<String,Double>();
- matrix.add("porn",vector);
- vector.add("porn",0);
- vector.add("not-porn",0.5);
- vector = new HashMap<String,Double>();
- matrix.add("not-porn",vector);
- vector.add("porn",1);
- vector.add("not-porn",0);
+<span style='color:#806030; '>}</span>
+</pre>
+{% restructuredtext %}
 
-To crate categories with those misclassification costs you have to simply use following function
-::
+Using Troia server
+------------------
+After you prepared collection of labels you can send them to Troia server 
+this is done by this code :
+{% endrestructuredtext %}
+<pre style='color:#000000;background:#f1f0f0;'>package tutorial<span style='color:#806030; '>;</span>
 
- Collection<Category> categories = CategoryFactory.getInstance().extractCategories(labelCollection,matrix);
 
-Then to initialise request you have to upload categories to Troia server with following code
-::
+<span style='color:#400000; font-weight:bold; '>import</span> java<span style='color:#806030; '>.</span>util<span style='color:#806030; '>.</span>Collection<span style='color:#806030; '>;</span>
+<span style='color:#400000; font-weight:bold; '>import</span> java<span style='color:#806030; '>.</span>util<span style='color:#806030; '>.</span>Map<span style='color:#806030; '>;</span>
+<span style='color:#400000; font-weight:bold; '>import</span> java<span style='color:#806030; '>.</span>io<span style='color:#806030; '>.</span>IOException<span style='color:#806030; '>;</span>
+<span style='color:#400000; font-weight:bold; '>import</span> java<span style='color:#806030; '>.</span>net<span style='color:#806030; '>.</span>HttpURLConnection<span style='color:#806030; '>;</span>
+<span style='color:#400000; font-weight:bold; '>import</span> java<span style='color:#806030; '>.</span>net<span style='color:#806030; '>.</span>MalformedURLException<span style='color:#806030; '>;</span>
 
- try{
-  request.loadCategories(categories);
- }catch(IOException e){
-  System.out.println("Connection to Troia is broken");
- }
- 
+<span style='color:#c34e00; '>/* Importing all classes from Troia client library*/</span>
+<span style='color:#400000; font-weight:bold; '>import</span> troiaClient<span style='color:#806030; '>.</span><span style='color:#806030; '>*</span><span style='color:#806030; '>;</span>
 
-After that you can finally send labels to server. 
-::
 
- try{
-  request.loadLabels(labelsCollection);
- }catch(IOException e){
-  System.out.println("Connection to Troia is broken");
- }
- 
-After labels have been uploaded to Troia server you
-can finally process it and download results.
+<span style='color:#c34e00; '>/*</span>
+<span style='color:#c34e00; '>&#xa0;* This class is example of use of Troia service with</span>
+<span style='color:#c34e00; '>&#xa0;* Java client library</span>
+<span style='color:#c34e00; '>&#xa0;*/</span>
+public class TroiaExample <span style='color:#806030; '>{</span>
+    
 
-Processing data and fetching results
-------------------------------------
-To process uploaded data you have to call *computeBlocking* function that
-takes number of iterations with Dawid-Skene algorithm will be run as a parameter.
-Three iterations are usually optimal number.
-::
+    <span style='color:#c34e00; '>/*If this is true then if request with this name exists on server it will be updated*/</span>
+    private <span style='color:#400000; font-weight:bold; '>static</span> final boolean ENABLE_UPDATE <span style='color:#806030; '>=</span> true<span style='color:#806030; '>;</span>
 
- try{
-  request.computeBlocking(3);
- }catch(IOException e){
-  System.out.println("Connection to Troia is broken");
- }
+    <span style='color:#c34e00; '>/*This function contains example of Troia java client implementation */</span>
+    public <span style='color:#400000; font-weight:bold; '>void</span> processRequest<span style='color:#806030; '>(</span>Collection<span style='color:#806030; '>&lt;</span>Label<span style='color:#806030; '>></span> labels<span style='color:#806030; '>)</span><span style='color:#806030; '>{</span>
+    <span style='color:#c34e00; '>/*Most Troia client methods may throw exception when unable to connect to </span>
+<span style='color:#c34e00; '>&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;*Troia so they must be put in try block.*/</span>
+    try<span style='color:#806030; '>{</span>
 
-This code executes Dawid-Skene algorithm, with is heart of Troia projects, three
-times on labels uploaded in previous steps. After that Troia server already holds
-labels with improved quality but if you want to use them you still have to download 
-them from server. Best way to do this is to download all of them at once as using
-lot of single object requests will put a lot of strain on server.
-To do that you should call following code 
-::
+        <span style='color:#c34e00; '>/*Crating request that will use "</span><span style='color:#5555dd; '>www.project-troia.com</span><span style='color:#c34e00; '>" as Troia server and "TurtorialRequest"</span>
+<span style='color:#c34e00; '>&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;*as a request identifier. Timeout for request will be 3 seconds (3000 miliseconds).</span>
+<span style='color:#c34e00; '>&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;*This constructor checks if url is not malformed and if it is throws a exception. */</span>
+        TroiaRequest request <span style='color:#806030; '>=</span> new TroiaRequest<span style='color:#806030; '>(</span><span style='color:#800000; '>"</span><span style='color:#e60000; '>www.project-troia.com/GetAnotherLabel/rest/</span><span style='color:#800000; '>"</span><span style='color:#806030; '>,</span><span style='color:#800000; '>"</span><span style='color:#e60000; '>TutorialRequest</span><span style='color:#800000; '>"</span><span style='color:#806030; '>,</span><span style='color:#c00000; '>3000</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
 
- try{
-  Map<String,String> labels = request.majorityVotes();
- }catch(IOException e){
-  System.out.println("Connection to Troia is broken");
- }
+        <span style='color:#c34e00; '>//Checking if Troia server is at given address</span>
+        System<span style='color:#806030; '>.</span>out<span style='color:#806030; '>.</span>println<span style='color:#806030; '>(</span>request<span style='color:#806030; '>.</span>ping<span style='color:#806030; '>(</span><span style='color:#806030; '>)</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
 
-Resulting map associates object name with category name generated by Troia service.  
+        <span style='color:#c34e00; '>//Checking if there is already request with given name</span>
+        <span style='color:#400000; font-weight:bold; '>if</span><span style='color:#806030; '>(</span><span style='color:#806030; '>!</span>request<span style='color:#806030; '>.</span>exists<span style='color:#806030; '>(</span><span style='color:#806030; '>)</span><span style='color:#806030; '>|</span><span style='color:#806030; '>|</span>ENABLE_UPDATE<span style='color:#806030; '>)</span><span style='color:#806030; '>{</span>
 
+        <span style='color:#c34e00; '>/*Extracting categories from labels*/</span>
+        Collection<span style='color:#806030; '>&lt;</span>Category<span style='color:#806030; '>></span> categories <span style='color:#806030; '>=</span> CategoryFactory<span style='color:#806030; '>.</span>getInstance<span style='color:#806030; '>(</span><span style='color:#806030; '>)</span><span style='color:#806030; '>.</span>extractCategories<span style='color:#806030; '>(</span>labels<span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+
+        <span style='color:#c34e00; '>//Uploading categories into Troia server</span>
+        request<span style='color:#806030; '>.</span>loadCategories<span style='color:#806030; '>(</span>categories<span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+
+        <span style='color:#c34e00; '>//Uploading labels into Troia server</span>
+        request<span style='color:#806030; '>.</span>loadLabels<span style='color:#806030; '>(</span>labels<span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+
+        <span style='color:#c34e00; '>//Ordering Troia server to execute Dawid-Skene algorithm with </span>
+        <span style='color:#c34e00; '>//3 iterations</span>
+        request<span style='color:#806030; '>.</span>computeBlocking<span style='color:#806030; '>(</span><span style='color:#c00000; '>3</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+
+        <span style='color:#c34e00; '>//Map that contains categories associated to objects by Troia</span>
+        Map<span style='color:#806030; '>&lt;</span><span style='color:#800040; '>String</span><span style='color:#806030; '>,</span><span style='color:#800040; '>String</span><span style='color:#806030; '>></span> majorityVotes <span style='color:#806030; '>=</span> request<span style='color:#806030; '>.</span>majorityVotes<span style='color:#806030; '>(</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+
+        <span style='color:#c34e00; '>//Printing out categories associated to object by Troia</span>
+        Collection<span style='color:#806030; '>&lt;</span><span style='color:#800040; '>String</span><span style='color:#806030; '>></span> categoryNames <span style='color:#806030; '>=</span> majorityVotes<span style='color:#806030; '>.</span>keySet<span style='color:#806030; '>(</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+        <span style='color:#400000; font-weight:bold; '>for</span> <span style='color:#806030; '>(</span><span style='color:#800040; '>String</span> categoryName <span style='color:#806030; '>:</span> categoryNames<span style='color:#806030; '>)</span> <span style='color:#806030; '>{</span>
+            System<span style='color:#806030; '>.</span>out<span style='color:#806030; '>.</span>println<span style='color:#806030; '>(</span>categoryName<span style='color:#806030; '>+</span><span style='color:#800000; '>"</span><span style='color:#e60000; '> category is </span><span style='color:#800000; '>"</span><span style='color:#806030; '>+</span>majorityVotes<span style='color:#806030; '>.</span>get<span style='color:#806030; '>(</span>categoryName<span style='color:#806030; '>)</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+        <span style='color:#806030; '>}</span>
+
+        <span style='color:#806030; '>}</span>
+
+    <span style='color:#806030; '>}</span>catch<span style='color:#806030; '>(</span>MalformedURLException e<span style='color:#806030; '>)</span><span style='color:#806030; '>{</span>
+        <span style='color:#c34e00; '>//This code will be reached if Troia service URL is malformed</span>
+        System<span style='color:#806030; '>.</span>out<span style='color:#806030; '>.</span>println<span style='color:#806030; '>(</span><span style='color:#800000; '>"</span><span style='color:#e60000; '>Troia URL is malformed</span><span style='color:#800000; '>"</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+        e<span style='color:#806030; '>.</span>printStackTrace<span style='color:#806030; '>(</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+    <span style='color:#806030; '>}</span>catch<span style='color:#806030; '>(</span>IOException e<span style='color:#806030; '>)</span><span style='color:#806030; '>{</span>
+        <span style='color:#c34e00; '>//This code will be reached if connection with Troia is broken</span>
+        System<span style='color:#806030; '>.</span>out<span style='color:#806030; '>.</span>println<span style='color:#806030; '>(</span>e<span style='color:#806030; '>.</span>getMessage<span style='color:#806030; '>(</span><span style='color:#806030; '>)</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+        e<span style='color:#806030; '>.</span>printStackTrace<span style='color:#806030; '>(</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+    <span style='color:#806030; '>}</span>
+    <span style='color:#806030; '>}</span>
+
+
+<span style='color:#806030; '>}</span>
+</pre>
+{% restructuredtext %}
+
+Finally main class must be written to assure cooperation between written parts of code
+{% endrestructuredtext %}
+
+<pre style='color:#000000;background:#f1f0f0;'>package tutorial<span style='color:#806030; '>;</span>
+
+
+
+<span style='color:#3f5fbf; '>/**</span>
+<span style='color:#3f5fbf; '>&#xa0;* This is class containing main function</span>
+<span style='color:#3f5fbf; '>&#xa0;* for usefull code see TroiaExample.java or DataFileProcessor.java</span>
+<span style='color:#3f5fbf; '>&#xa0;*/</span>
+public class ExampleMain <span style='color:#806030; '>{</span>
+    
+    
+    public <span style='color:#400000; font-weight:bold; '>static</span> <span style='color:#400000; font-weight:bold; '>void</span> <span style='color:#800000; font-weight:bold; '>main</span><span style='color:#806030; '>(</span><span style='color:#800040; '>String</span><span style='color:#806030; '>[</span><span style='color:#806030; '>]</span> args<span style='color:#806030; '>)</span> <span style='color:#806030; '>{</span>
+    DataFilesProcessor processor <span style='color:#806030; '>=</span> new DataFilesProcessor<span style='color:#806030; '>(</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+    TroiaExample example <span style='color:#806030; '>=</span> new TroiaExample<span style='color:#806030; '>(</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+    try<span style='color:#806030; '>{</span>
+        example<span style='color:#806030; '>.</span>processRequest<span style='color:#806030; '>(</span>processor<span style='color:#806030; '>.</span>parseLabels<span style='color:#806030; '>(</span><span style='color:#800000; '>"</span><span style='color:#e60000; '>data/tutorialLabels.txt</span><span style='color:#800000; '>"</span><span style='color:#806030; '>)</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+    <span style='color:#806030; '>}</span>catch<span style='color:#806030; '>(</span>Exception e<span style='color:#806030; '>)</span><span style='color:#806030; '>{</span>
+        System<span style='color:#806030; '>.</span>out<span style='color:#806030; '>.</span>println<span style='color:#806030; '>(</span><span style='color:#800000; '>"</span><span style='color:#e60000; '>Error occured : </span><span style='color:#800000; '>"</span><span style='color:#806030; '>+</span>e<span style='color:#806030; '>.</span>getMessage<span style='color:#806030; '>(</span><span style='color:#806030; '>)</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+        e<span style='color:#806030; '>.</span>printStackTrace<span style='color:#806030; '>(</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+    <span style='color:#806030; '>}</span>
+    <span style='color:#806030; '>}</span>
+<span style='color:#806030; '>}</span>
+</pre>
+{% restructuredtext %}
 Downloading tutorial application
 --------------------------------
 To get application that is ecample of what was discussed here you can get Java client
