@@ -1,0 +1,33 @@
+{% extends "skeleton/_base.html" %}
+{% hyde
+    title: "JS client"
+%}
+
+{% block extra_js %}
+	<script type="text/javascript" src="/media/js/underscore.js" charset="utf-8"></script>
+	<script type="text/javascript" src="/media/js/troia.js" charset="utf-8"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="row-fluid">
+    <div class="span12">
+		<form id="data_form" class="form-horizontal" method="post">					
+			<ul class="nav nav-tabs">
+			    <li class="active"><a href="#data" data-toggle="tab">Data</a></li>
+			    <li><a href="#gold" data-toggle="tab">Gold data</a></li>
+			    <li><a href="#matrix" data-toggle="tab">Cost matrix</a></li>
+		    </ul>
+			<div class="tab-content">
+				<div class="tab-pane active" id="data"><textarea id="id_data" class="field span6" rows="15" cols="40" placeholder="worker object class"></textarea></div>
+				<div class="tab-pane" id="gold"><textarea id="id_gold_data" class="field span6" rows="15" cols="40" placeholder="object class"></textarea></div>
+				<div class="tab-pane" id="matrix"><div id="mytable"></div></div>
+			</div>
+			<div class="form-actions">
+				<input type="button" value="Send" class="btn" id="send_data"/>
+			</div>
+		</form>
+		<div id="response"></div>
+    </div>
+</div>
+{% endblock %}
