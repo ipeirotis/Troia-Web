@@ -210,7 +210,8 @@ MEDIA_PROCESSORS = {
                 'hydeengine.media_processors.CSSmin',),
         '.js':(
                 'hydeengine.media_processors.TemplateProcessor',
-                'hydeengine.media_processors.JSmin',),
+                ),
+                #'hydeengine.media_processors.JSmin',),
         '.coffee':(
                 'hydeengine.media_processors.TemplateProcessor',
                 'hydeengine.media_processors.CoffeeScript',
@@ -268,7 +269,7 @@ CLOSURE_COMPRILER = None
 # path for HSS, which is a preprocessor for CSS-like files (*.hss)
 # project page at http://ncannasse.fr/projects/hss
 #HSS_PATH = "./lib/hss-1.0-osx"
-HSS_PATH = None # if you don't want to use HSS
+HSS_PATH = None  # if you don't want to use HSS
 
 LESS_CSS_PATH = "/usr/local/bin/lessc"
 
