@@ -10,90 +10,27 @@
 {% restructuredtext %}
 
 ===========================================
-Java client library
+Java client
 ===========================================
 
-How to use
-----------
+This document assumes that you know what Troia project is about and have already setup its server.
+
 To use Troia service you must create a request with unique ID and service URL configured.
 Then you must execute three steps :
  
- - data upload
- - algorithm execution (computeBlocking)
- - results download
+- data upload
+- algorithm execution (computeBlocking)
+- results download
 
 It is possible to download results before executing algorithm but that will result in 
-worthless data, so you must be sure that you called *computeBlocking* function before 
+an incomplete data, so you must be sure that you called *computeBlocking* function before 
 downloading results. 
-
-
-Client classes
---------------
-Troia client provides classes that assure compatibility between models used in server and client environment.
-Beside those classes client also contains factories that allow simple creation of object required by 
-Troia server. Those classes are used only for data compatibility in communication with service and do
-not create any sort of object model so data verification must be handled in outside code.
-
-
-Basic classes
-------------- 
-Category
-~~~~~~~~
-Category contains information about category name and it misclassification cost.
-It also provides, as static constants, default values of misclassification costs for right
-and wrong classification, and default category priority. 
-
-
-GoldLabel
-~~~~~~~~~
-Represents a correct label, contains object name and name of object category.
-
-Label
-~~~~~
-Represents single label created by worker.
-Contains object name, worker name and category name
-
-MisclassificationCost
-~~~~~~~~~~~~~~~~~~~~~
-Cost of incorrect classification contains cost value, category from and category to.
-Category from holds name of category that was 
-
-Factories
----------
-CategoryFactory
-~~~~~~~~~~~~~~~
-Allows simple creation of category class objects.
-The most basic way to do it is to call function **createCategories** with collection
-of String objects representing category names. This will result in creation of categories with
-given names an default misclassification costs. This is perfect approach if you do not need to 
-create nonstandard misclassification cost maps as it allows you to completely ignore this part
-of Troia model and simplifies it use. To be able to create more complex classification models
-you can simply pass another argument, this time of type Map<String,Map<String,Double>>, representing
-misclassification cost matrix. Correct format of this map is that first key indicates from what and second to 
-with category  cost is in map. So  if one will call a function *costs.get("CategoryA").get("CategoryB")*, where 
-"costs" is correctly formatted misclassification matrix, it will return cost of misclassification in situation when
-object that belong to *CateogryA* was classified as *CategoryB*.
-
-MissclassificationCostFactory
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-It's used to create MisclassificationCost basing on input of Category collection. Category 
-object in input must contain their misclassification maps in correct format.
-
-TroiaRequest
------------------
-TroiaRequest is most important class in Troia client, it represents single request to service.
-Sometimes, especially in Troia inter works descriptions, request may be called Troia model. From client
-side request is identified by service URL and request ID. Request object to not contain any data besides
-that required for it identification, however it provides access to data stored in Troia server and enables
-access to it services. All methods throw IOException if connection to Troia failed.
-
-For more information visit:
 
 .. raw:: html
 
     <a class="btn btn-info" href="/apidocs">
         <i class="icon-info-sign icon-white"></i>
-        Package documentation site
+        Javadoc
     </a>
 
 {% endrestructuredtext %}
