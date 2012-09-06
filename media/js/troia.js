@@ -1,19 +1,21 @@
 function initialize() {
-	var api_url = "/server/";
-	var id = '444444';
-	var max_iters = 10;
+	var api_url = "/api/";
 	var iters = 1;
+	var id = 123;
+	$('#jobid').prop('value', id);
 	var category_list = []; //lista klas
 //	var table_created = false;
 	$('#response').hide();
 	
 	$('#send_data').click(function(){
 		var data = parse_worker_assigned_labels();
+		id = parseInt($('#jobid').prop('value'));
+		console.log(id)
 		load_cost_matrix();
 		load_worker_assigned_labels(data);
 		load_gold_labels();
 		$('#response').show();
-		for(i=0; i<max_iters; i+=iters)
+		for(i=0; i<$('#iternumber').val(); i+=iters)
 			compute(iters, function(res){
 				$('#workers').html(worker_summary().replace(/\n/gi, '<br/>'));
 				$('#classes').html(create_classes_table(majority_votes()));
@@ -92,6 +94,7 @@ function initialize() {
 	function parse_worker_assigned_labels()
 	{
 		var data = [];
+		category_list = [];
 		_.each($("#id_data").val().split(/\n/), function(line){
 			var parsed_line = _.compact(line.split(/[\t ]/));
 			data.push({
@@ -127,7 +130,7 @@ function initialize() {
 		var ret = [];
 		var k = 0;
 		var l = labels.length;
-		_.each($('input'), function(i){
+		_.each($('#mytable input'), function(i){
 			if (k%l == 0){
 				d = {};
 				ret.push({
@@ -205,6 +208,10 @@ function initialize() {
 	function create_classes_table(data) {
 		return _.template($("#classes_template").html(), {data: JSON.parse(data)} );
 	};
+	
+//	function create_workers_table(data) {
+//		return _.template($("#workes_template").html(), {data: JSON.parse(data)} );
+//	}
 
 	function create_table(labels) {
 		$('#mytable').empty();

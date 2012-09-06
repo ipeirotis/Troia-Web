@@ -19,11 +19,33 @@
 			    <li><a href="#matrix" data-toggle="tab">Cost matrix</a></li>
 		    </ul>
 			<div class="tab-content">
-				<div class="tab-pane active" id="data"><textarea id="id_data" class="field span6" rows="15" cols="40" placeholder="worker object class"></textarea></div>
-				<div class="tab-pane" id="gold"><textarea id="id_gold_data" class="field span6" rows="15" cols="40" placeholder="object class"></textarea></div>
-				<div class="tab-pane" id="matrix"><div id="mytable"></div></div>
+				<div class="tab-pane active" id="data">
+					<div class="span7"><textarea id="id_data" class="field span6" rows="15" cols="40" placeholder="worker object class"></textarea></div>
+					<div class="span4 well">
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nibh ante, vestibulum at fermentum sit amet, elementum ut sapien. Nullam interdum vulputate tincidunt. Donec congue dui vehicula velit placerat sit amet rhoncus lacus scelerisque. Proin quis velit nec enim fringilla feugiat sagittis sit amet nunc. Nullam blandit fringilla sem et tristique. Donec tellus nulla, bibendum sed ullamcorper ut, suscipit et risus. Vivamus sollicitudin vestibulum augue eu congue. 
+					</div>
+				</div>
+				<div class="tab-pane" id="gold">
+					<div class="span7"><textarea id="id_gold_data" class="field span6" rows="15" cols="40" placeholder="object class"></textarea></div>
+					<div class="span4 well">
+						Morbi sed aliquet magna. Ut sagittis, metus eget varius molestie, purus magna mollis libero, vitae sollicitudin elit neque nec diam. Praesent mauris risus, posuere in placerat sit amet, mollis et nunc. Donec vitae neque urna. Phasellus luctus feugiat lectus nec fermentum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce sit amet aliquet mauris. Maecenas consectetur tristique sagittis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ultricies, dui sagittis tincidunt viverra, dolor est aliquam turpis, ut pharetra erat lorem tincidunt mi. 								</div>
+				</div>
+				<div class="tab-pane" id="matrix">
+					<div id="mytable" class="span7"></div>
+					<div class="span4 well">
+						Nunc rhoncus fermentum nisi ut pretium. In nisi nibh, tempor fermentum auctor eu, venenatis sed enim. Nullam ac pretium nisi. Nunc nec justo sed purus tincidunt faucibus sollicitudin volutpat felis. In hac habitasse platea dictumst. Mauris vestibulum tempus dolor hendrerit sollicitudin.								</div>
+				</div>
 			</div>
 			<div class="form-actions">
+				ID:
+				<input id='jobid'/>
+				Number of iterations: 
+				 <select id="iternumber">
+				  <option value="5">5</option>
+				  <option value="10">10</option>
+				  <option value="25">25</option>
+				  <option value="100">100</option>
+				</select> 
 				<span type="button" class="btn" id="send_data">Send</span>
 			</div>
 		</form>
