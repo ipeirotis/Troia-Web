@@ -14,7 +14,7 @@ LESSC = 'lessc'
 USER = '{0}:{0}'.format(env.user)
 
 SERVICE_PREFIX = 'service '
-SERVICE_PREFIX = '/etc/rc.d/'  # In case of BSD init convention.
+#SERVICE_PREFIX = '/etc/rc.d/'  # In case of BSD init convention.
 
 
 def message(msg, *args, **kwargs):
@@ -169,6 +169,7 @@ def generate(src, dst):
     run('hyde -g -s \'{}\' -d \'{}\''.format(src, dst))
 
 
+
 @task
 def update_server(confpath=DEFAULT_PATH):
     ''' Updates server configuration. '''
@@ -213,16 +214,19 @@ def deploy_troia_server(confpath=DEFAULT_PATH):
     # Ensure all services are already installed.
     ensure_srv(conf)
     src = '{source_root}/Troia-Server'.format(**conf)
-    #clone_or_update(src, conf['troia_server_repo'])
+    clone_or_update(src, conf['troia_server_repo'])
     target = '{}/target/GetAnotherLabel.war'.format(src)
-    #maven_build(src, target, cmd='package -Dmaven.test.skip=true',
-    #            mvn='{maven_root}/bin/mvn'.format(**conf))
+    maven_build(src, target, cmd='package -Dmaven.test.skip=true',
+                mvn='{maven_root}/bin/mvn'.format(**conf))
+    run('cp {} {tomcat_root}/webapps'.format(target, **conf))
+    execute(restart_troia_server, confpath=confpath)
     upload_template(
         os.path.join(CONF_ROOT, 'troia-server', 'dawidskene.properties'),
         '{tomcat_root}/webapps/GetAnotherLabel/WEB-INF/classes/dawidskene.properties'.format(**conf),
         context=conf)
     media_root = '{hyde_root}/media'.format(**conf)
     ensure_tree(media_root, ('downloads'))
+    run('cp {} {}/downloads'.format(target, media_root))
     ensure_tree('{project_root}'.format(**conf), ('scripts', 'sql'))
     upload_template(
         os.path.join(CONF_ROOT, 'db_clear.sh'),
@@ -230,8 +234,16 @@ def deploy_troia_server(confpath=DEFAULT_PATH):
         context=conf)
     put(os.path.join(CONF_ROOT, 'db_clear.sql'),
         '{sql_root}'.format(**conf))
-    run('cp {} {}/downloads'.format(target, media_root))
-    run('cp {} {tomcat_root}/webapps'.format(target, **conf))
+
+
+@task
+def update_troia_server(confpath=DEFAULT_PATH):
+    conf = readconf(confpath)
+    # Upload configuration file.
+    upload_template(
+        os.path.join(CONF_ROOT, 'tomcat', 'server.xml'),
+        '{services_root}/tomcat/conf'.format(**conf),
+        context=conf)
     execute(restart_troia_server, confpath=confpath)
 
 
@@ -260,7 +272,7 @@ def deploy_web(update_env=False, confpath='default.json'):
     # Project root alredy exists. Current remote user is assummed to be an
     # onwer of the directory.
     src_root = '{source_root}/Troia-Web'.format(**conf)
-    clone_or_update(src_root, conf['troia_web_repo'], 'mb_troia_server')
+    clone_or_update(src_root, conf['troia_web_repo'])
     ensure_env(update=update_env, path=conf['virtualenv_root'],
                reqpath='{}/requirements.txt'.format(src_root))
     media_root = '{}/media'.format(src_root)
