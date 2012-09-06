@@ -10,18 +10,37 @@ function initialize() {
 	
 	
 	$('#send_data').click(function(){
+		var btn_text =$(this).text();
+		$(this).addClass('disabled');
+		
+		//posting data
 		reset();
 		var data = parse_worker_assigned_labels();
 		id = parseInt($('#jobid').prop('value'));
+		$(this).text('Sending data..');
 		load_cost_matrix();
 		load_worker_assigned_labels(data);
 		load_gold_labels();
+		
+		//compute and get answer
 		$('#response').show();
-		for(i=0; i<$('#iternumber').val(); i+=iters)
+		i = 0;
+		var that = this;
+		interval_func = setInterval(function(){
+			i += 1;
+			if (i>$('#iternumber').val())
+			{
+				clearInterval(interval_func);
+				$(that).removeClass('disabled');
+				$(that).text(btn_text);
+				return;
+			}
+			$(that).text('Iteration ' + i + '..');
 			compute(iters, function(res){
 				$('#workers').html(worker_summary().replace(/\n/gi, '<br/>'));
 				$('#classes').html(create_classes_table(majority_votes()));
 			});
+		}, 1500);
 	});
 	
     $('a[data-toggle="tab"]').on('shown', function (e) {
