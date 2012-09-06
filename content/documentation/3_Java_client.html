@@ -1,0 +1,74 @@
+{% extends "skeleton/_base.html" %}
+{% hyde
+    title: "3. Java client"
+%}
+
+{% block content %}
+
+<div class="row-fluid">
+    <div class="span12">
+{% restructuredtext %}
+
+===========================================
+Java client
+===========================================
+
+This document assumes that you know what Troia project is about and have already setup its server.
+
+To use Troia service you must create a request with unique ID and service URL configured.
+Then you must execute three steps :
+ 
+- data upload
+- algorithm execution (computeBlocking)
+- results download
+
+It is possible to download results before executing algorithm but that will result in 
+an incomplete data, so you must be sure that you called *computeBlocking* function before 
+downloading results. 
+
+.. raw:: html
+
+    <a class="btn btn-info" href="/apidocs">
+        <i class="icon-info-sign icon-white"></i>
+        Javadoc
+    </a><p>&nbsp;</p>
+
+To use Java client you should download latest version from git-hub. 
+::
+
+ git clone git://github.com/10clouds/Troia-Java-Client.git
+
+After that you have to create jar package, you will need maven for that. 
+To do that you need to enter Java client main directory where pom.xml is located 
+and call maven with following command. :
+::
+
+ mvn package
+
+This will create *TroiaJavaClient-1.0.jar* in *target* directory.
+If you want to use maven in your project you will also have to call
+::
+
+ mvn clean install
+
+This will install library in your local maven repository so it can be used 
+while building other projects.
+
+Including library in project
+----------------------------
+If you use maven then you simply need to add following dependency to your pom.xml file :
+::
+ 
+ <dependency>
+  <groupId>TroiaJavaClient</groupId>
+  <artifactId>TroiaJavaClient</artifactId>
+  <version>1.0</version>
+ </dependency>
+
+If you are using another build 
+tool you must search tutorial on adding jars in it.
+
+{% endrestructuredtext %}
+    </div>
+</div>
+{% endblock %}

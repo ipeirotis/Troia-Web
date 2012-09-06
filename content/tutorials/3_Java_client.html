@@ -1,6 +1,6 @@
 {% extends "skeleton/_base.html" %}
 {% hyde
-    title: "Java client tutorial"
+    title: "3. Java client"
 %}
 
 {% block content %}
@@ -9,11 +9,16 @@
     <div class="span12">
 {% restructuredtext %}
 
-==========================================
-Basic Troia implementation tutorial (Java)
-==========================================
-Tutorial introduction
----------------------
+
+.. raw:: html
+
+    <a class="btn btn-info" href="https://github.com/10clouds/Troia-Java-Client/tree/with-tutorial/tutorialApp">
+        <i class="icon-download icon-white"></i>
+        Tutorial code
+    </a><p>&nbsp;</p>
+
+
+
 We have a set of web pages, being classifier by online workers, as being "porn" or "not porn". We do not know neither the correct classification of the pages nor how good the workers are in this particular task.
 
 In our simple example, we will have five workers (worker1 to worker5), and five URLs that need to be classified. We have two classes: porn and notporn.
@@ -61,10 +66,10 @@ Goal: The goal is to find the correct class of each example using the labels pro
 
 Workers have varying levels of quality:
 
- - worker1 is lazy, and gives the answer porn all the time
- - worker2 is ok but not great. For example, labeled http://yahoo.com as porn even though it is notporn
- - worker3 and worker4 are high-quality workers
- - worker5 is malicious, giving always the incorrect answer, trying to fool the system
+- worker1 is lazy, and gives the answer porn all the time
+- worker2 is ok but not great. For example, labeled http://yahoo.com as porn even though it is notporn
+- worker3 and worker4 are high-quality workers
+- worker5 is malicious, giving always the incorrect answer, trying to fool the system
 
 Of course, we do not know the correct category for the URLs and we do not know the quality of the workers beforehand.
 
@@ -231,24 +236,7 @@ public class ExampleMain <span style='color:#806030; '>{</span>
     <span style='color:#806030; '>}</span>
 <span style='color:#806030; '>}</span>
 </pre>
-{% restructuredtext %}
-Downloading tutorial application
---------------------------------
-To get application that is ecample of what was discussed here you can get Java client
-from github with "with-tutorial" branch. This version of code contains addnotational
-folder called "tutorialApp" with is a Java project on it's own. There you should review
-source file called TroiaExample.java.
-You can also download only a tutorial code from git under following link
 
-.. raw:: html
-
-    <a class="btn btn-info" href="https://github.com/10clouds/Troia-Java-Client/tree/with-tutorial/tutorialApp">
-        <i class="icon-download icon-white"></i>
-        Download tutorial code
-    </a>
-
-
-{% endrestructuredtext %}
     </div>
 </div>
 {% endblock %}
