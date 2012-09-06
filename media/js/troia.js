@@ -6,11 +6,12 @@ function initialize() {
 	var category_list = []; //lista klas
 //	var table_created = false;
 	$('#response').hide();
+	load_test_data();
+	
 	
 	$('#send_data').click(function(){
 		var data = parse_worker_assigned_labels();
 		id = parseInt($('#jobid').prop('value'));
-		console.log(id)
 		load_cost_matrix();
 		load_worker_assigned_labels(data);
 		load_gold_labels();
@@ -30,6 +31,14 @@ function initialize() {
     	}
     })
     
+    function load_test_data()
+    {
+    	$('#id_data').val("worker1 http://sunnyfun.com    porn\nworker1 http://sex-mission.com porn\nworker1 http://google.com      porn\nworker1 http://youporn.com     porn\nworker1 http://yahoo.com       porn\nworker2 http://sunnyfun.com    notporn\nworker2 http://sex-mission.com porn\nworker2 http://google.com      notporn\nworker2 http://youporn.com     porn\nworker2 http://yahoo.com       porn\nworker3 http://sunnyfun.com    notporn\nworker3 http://sex-mission.com porn\nworker3 http://google.com      notporn\nworker3 http://youporn.com     porn\nworker3 http://yahoo.com       notporn\nworker4 http://sunnyfun.com    notporn\nworker4 http://sex-mission.com porn\nworker4 http://google.com      notporn\nworker4 http://youporn.com     porn\nworker4 http://yahoo.com       notporn\nworker5 http://sunnyfun.com    porn\nworker5 http://sex-mission.com notporn\nworker5 http://google.com      porn\nworker5 http://youporn.com     notporn	\nworker5 http://yahoo.com       porn");
+    	$('#id_gold_data').val("http://google.com      notporn");
+    	parse_worker_assigned_labels();
+		create_table(category_list);
+    };
+    
     function jsonify(data)
     {
     	var post_data = {};
@@ -37,7 +46,7 @@ function initialize() {
 			post_data[key] = JSON.stringify(data[key]);
 		};
 		return post_data;
-    }
+    };
 	
 	function do_post(url, data)
 	{
@@ -252,6 +261,7 @@ function initialize() {
 			for(k=0;k<cell_num;k++) {
 				cell[k]=document.createElement('td');
 				cont=document.createElement('input');
+				$(cont).css('width', 100);
 				$(cont).prop('value', category['misclassification_cost'][labels[k]]);
 				cell[k].appendChild(cont);
 				row[c].appendChild(cell[k]);
