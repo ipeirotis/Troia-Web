@@ -139,9 +139,6 @@ def ensure_tree(root, subdirs, use_sudo=False):
         for subdir in subdirs:
             message('Making {}/{}'.format(root, subdir))
             func('mkdir -p {}'.format(subdir))
-# TODO ...
-#  run('mkdir -p logs/nginx/')
-#  run('mkdir -p services/nginx/')
 
 
 def maven_build(path, repo, cmd, mvn="mvn"):
