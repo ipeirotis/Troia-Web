@@ -1,196 +1,272 @@
 import os
+import json
 
 from fabric import colors
-from fabric.api import cd, env, prefix, run, sudo, settings, task
-from fabric.tasks import execute
+from fabric.api import cd, env, execute, prefix, put, run, sudo, task
 from fabric.contrib.files import exists, upload_template
 
 
-PROJECT_NAME = "troia-staging"
-PROJECTS_ROOT = "/data/projects"
-PROJECT_ROOT = "{}/{}".format(PROJECTS_ROOT, PROJECT_NAME)
-STATIC_ROOT = "{}/static".format(PROJECT_ROOT)
-SOURCE_ROOT = "{}/source".format(PROJECT_ROOT)
-APIDOC_ROOT = "{}/apidoc".format(PROJECT_ROOT)
-TROIA_WEB_SOURCE_ROOT = "{}/Troia-Web".format(SOURCE_ROOT)
-TROIA_SERVER_SOURCE_ROOT = "{}/Troia-Server".format(SOURCE_ROOT)
-TROIA_CLIENT_SOURCE_ROOT = "{}/Troia-Java-Client".format(SOURCE_ROOT)
-ENVIRONMENT_ROOT = "{}/virtualenv".format(PROJECT_ROOT)
-ENVIRONMENT_SOURCE = "source {}/bin/activate".format(ENVIRONMENT_ROOT)
+THIS_ROOT = os.path.dirname(os.path.abspath(__name__))
+CONF_ROOT = os.path.join(THIS_ROOT, "conf")
+DEFAULT_PATH = os.path.join(THIS_ROOT, 'default.json')
 
-TROIA_WEB_REPOSITORY = "git://github.com/ipeirotis/Troia-Web.git"
-TROIA_SERVER_REPOSITORY = "git://github.com/ipeirotis/Troia-Server.git"
-TROIA_CLIENT_REPOSITORY = "git://github.com/ipeirotis/Troia-Java-Client.git"
+LESSC = 'lessc'
+USER = '{0}:{0}'.format(env.user)
 
-LESSC = "lessc"
-USER = "{0}:{0}".format(env.user)
-
-# Desired Python interpretter.
-INTERPRETTER = "/usr/bin/python2.7"
-# Path to your maven binaries.
-MVN = "/opt/maven/bin/mvn"
-SERVICE_PREFIX = "service "
-# SERVICE_PREFIX = "/etc/rc.d/"  # In case of BSD init convention.
+SERVICE_PREFIX = 'service '
+SERVICE_PREFIX = '/etc/rc.d/'  # In case of BSD init convention.
 
 
 def message(msg, *args, **kwargs):
-    print colors.cyan("==>", bold=True), msg.format(*args)
+    print colors.cyan('==>', bold=True), msg.format(*args)
+
+
+def readconf(cpath):
+    with open(cpath, 'r') as cfile:
+        conf = json.load(cfile)
+        # For shorter notation.
+        cset = conf.setdefault
+        # Set some aux values.
+        cset('project_root', '{projects_root}/{project_name}'.format(**conf))
+        cset('source_root', '{project_root}/source'.format(**conf))
+        cset('static_root', '{project_root}/static'.format(**conf))
+        cset('services_root', '{project_root}/services'.format(**conf))
+        cset('virtualenv_root', '{project_root}/virtualenv'.format(**conf))
+        cset('scripts_root', '{project_root}/scripts'.format(**conf))
+        cset('sql_root', '{project_root}/sql'.format(**conf))
+        cset('tomcat_root','{services_root}/tomcat'.format(**conf))
+        cset('maven_root','{services_root}/maven'.format(**conf))
+        cset('hyde_root', '{static_root}/hyde'.format(**conf))
+        return conf
+    raise Exception('Could not read the configuration file')
 
 
 def setmode(path, recursive=False, perms=None, owner=None):
-    recursive = "--recursive" if recursive else ""
+    recursive = '--recursive' if recursive else ''
     if perms:
-        sudo("chmod {} {} {}".format(recursive, perms, path))
+        sudo('chmod {} {} {}'.format(recursive, perms, path))
     if owner:
-        sudo("chown {} {} {}".format(recursive, owner, path))
+        sudo('chown {} {} {}'.format(recursive, owner, path))
 
 
-def install(environment_path, requirements_path):
-    with prefix("source {}/bin/activate".format(environment_path)):
-        run("pip install -r {}".format(requirements_path))
+def ensure_srv(conf):
+    ''' Ensures services (maven, tomcat) are installed correctly.
+        It takes care only about services that are under ``services``
+        directory. '''
+    if exists('{services_root}/tomcat/bin/catalina.sh'.format(**conf)) and \
+       exists('{services_root}/maven/bin/mvn'.format(**conf)):
+        message('Services already installed. Skipping')
+        return
+    with cd('/tmp'):
+        ensure_tree('{project_root}'.format(**conf), 'services')
+        if not exists("/tmp/tomcat.tgz"):
+            message('Downloading apache tomcat')
+            run('wget {tomcat_url} -O tomcat.tgz'.format(**conf))
+        message('Installing apache tomcat')
+        run('tar xzf tomcat.tgz')
+        run('rm -rf tomcat/')
+        run('mv apache-tomcat-* tomcat')
+        run('cp -rf tomcat {services_root}'.format(**conf))
+        if not exists("/tmp/maven.tgz"):
+            message('Downloading apache maven')
+            run('wget {maven_url} -O maven.tgz'.format(**conf))
+        message('Installing apache maven')
+        run('tar xzf maven.tgz')
+        run('rm -rf maven/')
+        run('mv apache-maven-* maven')
+        run('cp -rf maven {services_root}'.format(**conf))
+    # Upload configuration file.
+    upload_template(
+        os.path.join(CONF_ROOT, 'tomcat', 'server.xml'),
+        '{services_root}/tomcat/conf'.format(**conf),
+        context=conf)
 
 
-def clone_or_update(path, repo):
-    """ Updates a local repository or clones it. """
-    exists = False
-    with cd(path):
-        with settings(warn_only=True):
-            if run("git status && git stash && git pull --rebase && git diff").return_code == 0:
-                message("Local repository found and updated")
-                exists = True
-    if not exists:
-        run("git clone {} {}".format(repo, path))
+def manage_srv(srv, cmd):
+    sudo("{}{} {}".format(SERVICE_PREFIX, srv, cmd))
 
 
-def ensure(path, update=False, requirements_path=None,
-           interpretter=INTERPRETTER):
-    """ Ensures environment already exists (creates if missing). """
-    splitted = path.rsplit("/", 1)
+def pip_install(envpath, reqpath):
+    with prefix('source {}'.format(envpath)):
+        run('pip install -r {}'.format(reqpath))
+
+
+def clone_or_update(path, repo, branch="master"):
+    ''' Updates a local repository or clones it. '''
+    message('Synchronizing with remote repository')
+    refspec = 'origin/{}'.format(branch)
+    if exists(path):
+        with cd(path):
+            run("git fetch origin")
+            run("git clean -f")
+            run("git reset --hard {}".format(refspec))
+    else:
+        run('git clone {} {}'.format(repo, path))
+        with cd(path):
+            run("git reset --hard {}".format(refspec))
+
+
+def ensure_env(path, update=False, reqpath=None, py='/usr/bin/python2.7'):
+    ''' Ensures environment already exists (creates if missing). '''
+    message('Checking Python\'s virtual environment')
+    splitted = path.rsplit('/', 1)
     if len(splitted) == 2:
         root = splitted[0]
         name = splitted[1]
     else:
-        raise Exception("Invalid path for virtual environment {}".format(path))
-    exists = False
-    with cd("{}/bin".format(path)):
-        with settings(warn_only=True):
-            if run("source activate").return_code == 0:
-                message("Virtual environment exists")
-                exists = True
-    if not exists:
-        message("Virtual environment does not exist. Creating a new one")
+        raise Exception('Invalid path for virtual environment {}'.format(path))
+    source_path = '{}/bin/activate'.format(path)
+    source_cmd = 'source {}'.format(source_path)
+    if exists(path):
+        message('Virtual environment exists. Trying to activate')
+        run(source_cmd)
+        if update:
+            pip_install(source_path, reqpath)
+    else:
+        message('Virtual environment does not exist. Creating a new one')
         with cd(root):
-            run("""virtualenv --python={interpretter} \
-                              --no-site-packages {name}"""
-                .format(interpretter=INTERPRETTER, name=name))
-        install(path, requirements_path)
-    if exists and update:
-        install(path, requirements_path)
+            run('virtualenv --python={} --no-site-packages {}'
+                .format(py, name))
+            pip_install(source_path, reqpath)
 
 
-def build_and_copy(source_root, source, destination, repository, cp_prefix="cp",
-                   mvn_command="{} package -Dmaven.test.skip=true".format(MVN)):
-    """ Builds maven project and copies results to the specified place. """
-    clone_or_update(source_root, repository)
-    with cd(source_root):
-        run(mvn_command)
-    run("{} {} {}".format(cp_prefix, source, destination))
+def ensure_tree(root, subdirs, use_sudo=False):
+    func = sudo if use_sudo else run
+    if not isinstance(subdirs, (list, tuple)):
+        subdirs = [subdirs]
+    message(colors.blue('Preparing directories structure'))
+    with cd(root):
+        for subdir in subdirs:
+            message('Making {}/{}'.format(root, subdir))
+            func('mkdir -p {}'.format(subdir))
 
 
-def compile(input_dir, output_dir, files):
-    """ Compiles less and moves resultant css to another directory for
-        further processing using hyde. """
-    message(colors.blue("Compiling less from {} to {}".format(input_dir,
+def maven_build(path, repo, cmd, mvn="mvn"):
+    ''' Updates a local repository and builds the maven project. '''
+    clone_or_update(path, repo)
+    with cd(path):
+        run('{} {}'.format(mvn, cmd))
+
+
+def compile(input_dir, output_dir, files=[]):
+    ''' Compiles less and moves resultant css to another directory for
+        further processing using hyde. '''
+    message(colors.blue('Compiling less from {} to {}'.format(input_dir,
                         output_dir)))
-    message(colors.blue("Files to compile: {}".format(", ".join(files))))
+    message(colors.blue('Files to compile: {}'.format(', '.join(files))))
     with cd(input_dir):
         for file_name in files:
-            name, ext = file_name.rsplit(".", 1)
-            result_name = "{}.css".format(name)
-            run("{} {} > {}".format(LESSC, file_name,
+            name, ext = file_name.rsplit('.', 1)
+            result_name = '{}.css'.format(name)
+            run('{} {} > {}'.format(LESSC, file_name,
                                     os.path.join(output_dir, result_name)))
 
 
-def generate(source_root=TROIA_WEB_SOURCE_ROOT, static_root=STATIC_ROOT,
-             environment_source=ENVIRONMENT_SOURCE):
-    message(colors.blue("Generating static content"))
+def generate(src, dst):
+    message(colors.blue('Generating static content'))
     # Ensure the static subdirectory exists.
-    run("mkdir -p {}".format(static_root))
-    print environment_source
-    with prefix(environment_source):
-        run("hyde -g -s \"{}\" -d \"{}\"".format(source_root, static_root))
-    # Prepares some directories structure for nginx.
-    message(colors.blue("Preparing directories structure"))
-    with cd(static_root):
-        run("mkdir -p logs/nginx/")
-        run("mkdir -p services/nginx/")
+    run('mkdir -p {}'.format(dst))
+    run('hyde -g -s \'{}\' -d \'{}\''.format(src, dst))
 
 
 @task
-def update_server():
-    """ Updates server configuration. """
-    server_root = "/etc/nginx"
-    local_root = os.path.dirname(os.path.abspath(__name__))
-    local_path = os.path.join(local_root, "conf", "nginx", "sites-available",
-                              "troia")
-    available_path = "{}/sites-available/troia".format(server_root)
-    enabled_path = "{}/sites-enabled/troia".format(server_root)
-    context = {"project_root": PROJECT_ROOT, "project_name": PROJECT_NAME}
-    upload_template(local_path, available_path, use_sudo=True, context=context)
-    sudo("ln -fs {} {}".format(available_path, enabled_path))
-    setmode(available_path, owner=USER)
-    setmode(enabled_path, owner=USER)
-    sudo("{}nginx reload".format(SERVICE_PREFIX))
+def update_server(confpath=DEFAULT_PATH):
+    ''' Updates server configuration. '''
+    conf = readconf(confpath)
+    apath = '/etc/nginx/sites-available/troia'
+    epath = '/etc/nginx/sites-enabled/troia'
+    upload_template(
+        os.path.join(CONF_ROOT, 'nginx', 'sites-available', 'troia'),
+        '/etc/nginx/sites-available/troia',
+        use_sudo=True,
+        context=conf)
+    sudo('ln -fs {} {}'.format(apath, epath))
+    setmode(apath, owner=USER)
+    setmode(epath, owner=USER)
+    ensure_tree(conf['project_root'], ('logs', 'logs/nginx'))
+    manage_srv('nginx', 'reload')
 
 
 @task
-def update_troia_server():
-    """ Builds the Troia-Server war file and exposes it on the website.
-    """
-    build_and_copy(
-        source_root=TROIA_SERVER_SOURCE_ROOT, 
-        source="{}/target/GetAnotherLabel.war".format(TROIA_SERVER_SOURCE_ROOT),
-        destination="{}/media/downloads".format(STATIC_ROOT),
-        repository=TROIA_SERVER_REPOSITORY)
+def start_troia_server(confpath=DEFAULT_PATH):
+    conf = readconf(confpath)
+    #with prefix("JDK_HOME={jdk_root}".format(**conf)):
+    run('{tomcat_root}/bin/catalina.sh start'.format(**conf))
 
 
 @task
-def update_troia_client():
-    build_and_copy(
-        source_root=TROIA_CLIENT_SOURCE_ROOT,
-        source="{}/target/site/apidocs".format(TROIA_CLIENT_SOURCE_ROOT),
-        destination=PROJECT_ROOT,
-        repository=TROIA_CLIENT_REPOSITORY,
-        mvn_command="{} javadoc:javadoc".format(MVN),
-        cp_prefix="cp -rf ")
+def stop_troia_server(confpath=DEFAULT_PATH):
+    conf = readconf(confpath)
+    #with prefix("JDK_HOME={jdk_root}".format(**conf)):
+    run('{tomcat_root}/bin/catalina.sh stop'.format(**conf))
 
 
 @task
-def deploy(update_environment=False, update_war=False,
-           update_server=False):
-    """ Synchronizes the website content with the repository. """
-    if not exists(PROJECT_ROOT):
-        message(colors.yellow("Initializing project structure"))
-        sudo("mkdir -p {}".format(PROJECT_ROOT))
-        setmode(PROJECT_ROOT, recursive=True, owner=USER)
+def restart_troia_server(confpath=DEFAULT_PATH):
+    execute(stop_troia_server, confpath=confpath)
+    execute(start_troia_server, confpath=confpath)
 
+
+@task
+def deploy_troia_server(confpath=DEFAULT_PATH):
+    conf = readconf(confpath)
+    # Ensure all services are already installed.
+    ensure_srv(conf)
+    src = '{source_root}/Troia-Server'.format(**conf)
+    #clone_or_update(src, conf['troia_server_repo'])
+    target = '{}/target/GetAnotherLabel.war'.format(src)
+    #maven_build(src, target, cmd='package -Dmaven.test.skip=true',
+    #            mvn='{maven_root}/bin/mvn'.format(**conf))
+    upload_template(
+        os.path.join(CONF_ROOT, 'troia-server', 'dawidskene.properties'),
+        '{tomcat_root}/webapps/GetAnotherLabel/WEB-INF/classes/dawidskene.properties'.format(**conf),
+        context=conf)
+    media_root = '{hyde_root}/media'.format(**conf)
+    ensure_tree(media_root, ('downloads'))
+    ensure_tree('{project_root}'.format(**conf), ('scripts', 'sql'))
+    upload_template(
+        os.path.join(CONF_ROOT, 'db_clear.sh'),
+        '{project_root}/scripts'.format(**conf),
+        context=conf)
+    put(os.path.join(CONF_ROOT, 'db_clear.sql'),
+        '{sql_root}'.format(**conf))
+    run('cp {} {}/downloads'.format(target, media_root))
+    run('cp {} {tomcat_root}/webapps'.format(target, **conf))
+    execute(restart_troia_server, confpath=confpath)
+
+
+@task
+def generate_apidocs(confpath=DEFAULT_PATH):
+    conf = readconf(confpath)
+    src = '{source_root}/Troia-Java-Client'.format(**conf)
+    clone_or_update(src, conf['troia_client_repo'])
+    target = '{}/target/site/apidocs'.format(src)
+    maven_build(src, target, cmd='javadoc:javadoc',
+                mvn='{maven_root}/bin/mvn'.format(**conf))
+    run('cp -rf {} {static_root}'.format(target, **conf))
+
+
+@task
+def deploy_web(update_env=False, confpath='default.json'):
+    ''' Synchronizes the website content with the repository.
+        Optionally udates Python's virtual environment. '''
+    conf = readconf(confpath)
+    root = conf['project_root']
+    if not exists(root):
+        message(colors.yellow('Initializing project structure'))
+        ensure_tree(conf['projects_root'], root, use_sudo=True)
+        ensure_tree(root, ['source'], use_sudo=True)
+        setmode(root, recursive=True, owner=USER)
     # Project root alredy exists. Current remote user is assummed to be an
     # onwer of the directory.
-    clone_or_update(TROIA_WEB_SOURCE_ROOT, TROIA_WEB_REPOSITORY)
-    ensure(update=update_environment, path=ENVIRONMENT_ROOT,
-           requirements_path="{}/requirements.txt"
-                             .format(TROIA_WEB_SOURCE_ROOT))
-    media_root = "{}/media".format(TROIA_WEB_SOURCE_ROOT)
-    css_path = "{}/css".format(media_root)
-    less_path = "{}/less".format(media_root)
-    run("mkdir -p {}".format(css_path))
-    compile(less_path, css_path, ("troia.less", "bootstrap.less"))
-    generate(source_root=TROIA_WEB_SOURCE_ROOT, static_root=STATIC_ROOT,
-             environment_source=ENVIRONMENT_SOURCE)
-    # Ensure downloads directory exists.
-    run("mkdir -p {}/media/downloads".format(STATIC_ROOT))
-    # Update server configuration.
-    if update_server:
-        execute(update_server)
-    if update_war:
-        execute(update_war)
+    src_root = '{source_root}/Troia-Web'.format(**conf)
+    clone_or_update(src_root, conf['troia_web_repo'], 'mb_troia_server')
+    ensure_env(update=update_env, path=conf['virtualenv_root'],
+               reqpath='{}/requirements.txt'.format(src_root))
+    media_root = '{}/media'.format(src_root)
+    css_root = '{}/css'.format(media_root)
+    less_root = '{}/less'.format(media_root)
+    ensure_tree(media_root, 'css')
+    compile(less_root, css_root, ('troia.less', 'bootstrap.less'))
+    with prefix('source {virtualenv_root}/bin/activate'.format(**conf)):
+        generate(src_root, conf['hyde_root'])
