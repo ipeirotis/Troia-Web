@@ -1,26 +1,28 @@
 function initialize() {
 	var api_url = "/server/";
-	var id = '2227';
+	var id = '444444';
 	var max_iters = 10;
 	var iters = 1;
-	var category_list = [];
+	var category_list = []; //lista klas
+//	var table_created = false;
+	$('#response').hide();
 	
 	$('#send_data').click(function(){
 		var data = parse_worker_assigned_labels();
-		load_categories();
+		load_cost_matrix();
 		load_worker_assigned_labels(data);
 		load_gold_labels();
-		//majority_votes();
+		$('#response').show();
 		for(i=0; i<max_iters; i+=iters)
 			compute(iters, function(res){
-				worker_summary(function(res){
-					$('#response').html(res.responseText.replace(/\n/gi, '<br/>'));
-				});
+				$('#workers').html(worker_summary().replace(/\n/gi, '<br/>'));
+				$('#classes').html(create_classes_table(majority_votes()));
 			});
 	});
     $('a[data-toggle="tab"]').on('shown', function (e) {
-    	if (e.target.getAttribute('href') === '#matrix')
+    	if (e.target.getAttribute('href') === '#matrix') // && !table_created)
     	{
+//    		table_created = true;
     		parse_worker_assigned_labels();
     		create_table(category_list);
     	}
@@ -44,7 +46,7 @@ function initialize() {
 	        data: jsonify(data),
 	        success: function(data, textStatus, jqXHR)
 	        {
-	        	console.log('success')
+//	        	console.log('success')
 	        }
 	    });
 	};
@@ -63,6 +65,7 @@ function initialize() {
 	};
 	
 	function misclassification_cost(labels, label)
+	//returns {'a': 1.0, 'b': 1.0, 'c': 0, 'd': 1.0} for labels=[a, b, c, d], label=c
 	{
 		var ret = {};
 		var avg = 1.0/(labels.length-1.0);
@@ -106,14 +109,37 @@ function initialize() {
 	function parse_gold_labels()
 	{
 		var data = [];
-		_.each($("#id_gold_data").val().split(/\n/), function(line){
-			var parsed_line = _.compact(line.split(/[\t ]/));
-			data.push({
-				'objectName': parsed_line[0],
-				'correctCategory': parsed_line[1]
+		if ($("#id_gold_data").val())
+		{
+			_.each($("#id_gold_data").val().split(/\n/), function(line){
+				var parsed_line = _.compact(line.split(/[\t ]/));
+				data.push({
+					'objectName': parsed_line[0],
+					'correctCategory': parsed_line[1]
+				});
 			});
-		});
+		}
 		return data;
+	};
+	
+	function parse_cost_matrix(labels)
+	{
+		var ret = [];
+		var k = 0;
+		var l = labels.length;
+		_.each($('input'), function(i){
+			if (k%l == 0){
+				d = {};
+				ret.push({
+					'prior': 1.0,
+					'name': labels[k/l],
+					'misclassification_cost': d
+				});
+			}
+			d[labels[k%l]] = parseFloat($(i).prop('value'));
+			k += 1;
+		});
+		return ret;
 	};
 	
 //////////////post requests
@@ -127,17 +153,20 @@ function initialize() {
 	
 	function load_gold_labels()
 	{
-		do_post('loadGoldLabels', {
-			'id': id,
-			'data': parse_gold_labels()
-		});
+		var data = parse_gold_labels()
+		if (data.length)
+			do_post('loadGoldLabels', {
+				'id': id,
+				'data': data
+			});
 	};
 	
-	function load_categories()
+	function load_cost_matrix()
 	{
+		
 		do_post('loadCategories', {
 			'id': id,
-			'categories': categories(category_list)
+			'categories': parse_cost_matrix(category_list)
 		});
 	};
 	
@@ -151,25 +180,38 @@ function initialize() {
 	
 	function majority_votes()
 	{
+		var res;
 		do_get('majorityVotes', {
 			'id': id
+		}, function(response){
+			res = response.responseText;
 		});
+		return res;
 	}
 	
-	function worker_summary(fun)
+	function worker_summary()
 	{
+		var res;
 		do_get('printWorkerSummary', {
 			'id': id,
 			'verbose': false
-		}, fun);
+		}, function(response){
+			res = response.responseText;
+		});
+		return res;
 	}
 ///////////////end of post requests
+	
+	function create_classes_table(data) {
+		return _.template($("#classes_template").html(), {data: JSON.parse(data)} );
+	};
 
 	function create_table(labels) {
 		$('#mytable').empty();
 		row=new Array();
 		cell=new Array();
 		cat = categories(labels);
+	
 		row_num=labels.length;
 		cell_num=labels.length;
 		
@@ -203,7 +245,7 @@ function initialize() {
 			for(k=0;k<cell_num;k++) {
 				cell[k]=document.createElement('td');
 				cont=document.createElement('input');
-				cont.setAttribute('value', category['misclassification_cost'][labels[k]]);
+				$(cont).prop('value', category['misclassification_cost'][labels[k]]);
 				cell[k].appendChild(cont);
 				row[c].appendChild(cell[k]);
 			}
@@ -217,4 +259,3 @@ function initialize() {
 $(document).ready(function() {
 	initialize();
 });
-
