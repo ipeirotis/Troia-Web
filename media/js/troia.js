@@ -4,6 +4,7 @@ function initialize() {
 	var id = 123;
 	$('#jobid').prop('value', id);
 	var category_list = []; //lista klas
+	var old_category_list = [];
 	var data_error = false;
 	var gold_error = false;
 //	var table_created = false;
@@ -64,7 +65,8 @@ function initialize() {
     	{
 //    		table_created = true;
     		parse_worker_assigned_labels();
-    		create_table(category_list);
+    		if (!_.isEqual(old_category_list, category_list))
+    			create_table(category_list);
     		$('#mytable input').numeric({ negative : false });
     	}
     });
@@ -153,6 +155,7 @@ function initialize() {
 	function parse_worker_assigned_labels()
 	{
 		var data = [];
+		old_category_list = category_list;
 		category_list = [];
 		data_error = false;
 		_.each($("#id_data").val().split(/\n/), function(line){
@@ -178,6 +181,7 @@ function initialize() {
 		}
 		
 		category_list = _.uniq(category_list);
+		
 		return data;
 	};
 	

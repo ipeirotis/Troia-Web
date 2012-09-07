@@ -48,9 +48,9 @@
 				</div>
 			</div>
 			<div class="form-actions">
-					ID:<input id='jobid' style="width: 100"/>
+					ID:<input id='jobid' style="width: 100px;"/>
 					Iterations:
-					<select id="iternumber" style="width: 100">
+					<select id="iternumber" style="width: 100px;">
 						<option value="5">5</option>
 						<option value="10">10</option>
 						<option value="25">25</option>
@@ -60,10 +60,14 @@
 			</div>
 		</form>
 		<div id="response" class="span12">
-			<div class="span8"><h3>Workers:</h3></div>
-			<div class="span3"><h3>Classes:</h3></div>
-			<div id="workers" class="span8"></div>
-			<div id="classes" class="span3"></div>
+			<div class='row'>
+				<h3>Classes:</h3>
+				<div id="classes"></div>
+			</div>
+			<div class='row'>
+				<h3>Workers:</h3>
+				<div id="workers"></div>
+			</div>
 		</div>
 		<script type="text/template" id="classes_template">
 			<table class='table table-striped'>
