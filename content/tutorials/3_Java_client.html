@@ -61,6 +61,13 @@ The workers assigned the following labels:
  worker5 http://youporn.com	notporn
  worker5 http://yahoo.com	porn
 
+We also have two gold lables :
+::
+ http://sunnyfun.com	notporn
+ http://sex-mission.com	porn
+
+
+
 Goal: The goal is to find the correct class of each example using the labels provided by the workers.
 
 
@@ -71,7 +78,8 @@ Workers have varying levels of quality:
 - worker3 and worker4 are high-quality workers
 - worker5 is malicious, giving always the incorrect answer, trying to fool the system
 
-Of course, we do not know the correct category for the URLs and we do not know the quality of the workers beforehand.
+Of course, we do not know the correct category for the URLs, with exception of ones used as gold labels,
+and we do not know the quality of the workers beforehand.
 
 
 Processing data file
@@ -228,7 +236,7 @@ public class TroiaExample <span style='color:#806030; '>{</span>
         <span style='color:#806030; '>}</span>
 
         <span style='color:#c34e00; '>//Ordering Troia server to execute Dawid-Skene algorithm with </span>
-        <span style='color:#c34e00; '>//3 iterations</span>
+        <span style='color:#c34e00; '>//10 iterations</span>
         request<span style='color:#806030; '>.</span>computeBlocking<span style='color:#806030; '>(</span><span style='color:#c00000; '>10</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
 
         <span style='color:#c34e00; '>//Map that contains categories associated to objects by Troia</span>
