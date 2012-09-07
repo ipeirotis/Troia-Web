@@ -60,10 +60,10 @@
 			</div>
 		</form>
 		<div id="response" class="span12">
-			<div class="span6"><h3>Workers:</h3></div>
-			<div class="span4"><h3>Classes:</h3></div>
-			<div id="workers" class="span6"></div>
-			<div id="classes" class="span4"></div>
+			<div class="span8"><h3>Workers:</h3></div>
+			<div class="span3"><h3>Classes:</h3></div>
+			<div id="workers" class="span8"></div>
+			<div id="classes" class="span3"></div>
 		</div>
 		<script type="text/template" id="classes_template">
 			<table class='table table-striped'>
@@ -72,6 +72,26 @@
 				<tr>
 				<td><%= key %></td>
 				<td><%= data[key] %></td>
+				</tr>
+			<% }; %>
+			</table>
+		</script>
+		<script type="text/template" id="workers_template">
+			<table class='table table-striped'>
+				<tr>
+					<th>Worker</th>
+					<th>Error Rate</th>
+					<th>Quality (Expected)</th>
+					<th>Quality (Optimized)</th>
+					<th>Number of Annotations</th>
+					<th>Number of Gold Tests</th>
+					<th>Confusion Matrix</th>
+				</tr>
+			<% 	for (var i = 0; i < data.length; i++) { %>
+				<tr>
+				<% 	for (var j = 1; j < data[i].length; j++) { %>
+					<td><%= data[i][j] %></td>
+						<% }; %>
 				</tr>
 			<% }; %>
 			</table>

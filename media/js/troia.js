@@ -52,7 +52,8 @@ function initialize() {
 			}
 			$(that).text('Iteration ' + i + '..');
 			compute(iters, function(res){
-				$('#workers').html(worker_summary().replace(/\n/gi, '<br/>'));
+//				$('#workers').html(worker_summary().replace(/\n/gi, '<br/>'));
+				$('#workers').html(create_workers_table(worker_summary()));
 				$('#classes').html(create_classes_table(majority_votes()));
 			});
 		}, 1500);
@@ -299,9 +300,15 @@ function initialize() {
 		return _.template($("#classes_template").html(), {data: JSON.parse(data)} );
 	};
 	
-//	function create_workers_table(data) {
-//		return _.template($("#workes_template").html(), {data: JSON.parse(data)} );
-//	}
+	function create_workers_table(data) {
+		var regex = /Worker: ([0-9a-zA-Z]+)\nError Rate: (\d+.\d*%)\nQuality \(Expected\): (---|\d+.\d*%)\nQuality \(Optimized\): (\-\-\-|\d+.\d*%)\nNumber of Annotations: (\d+)\nNumber of Gold Tests: (\d+)\nConfusion Matrix: \n(^(.)+\n)*/mg;
+		var regexc = /Worker: ([0-9a-zA-Z]+)\nError Rate: (\d+.\d*%)\nQuality \(Expected\): (---|\d+.\d*%)\nQuality \(Optimized\): (\-\-\-|\d+.\d*%)\nNumber of Annotations: (\d+)\nNumber of Gold Tests: (\d+)\nConfusion Matrix: \n((.|\n)*)/m;
+		var ret = []
+		_.each(data.match(regex), function(m){
+			ret.push(regexc.exec(m));
+		});		
+		return _.template($("#workers_template").html(), {data: ret} );
+	}
 
 	function create_table(labels) {
 		$('#mytable').empty();
