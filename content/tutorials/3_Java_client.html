@@ -165,6 +165,7 @@ Using Troia server
 After you prepared collection of labels you can send them to Troia server 
 this is done by this code :
 {% endrestructuredtext %}
+
 <pre style='color:#000000;background:#f1f0f0;'>package tutorial<span style='color:#806030; '>;</span>
 
 
@@ -197,7 +198,7 @@ public class TroiaExample <span style='color:#806030; '>{</span>
         <span style='color:#c34e00; '>/*Crating request that will use "</span><span style='color:#5555dd; '>www.project-troia.com</span><span style='color:#c34e00; '>" as Troia server and "TurtorialRequest"</span>
 <span style='color:#c34e00; '>&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;*as a request identifier. Timeout for request will be 3 seconds (3000 miliseconds).</span>
 <span style='color:#c34e00; '>&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;*This constructor checks if url is not malformed and if it is throws a exception. */</span>
-        TroiaRequest request <span style='color:#806030; '>=</span> new TroiaRequest<span style='color:#806030; '>(</span><span style='color:#800000; '>"</span><span style='color:#e60000; '>http://localhost:8080/GetAnotherLabel/rest/</span><span style='color:#800000; '>"</span><span style='color:#806030; '>,</span><span style='color:#800000; '>"</span><span style='color:#e60000; '>TutorialRequest</span><span style='color:#800000; '>"</span><span style='color:#806030; '>,</span><span style='color:#c00000; '>3000</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+        TroiaRequest request <span style='color:#806030; '>=</span> new TroiaRequest<span style='color:#806030; '>(</span><span style='color:#800000; '>"</span><span style='color:#e60000; '>http://project-troia.com/api/</span><span style='color:#800000; '>"</span><span style='color:#806030; '>,</span><span style='color:#800000; '>"</span><span style='color:#e60000; '>TutorialRequest</span><span style='color:#800000; '>"</span><span style='color:#806030; '>,</span><span style='color:#c00000; '>3000</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
 
         <span style='color:#c34e00; '>//Checking if Troia server is at given address</span>
         System<span style='color:#806030; '>.</span>out<span style='color:#806030; '>.</span>println<span style='color:#806030; '>(</span>request<span style='color:#806030; '>.</span>ping<span style='color:#806030; '>(</span><span style='color:#806030; '>)</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
@@ -244,6 +245,7 @@ public class TroiaExample <span style='color:#806030; '>{</span>
 
         <span style='color:#c34e00; '>//Printing out categories associated to object by Troia</span>
         System<span style='color:#806030; '>.</span>out<span style='color:#806030; '>.</span>println<span style='color:#806030; '>(</span><span style='color:#800000; '>"</span><span style='color:#800000; '>"</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
+        System<span style='color:#806030; '>.</span>out<span style='color:#806030; '>.</span>println<span style='color:#806030; '>(</span><span style='color:#800000; '>"</span><span style='color:#e60000; '>Troia results :</span><span style='color:#800000; '>"</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
         Collection<span style='color:#806030; '>&lt;</span><span style='color:#800040; '>String</span><span style='color:#806030; '>></span> categoryNames <span style='color:#806030; '>=</span> majorityVotes<span style='color:#806030; '>.</span>keySet<span style='color:#806030; '>(</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
         <span style='color:#400000; font-weight:bold; '>for</span> <span style='color:#806030; '>(</span><span style='color:#800040; '>String</span> categoryName <span style='color:#806030; '>:</span> categoryNames<span style='color:#806030; '>)</span> <span style='color:#806030; '>{</span>
             System<span style='color:#806030; '>.</span>out<span style='color:#806030; '>.</span>println<span style='color:#806030; '>(</span>categoryName<span style='color:#806030; '>+</span><span style='color:#800000; '>"</span><span style='color:#e60000; '> category is </span><span style='color:#800000; '>"</span><span style='color:#806030; '>+</span>majorityVotes<span style='color:#806030; '>.</span>get<span style='color:#806030; '>(</span>categoryName<span style='color:#806030; '>)</span><span style='color:#806030; '>)</span><span style='color:#806030; '>;</span>
@@ -305,11 +307,11 @@ Results
 After running this program you should see folowing result in console output :
 ::
 
- "processing request at: 2012-09-07T10:18:10.382+02:00"
+ "processing request at: 2012-09-07T11:28:27.921Z"
 
  Categories :
  {"name":"porn","prior":-1.0,"misclassification_cost":{"porn":0.0,"notporn":1.0}}
- {"name":"notporn","prior":-1.0,"misclassification_cost":{"porn":1.0,"notporn":0.0}}
+ {"name":"notporn","prior":-1.0,"misclassification_cost":{"porn":1.0,"notporn":0.0}} 
 
  Labels :
  In this label worker "worker1" associates object "http://sunnyfun.com" to "porn" category
@@ -339,9 +341,10 @@ After running this program you should see folowing result in console output :
  In this label worker "worker5" associates object "http://yahoo.com" to "porn" category
 
  Gold labels :
- Gold label associates object http://sunnyfun.com to category notporn
- Gold label associates object http://sex-mission.com to category porn
+ Gold label associates objecthttp://sunnyfun.com to category notporn
+ Gold label associates objecthttp://sex-mission.com to category porn
 
+ Troia results :
  http://google.com category is notporn
  http://youporn.com category is porn
  http://sunnyfun.com category is notporn
