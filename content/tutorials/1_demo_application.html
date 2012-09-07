@@ -25,10 +25,25 @@
 						<div class="control-group">
 							<textarea id="id_data" class="field span12" rows="15" cols="40" placeholder="worker object class"></textarea>
 							<span class="help-inline"></span>
+							<h3>Line format:</h3>
+							<pre>workerid[tab]objectid[tab]assignedlabel</pre>
 						</div>
 					</div>
-					<div class="span4 well">
-						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nibh ante, vestibulum at fermentum sit amet, elementum ut sapien. Nullam interdum vulputate tincidunt. Donec congue dui vehicula velit placerat sit amet rhoncus lacus scelerisque. Proin quis velit nec enim fringilla feugiat sagittis sit amet nunc. Nullam blandit fringilla sem et tristique. Donec tellus nulla, bibendum sed ullamcorper ut, suscipit et risus. Vivamus sollicitudin vestibulum augue eu congue. 
+					<div class="span5 well">
+						
+						<p>You can use the form below to calculate the quality of the workers that submit answers to your tasks on Mechanical Turk.</p>
+												
+						<p>The pre-populated example has five workers (worker1 to worker5), five objects (url1 to url5), and two classes (porn and notporn). The correct (but unknown) label for url1, url3, and url5 is notporn; for url2 and url4 is porn.</p>
+
+						<p>The workers have varying levels of quality.</p>
+
+						<ul>
+							<li>worker1 is lazy, and gives the answer porn all the time</li>
+							<li>worker2 is ok but not great. For example, labeled object5 as porn even though it is notporn</li>
+							<li>worker3 and worker4 are high-quality workers</li>
+							<li>worker5 is malicious, giving always the incorrect answer, trying to fool the system</li>
+						</ul>
+
 					</div>
 				</div>
 				<div class="tab-pane" id="gold">
@@ -36,15 +51,20 @@
 						<div class="control-group">
 							<textarea id="id_gold_data" class="field span12" rows="15" cols="40" placeholder="object class"></textarea>
 							<span class="help-inline"></span>
+							<h3>Line format:</h3>
+							<pre>objectid[tab]correctlabel</pre>
 						</div>
 					</div>
-					<div class="span4 well">
-						Morbi sed aliquet magna. Ut sagittis, metus eget varius molestie, purus magna mollis libero, vitae sollicitudin elit neque nec diam. Praesent mauris risus, posuere in placerat sit amet, mollis et nunc. Donec vitae neque urna. Phasellus luctus feugiat lectus nec fermentum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce sit amet aliquet mauris. Maecenas consectetur tristique sagittis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ultricies, dui sagittis tincidunt viverra, dolor est aliquam turpis, ut pharetra erat lorem tincidunt mi. 								</div>
+					<div class="span5 well">
+						<p>Optionally, you may also provide a few known ("gold") answers. See <a href="http://behind-the-enemy-lines.blogspot.com/2010/09/worker-evaluation-in-crowdsourcing-gold.html">Worker Evaluation in Crowdsourcing: Gold Data or Multiple Workers?</a> for a discussion on how much help we can get from the usage of the "gold" answers.</p>
+
+					</div>
 				</div>
 				<div class="tab-pane" id="matrix">
 					<div id="mytable" class="span7"></div>
-					<div class="span4 well">
-						Nunc rhoncus fermentum nisi ut pretium. In nisi nibh, tempor fermentum auctor eu, venenatis sed enim. Nullam ac pretium nisi. Nunc nec justo sed purus tincidunt faucibus sollicitudin volutpat felis. In hac habitasse platea dictumst. Mauris vestibulum tempus dolor hendrerit sollicitudin.								</div>
+					<div class="span5 well">
+						<p>Cost matrix is calculated automaticly based on categories you've entered. You can change the default values.</p>	
+					</div>
 				</div>
 			</div>
 			<div class="form-actions">
