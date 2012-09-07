@@ -8,13 +8,12 @@ from fabric.contrib.files import exists, upload_template
 
 THIS_ROOT = os.path.dirname(os.path.abspath(__name__))
 CONF_ROOT = os.path.join(THIS_ROOT, "conf")
+FILES_ROOT = os.path.join(THIS_ROOT, "files")
 DEFAULT_PATH = os.path.join(THIS_ROOT, 'default.json')
 
 LESSC = 'lessc'
 USER = '{0}:{0}'.format(env.user)
 
-SERVICE_PREFIX = 'service '
-SERVICE_PREFIX = '/etc/rc.d/'  # In case of BSD init convention.
 
 if 'ctx' not in env:
     env['ctx'] = {}
@@ -28,7 +27,8 @@ def message(msg, *args, **kwargs):
 def readctx(ctxpath=None):
     if len(env['ctx']) > 0:
         message('Context is already loaded. Skipping')
-    ctx = dfl = {}
+        return
+    cntx = dfl = {}
     with open(DEFAULT_PATH, 'r') as dfile:
         # Read the default context.
         dfl = json.load(dfile)
@@ -42,6 +42,7 @@ def readctx(ctxpath=None):
         setd('virtualenv_root', '{project_root}/virtualenv'.format(**dfl))
         setd('scripts_root', '{project_root}/scripts'.format(**dfl))
         setd('sql_root', '{project_root}/sql'.format(**dfl))
+        setd('logs_root', '{project_root}/logs'.format(**dfl))
         setd('tomcat_root','{services_root}/tomcat'.format(**dfl))
         setd('maven_root','{services_root}/maven'.format(**dfl))
         setd('hyde_root', '{static_root}/hyde'.format(**dfl))
@@ -52,13 +53,13 @@ def readctx(ctxpath=None):
         setd('requirements_path', '{virtualenv_root}/requirements.txt'
                                   .format(**dfl))
         setd('virtualenv_source', '{virtualenv_root}/bin/activate'
-                                  .format(**ctx)),
+                                  .format(**dfl)),
     env['ctx'].update(dfl)
     if ctxpath is not None:
         with open(ctxpath, 'r') as cfile:
             # Read an user defined context.
-            ctx = json.load(cfile)
-        env['ctx'].update(ctx)
+            cntx = json.load(cfile)
+        env['ctx'].update(cntx)
 
 
 def setmode(path, recursive=False, perms=None, owner=None):
@@ -122,8 +123,7 @@ def ensure_tree():
         setmode(project_root, recursive=True, owner=USER)
     paths = ['{source_root}', '{static_root}', '{services_root}',
              '{scripts_root}', '{sql_root}', '{logs_root}',
-             '{virtualenv_root}', '{source_root}/Troia-Web',
-             '{source_root}/Troia-Server', '{source_root}/Troia-Java-Client',
+             '{virtualenv_root}',
              '{logs_root}/nginx', '{services_root}/nginx',
              '{hyde_root}', '{hyde_root}/media',
              '{hyde_root}/media/downloads']
@@ -236,7 +236,7 @@ def restart_troia_server(ctxpath=DEFAULT_PATH):
 
 @task
 def build_troia_server(ctxpath=None, upload_conf=False):
-    ''' Build the Troia-Server .war file. Optionally use custom
+    ''' Builds the Troia-Server .war file. Optionally use can chose custom
         database properties file. This cannot be used when exposing
         the .war file on the website. '''
     readctx(ctxpath)
@@ -254,6 +254,7 @@ def build_troia_server(ctxpath=None, upload_conf=False):
 
 @task
 def deploy_troia_server(ctxpath=None):
+    ''' Deploys the Troia Server in the tomcat servlet container. '''
     message(colors.blue('Deploying the Troia-Server'))
     execute(build_troia_server, ctxpath=ctxpath, upload_conf=True)
     path = '{source_root}/Troia-Server/target/GetAnotherLabel.war' \
@@ -263,18 +264,18 @@ def deploy_troia_server(ctxpath=None):
     execute(start_troia_server, ctxpath=ctxpath)
     message(colors.blue('Uploading scripts'))
     upload_template(
-            os.path.join(CONF_ROOT, 'db_clear.sh'),
+            os.path.join(FILES_ROOT, 'db_clear.sh'),
             ctx['scripts_root'],
             context=ctx)
     upload_template(
-            os.path.join(CONF_ROOT, 'db_clear.sql'),
+            os.path.join(FILES_ROOT, 'db_clear.sql'),
             ctx['sql_root'],
             context=ctx)
 
 
 @task
 def expose_troia_server(ctxpath=None):
-    ''' Exposes the Troia-Server .war on the website. '''
+    ''' Exposes the Troia-Server .war file on the website. '''
     execute(build_troia_server, ctxpath=ctxpath, upload_conf=False)
     path = '{source_root}/Troia-Server/target/GetAnotherLabel.war' \
            .format(**ctx)
@@ -296,18 +297,10 @@ def update_troia_server(ctxpath=None):
         context=ctx)
     # Also the proxy server has to be updated.
     execute(update_global, ctxpath=ctxpath)
-    upload_template(
-        os.path.join(CONF_ROOT, 'db_clear.sh'),
-        '{project_root}/scripts'.format(**ctx),
-        context=ctx)
-    put(os.path.join(CONF_ROOT, 'db_clear.sql'),
-        '{sql_root}'.format(**ctx))
-    run('cp {} {}/downloads'.format(target, media_root))
-    execute(restart_troia_server, ctxpath=ctxpath)
 
 
 @task
-def deploy_apidocs(ctxpath=DEFAULT_PATH):
+def deploy_apidocs(ctxpath=None):
     readctx(ctxpath)
     ensure_tree()
     src_root = '{source_root}/Troia-Java-Client'.format(**ctx)
@@ -325,7 +318,8 @@ def deploy_troia_web(update_env=False, ctxpath=None):
     # onwer of the directory.
     src_root = '{source_root}/Troia-Web'.format(**ctx)
     synchronize(src_root, ctx['troia_web_repo'], branch='mb_troia_server')
-    run('cp -f {} {virtualenv_root}'.format(src_root, **ctx))
+    run('cp -f {}/deployment/requirements/requirements.txt {virtualenv_root}'
+        .format(src_root, **ctx))
     ensure_env(update_env)
     # We have to compile less files before static web content generation.
     media_root = '{}/media'.format(src_root)
@@ -339,4 +333,7 @@ def deploy_troia_web(update_env=False, ctxpath=None):
 
 @task
 def deploy(ctxpath=None):
-    print ctx
+    ''' Deploys all. '''
+    execute(deploy_troia_web, ctxpath=ctxpath)
+    execute(deploy_apidocs, ctxpath=ctxpath)
+    execute(deploy_troia_server, ctxpath=ctxpath)
