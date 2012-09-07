@@ -1,0 +1,1 @@
+0     0       *       *       *       mtracker    cd %(scripts_root)s; sh db_clear.sh;
