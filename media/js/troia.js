@@ -4,18 +4,33 @@ function initialize() {
 	var id = 123;
 	$('#jobid').prop('value', id);
 	var category_list = []; //lista klas
+	var data_error = false;
+	var gold_error = false;
 //	var table_created = false;
 	$('#response').hide();
 	load_test_data();
-	
+	set_textarea_maxrows(50);
 	
 	$('#send_data').click(function(){
+		//validate
+		var data = parse_worker_assigned_labels();
+		parse_gold_labels();
+		if (gold_error)
+		{
+			$('#myTab li:nth-child(2) a').tab('show');
+			return;
+		}
+		if (data_error)
+		{
+			$('#myTab li:nth-child(1) a').tab('show');
+			return;
+		}
+		//btn change
 		var btn_text =$(this).text();
 		$(this).addClass('disabled');
 		
 		//posting data
 		reset();
-		var data = parse_worker_assigned_labels();
 		id = parseInt($('#jobid').prop('value'));
 		$(this).text('Sending data..');
 		load_cost_matrix();
@@ -51,7 +66,19 @@ function initialize() {
     		create_table(category_list);
     		$('#mytable input').numeric({ negative : false });
     	}
-    })
+    });
+    
+
+    function set_textarea_maxrows(rows)
+    {
+    	function handler(e)
+    	{
+    		if(this.value.split('\n').length > rows)
+                this.value = this.value.split('\n').slice(0, rows).join('\n');
+    	}
+    	$('#id_data').keyup(handler);
+    	$('#id_gold_data').keyup(handler);
+    }
 
     function load_test_data()
     {
@@ -126,8 +153,15 @@ function initialize() {
 	{
 		var data = [];
 		category_list = [];
+		data_error = false;
 		_.each($("#id_data").val().split(/\n/), function(line){
 			var parsed_line = _.compact(line.split(/[\t ]/));
+			if (parsed_line.length !== 3)
+			{
+				$('#data .control-group').addClass('error');
+				$('#data span').text('Only 3 words per line.');
+				data_error = true;
+			}
 			data.push({
 				'workerName': parsed_line[0],
 				'objectName': parsed_line[1],
@@ -136,6 +170,12 @@ function initialize() {
 			if (parsed_line[2])
 				category_list.push(parsed_line[2]);
 		});
+		if (!data_error)
+		{
+			$('#data .control-group').removeClass('error');
+			$('#data span').text('');
+		}
+		
 		category_list = _.uniq(category_list);
 		return data;
 	};
@@ -143,15 +183,27 @@ function initialize() {
 	function parse_gold_labels()
 	{
 		var data = [];
+		gold_error = false;
 		if ($("#id_gold_data").val())
 		{
 			_.each($("#id_gold_data").val().split(/\n/), function(line){
 				var parsed_line = _.compact(line.split(/[\t ]/));
+				if (parsed_line.length !== 2)
+				{
+					$('#gold .control-group').addClass('error');
+					$('#gold span').text('Only 2 words per line.');
+					gold_error = true;
+				}
 				data.push({
 					'objectName': parsed_line[0],
 					'correctCategory': parsed_line[1]
 				});
 			});
+			if (!gold_error)
+			{
+				$('#gold .control-group').removeClass('error');
+				$('#gold span').text('');
+			}
 		}
 		return data;
 	};

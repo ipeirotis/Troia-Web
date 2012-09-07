@@ -13,21 +13,31 @@
 
 <div class="row-fluid">
     <div class="span12">
-			<form id="data_form" class="form-horizontal" method="post">					
-			<ul class="nav nav-tabs">
+		<form id="data_form" class="form-horizontal" method="post">					
+			<ul class="nav nav-tabs" id="myTab">
 			    <li class="active"><a href="#data" data-toggle="tab">Data</a></li>
 			    <li><a href="#gold" data-toggle="tab">Gold data</a></li>
 			    <li><a href="#matrix" data-toggle="tab">Cost matrix</a></li>
 		    </ul>
 			<div class="tab-content">
 				<div class="tab-pane active" id="data">
-					<div class="span7"><textarea id="id_data" class="field span12" rows="15" cols="40" placeholder="worker object class"></textarea></div>
+					<div class="span7">
+						<div class="control-group">
+							<textarea id="id_data" class="field span12" rows="15" cols="40" placeholder="worker object class"></textarea>
+							<span class="help-inline"></span>
+						</div>
+					</div>
 					<div class="span4 well">
 						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nibh ante, vestibulum at fermentum sit amet, elementum ut sapien. Nullam interdum vulputate tincidunt. Donec congue dui vehicula velit placerat sit amet rhoncus lacus scelerisque. Proin quis velit nec enim fringilla feugiat sagittis sit amet nunc. Nullam blandit fringilla sem et tristique. Donec tellus nulla, bibendum sed ullamcorper ut, suscipit et risus. Vivamus sollicitudin vestibulum augue eu congue. 
 					</div>
 				</div>
 				<div class="tab-pane" id="gold">
-					<div class="span7"><textarea id="id_gold_data" class="field span12" rows="15" cols="40" placeholder="object class"></textarea></div>
+					<div class="span7">
+						<div class="control-group">
+							<textarea id="id_gold_data" class="field span12" rows="15" cols="40" placeholder="object class"></textarea>
+							<span class="help-inline"></span>
+						</div>
+					</div>
 					<div class="span4 well">
 						Morbi sed aliquet magna. Ut sagittis, metus eget varius molestie, purus magna mollis libero, vitae sollicitudin elit neque nec diam. Praesent mauris risus, posuere in placerat sit amet, mollis et nunc. Donec vitae neque urna. Phasellus luctus feugiat lectus nec fermentum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce sit amet aliquet mauris. Maecenas consectetur tristique sagittis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ultricies, dui sagittis tincidunt viverra, dolor est aliquam turpis, ut pharetra erat lorem tincidunt mi. 								</div>
 				</div>
@@ -56,7 +66,8 @@
 			<div id="classes" class="span4"></div>
 		</div>
 		<script type="text/template" id="classes_template">
-			<table class='table'>
+			<table class='table table-striped'>
+				<tr><th>Object</th><th>Class</th></tr>
 			<% 	for (var key in data) { %>
 				<tr>
 				<td><%= key %></td>
