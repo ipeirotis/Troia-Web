@@ -1,0 +1,40 @@
+{% extends "skeleton/_base.html" %}
+
+{% hyde
+    title: "5. Advanced Details"
+%}
+
+{% block content %}
+
+<div class="row-fluid">
+    <div class="span12">
+		{% restructuredtext %}
+
+The algorithm is an expectation-maximization algorithm, roughly based on the algorithm from the paper: Maximum Likelihood Estimation of Observer Error-Rates Using the EM Algorithm, Applied Statistics, Vol. 28, No. 1. (1979), pp. 20-28 by Dawid and Skene.
+
+The original algorithm relied purely on redundant labels to estimate the most likely category of each example, and, in parallel, estimate the confusion matrix for each worker. The steps were the following
+
+1. Using the labels assigned by the workers, estimate the most likely "correct" category for each object.
+
+2. Based on the estimated "correct" answer for each object, compute the confusion matrix for each worker by comparing the assigned labels with the "correct" ones.
+
+3. Taking into consideration the confusion matrix of each worker, recompute the most likely "correct" label for each object.
+
+4. Go to step 2, until convergence.
+
+The implementation in Project Troia has the following differences:
+
+- We allow combination of redundancy and gold labels.
+- We allow the specification of different costs for different types of misclassification errors. For example, classifying a spam email as notspam may have a lower costs than the opposite.
+- We reduce the confusion matrix into a scalar quality score for each worker, which is proportional to the reduction in misclassification costs when  compared to a random classification.
+- When estimating the confusion matrix of a worker, we do not use the labels of the worker when computing the "correct" category for an object, generating more robust quality measurements
+- We support both a batch and a streaming evaluation of data and worker quality. No need to wait to gather data and then submit data for analysis.
+- We report the estimated quality of the data and identify data points that need further worker attention
+- We report the estimated quality of the data and identify data points that can serve as gold data
+- We estimate the appropriate level of payment for each worker.
+
+		{% endrestructuredtext %}
+    </div>
+</div>
+{% endblock %}
+
