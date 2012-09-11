@@ -15,38 +15,382 @@ Basic Troia implementation tutorial (Python)
 
 This document assumes that you know what **Troia** project is about and have already setup its server.
 
-When describing code we will assume that you have setup **Troia** server to work locally on port 8080 with default URL to it.
-In such case URL prefix should look like:
+Working example that we are going through in this tutorial is located in Troia Python client repository in *tutorial/tutorial.py*.
+
+
+Example data
+------------
+We will go through example data that try to classify given website as containing sexual content or not.
+For short we assume labels:
+
+- porn
+- notporn
+
+
+Cost matrix
+~~~~~~~~~~~
+
+Cost matrix defines how bad it is to wrongly classify sample with label A whereas its true label is B.
+
++---------+---------+---------+
+|         |  porn   | notporn |
++---------+---------+---------+
+|  porn   | 0       | 1       |
++---------+---------+---------+
+| notporn | 1       | 0       |
++---------+---------+---------+
+
+
+Gold data
+~~~~~~~~~
+
+Samples for which correct label is known.
+
++---------+---------+
+|  url1   | notporn |
++---------+---------+
+|  url2   |  porn   |
++---------+---------+
+
+
+Labels assigned by workers
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Labels assigned by workers to given objects.
+
+
++---------+---------+---------+
+| worker1 |  url1   | notporn |
++---------+---------+---------+
+| worker1 |  url2   | notporn |
++---------+---------+---------+
+| worker1 |  url3   | notporn |
++---------+---------+---------+
+| worker1 |  url4   | notporn |
++---------+---------+---------+
+| worker1 |  url5   | notporn |
++---------+---------+---------+
+| worker2 |  url1   | notporn |
++---------+---------+---------+
+| worker2 |  url2   | notporn |
++---------+---------+---------+
+| worker2 |  url3   | notporn |
++---------+---------+---------+
+| worker2 |  url4   | notporn |
++---------+---------+---------+
+| worker2 |  url5   | notporn |
++---------+---------+---------+
+| worker3 |  url1   | notporn |
++---------+---------+---------+
+| worker3 |  url2   | notporn |
++---------+---------+---------+
+| worker3 |  url3   | notporn |
++---------+---------+---------+
+| worker3 |  url4   | notporn |
++---------+---------+---------+
+| worker3 |  url5   | notporn |
++---------+---------+---------+
+| worker4 |  url1   | notporn |
++---------+---------+---------+
+| worker4 |  url2   | notporn |
++---------+---------+---------+
+| worker4 |  url3   | notporn |
++---------+---------+---------+
+| worker4 |  url4   | notporn |
++---------+---------+---------+
+| worker4 |  url5   | notporn |
++---------+---------+---------+
+| worker5 |  url1   | notporn |
++---------+---------+---------+
+| worker5 |  url2   | notporn |
++---------+---------+---------+
+| worker5 |  url3   | notporn |
++---------+---------+---------+
+| worker5 |  url4   | notporn |
++---------+---------+---------+
+| worker5 |  url5   | notporn |
++---------+---------+---------+
+
+
+
+Requirements
+------------
+
+We need to import class **TroiaClient** from package **troia_client**.
+It provides nice wrapping around calls to Troia Server.
+You can do this:
 
 ::
 
-	http://localhost:8080/GetAnotherLabel/rest/
+  from troia_client import TroiaClient
 
-We also assume that you have installed **Troia-Python-Client**.
-If you didn't you should go to its documentation to see how this can be done.
+For interactive usage from command line we suggest also importing **pprint** package.
+It provides nice way to present Python structures.
 
+::
 
-Simple script - if you want to skip tutorial and see some action quickly
-------------------------------------------------------------------------
-
-There is script **test/test_on_data.py** available in official Python client repository https://github.com/10clouds/Troia-Python-Client/blob/master/test/test_on_data.py.
-When given a folder with files:
-
-- *costs*
-- *correct*
-- *input*
-
-it sends this data to Troia using Python client.
-This good place to start looking if you would like to see this in action.
-You can run this file on any folder in **test/examples**
+  import pprint
 
 
-Tutorial
---------
+Initialization
+--------------
 
-TODO
+To initalize Troia Client
 
-Currently we recommend seeing how this is done in example script: https://github.com/10clouds/Troia-Python-Client/blob/master/test/test_on_data.py
+::
+
+  troia_client = TroiaClient(TROIA_SERVER_URL, TIMEOUT)
+
+TROIA_SERVER_URL is url to your Troia Server instance (by default *http://localhost:8080/GetAnotherLabel/rest/*).
+TIMEOUT defines how much do we want to wait for typical request to Troia Server.
+It is float that describes this time in seconds.
+If you set it to None or to value equal or less than 0 that it will be disabled and we will wait much longer if needed.
+
+
+We will use job id
+
+::
+
+  ID = 'TUTORIAL_PYTHON_CLIENT'
+
+
+To make sure that we don't interfere with some existing data we will reset that job
+
+::
+
+  troia_client.reset(ID)
+
+
+
+Sending data
+------------
+
+Cost matrix
+~~~~~~~~~~~
+
+In Troia idea is to pass one row / column (it doesn't matter how you think of this) at time so we define costs of errors for class X by passing dictionary with labels as keys and floats as values.
+We can group them in list and pass them all at once.
+For our example data we can represent in Python as:
+
+::
+
+    cost_matrix = [
+        ('porn', {
+            'porn':     0.,
+            'notporn':  1.,
+        }),
+        ('notporn', {
+            'notporn':  0.,
+            'porn':     1.,
+        }),
+    ]
+
+Such cost matrix we can send to Troia Server:
+
+::
+
+  troia_client.load_categories(cost_matrix, ID)
+
+
+Gold data
+~~~~~~~~~
+
+In Python we would represent single gold sample as tuple with *object_id* and its *correct label*.
+We can group them in list so that:
+
+::
+
+    gold_samples = [
+        ('url1', 'notporn'),
+        ('url2', 'porn'),
+    ]
+
+stores all gold samples.
+We can easily add them to Troia in two ways:
+
+::
+
+    troia_client.load_gold_labels(gold_samples, ID)
+
+or:
+
+::
+
+    for object_id, label in GOLD_SAMPLES:
+        troia_client.load_gold_label(object_id, label, ID)
+
+
+Labels assigned by workers
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In our case we would store single assign as tuple of *worker_id*, *object_id*, *label*.
+We can group them in list so that we can send them all at once or send single assigns.
+
+Python form:
+
+::
+
+    WORKERS_LABELS = [
+        ('worker1', 'url1', 'porn'),
+        ('worker1', 'url2', 'porn'),
+        ('worker1', 'url3', 'porn'),
+        ('worker1', 'url4', 'porn'),
+        ('worker1', 'url5', 'porn'),
+        ('worker2', 'url1', 'notporn'),
+        ('worker2', 'url2', 'porn'),
+        ('worker2', 'url3', 'notporn'),
+        ('worker2', 'url4', 'porn'),
+        ('worker2', 'url5', 'porn'),
+        ('worker3', 'url1', 'notporn'),
+        ('worker3', 'url2', 'porn'),
+        ('worker3', 'url3', 'notporn'),
+        ('worker3', 'url4', 'porn'),
+        ('worker3', 'url5', 'notporn'),
+        ('worker4', 'url1', 'notporn'),
+        ('worker4', 'url2', 'porn'),
+        ('worker4', 'url3', 'notporn'),
+        ('worker4', 'url4', 'porn'),
+        ('worker4', 'url5', 'notporn'),
+        ('worker5', 'url1', 'porn'),
+        ('worker5', 'url2', 'notporn'),
+        ('worker5', 'url3', 'porn'),
+        ('worker5', 'url4', 'notporn'),
+        ('worker5', 'url5', 'porn'),
+    ]
+
+
+And sending them:
+
+::
+
+    troia_client.load_worker_assigned_labels(workers_labels, ID)
+
+or:
+
+::
+
+    for worker, object_id, label in workers_labels:
+        troia_client.load_worker_assigned_label(worker, object_id, label, ID)
+
+
+Starting calculations
+---------------------
+
+To tell Troia Server to start calculations you have to make proper request.
+You can do this that way:
+
+::
+
+    troia_client.compute_blocking(ITERATIONS, ID)
+
+*ITERATIONS* says how many iterations should be performed by algorithm used in Troia Server.
+During computation no other request will be processed, so you should just wait until this procedure finishes.
+
+
+Getting results
+---------------
+
+Now we are ready to get some results.
+To collect many statistics form Troia Server just call:
+
+::
+
+    results = troia_client.get_dawid_skene(ID)
+
+You can print them in user friendly mode by typing:
+
+::
+
+    pprint.pprint(results)
+
+but they will be very huge.
+
+To see labels probability distribution:
+
+::
+
+    object_label_probabilities = [(object_id, params['categoryProbability'])
+        for object_id, params in objects_data]
+    # we extract label distributions for objects
+    print "Object label probabilities:"
+    pprint.pprint(sorted(object_label_probabilities))
+
+
+You should get:
+
+::
+    Object label probabilities:
+    [(u'url1', {u'notporn': 1.0, u'porn': 0.0}),
+     (u'url2', {u'notporn': 0.0, u'porn': 1.0}),
+     (u'url3', {u'notporn': 1.0, u'porn': 0.0}),
+     (u'url4', {u'notporn': 0.0, u'porn': 1.0}),
+     (u'url5', {u'notporn': 1.0, u'porn': 0.0})]
+
+
+To extract worker summary:
+
+::
+
+    workers_summary = str(troia_client.print_worker_summary(True, ID))
+    print
+    print "Workers summary:"
+    print workers_summary
+
+
+And you should see:
+
+::
+
+    Workers summary:
+    Worker: worker1
+    Error Rate: 50.0%
+    Quality (Expected): ---
+    Quality (Optimized): ---
+    Number of Annotations: 5
+    Number of Gold Tests: 2
+    Confusion Matrix:
+    P[porn->porn]=100.0%    P[porn->notporn]=0.0%
+    P[notporn->porn]=100.0% P[notporn->notporn]=0.0%
+
+    Worker: worker2
+    Error Rate: 16.67%
+    Quality (Expected): 75%
+    Quality (Optimized): 67%
+    Number of Annotations: 5
+    Number of Gold Tests: 2
+    Confusion Matrix:
+    P[porn->porn]=100.0%    P[porn->notporn]=0.0%
+    P[notporn->porn]=33.333%    P[notporn->notporn]=66.667%
+
+    Worker: worker3
+    Error Rate: 0.0%
+    Quality (Expected): 100%
+    Quality (Optimized): 100%
+    Number of Annotations: 5
+    Number of Gold Tests: 2
+    Confusion Matrix:
+    P[porn->porn]=100.0%    P[porn->notporn]=0.0%
+    P[notporn->porn]=0.0%   P[notporn->notporn]=100.0%
+
+    Worker: worker4
+    Error Rate: 0.0%
+    Quality (Expected): 100%
+    Quality (Optimized): 100%
+    Number of Annotations: 5
+    Number of Gold Tests: 2
+    Confusion Matrix:
+    P[porn->porn]=100.0%    P[porn->notporn]=0.0%
+    P[notporn->porn]=0.0%   P[notporn->notporn]=100.0%
+
+    Worker: worker5
+    Error Rate: 100.0%
+    Quality (Expected): 100%
+    Quality (Optimized): 100%
+    Number of Annotations: 5
+    Number of Gold Tests: 2
+    Confusion Matrix:
+    P[porn->porn]=0.0%  P[porn->notporn]=100.0%
+    P[notporn->porn]=100.0% P[notporn->notporn]=0.0%
 
 
 {% endrestructuredtext %}
