@@ -14,13 +14,19 @@
 			{% endblock %}
         </title>
 
-		<link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-        <link rel="stylesheet/less" href="/media/less/bootstrap.less">
-		<link rel="stylesheet/less" href="/media/less/responsive.less">        
-		<link rel="stylesheet/less" href="/media/less/troia.less">     
-        <script src="/media/js/less.js"></script>
-
 		{% block css %}
+		{% if use_less_js %}
+			<link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+		    <link rel="stylesheet/less" href="/media/less/bootstrap.less">
+			<link rel="stylesheet/less" href="/media/less/responsive.less">        
+			<link rel="stylesheet/less" href="/media/less/troia.less">     
+		    <script src="/media/js/less.js"></script>
+		{% else %}
+			<link rel="stylesheet" href="{{ site.url }}/media/css/bootstrap.css" type="text/css" />
+			<link rel="stylesheet" href="{{ site.url }}/media/css/bootstrap-responsive.css" type="text/css" />
+        	<link rel="stylesheet" href="{{ site.url }}/media/css/troia.css" type="text/css" /> 
+		{% endif %}
+		
 		{% block extra_css %}{% endblock %}
 		{% endblock %}
 
