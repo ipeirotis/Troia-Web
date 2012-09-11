@@ -1,12 +1,12 @@
-{% extends "skeleton/_base.html" %}
-{% hyde
-    title: "1. Demo application"
-%}
+---
+extends: skeleton/_base.html
+title: Demo application
+---
 
 {% block extra_js %}
+	<script type="text/javascript" src="/media/js/jquery.numeric.js" charset="utf-8"></script>
 	<script type="text/javascript" src="/media/js/underscore.js" charset="utf-8"></script>
 	<script type="text/javascript" src="/media/js/troia.js" charset="utf-8"></script>
-	<script type="text/javascript" src="/media/js/jquery.numeric.js" charset="utf-8"></script>
 {% endblock %}
 
 {% block content %}

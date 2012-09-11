@@ -1,18 +1,14 @@
 {% extends "skeleton/_root.html" %}
 
 {% block all %}
-    {% ifnotequal page.url  "/index.html" %}
     <ul class="breadcrumb">
-        {% for node in page.node.ancestors %}
-        <li class="{% if forloop.last %}active{% endif %}">
-                <a href="{{ node.listing_url }}">{{ node.name|unslugify|upper }}</a>
-                {% if not forloop.last %}
-                    {% block breadcrumb_seperator %}
-                        <span class="divider">/</span>
-                    {% endblock %}
-                {% endif %}
-            </li>
-        {% endfor %}
+		{% if node.parent %}
+			<span class="divider">/</span>
+			<li><a href="{{ node.full_url }}">{{ node.name }}</a></li>
+		{% endif %}
+		<span class="divider">/</span>
+		<li class="active">
+            <a href="{{ resource.full_url }}">{{ resource.meta.title }}</a>
+        </li>
     </ul>
-    {% endifnotequal %}
 {% endblock %}

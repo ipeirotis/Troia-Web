@@ -10,26 +10,20 @@
         <meta name="author" content="">
 		<title>
 			{% block title %}
-            {{ site.name }} : {{ page.title }}
+            {{ sitetitle }} : {{ resource.meta.title }}
 			{% endblock %}
         </title>
-        <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-        {% if use_less_js %}
+
+		<link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
         <link rel="stylesheet/less" href="/media/less/bootstrap.less">
 		<link rel="stylesheet/less" href="/media/less/responsive.less">        
 		<link rel="stylesheet/less" href="/media/less/troia.less">     
         <script src="/media/js/less.js"></script>
-        {% endif %}
 
 		{% block css %}
-        {% if not use_less_js %}
-        <link rel="stylesheet" href="{{ site.url }}/media/css/bootstrap.css" type="text/css" />
-		<link rel="stylesheet" href="{{ site.url }}/media/css/bootstrap-responsive.css" type="text/css" /> 
-        <link rel="stylesheet" href="{{ site.url }}/media/css/troia.css" type="text/css" /> 
-        {% endif %}
 		{% block extra_css %}{% endblock %}
 		{% endblock %}
-		
+
 		{% block js %}
         <script src="/media/js/jquery-1.7.2.js"></script>
         <script src="/media/js/bootstrap-alert.js"></script>
@@ -38,7 +32,6 @@
         <script src="/media/js/bootstrap-collapse.js"></script>
         <script src="/media/js/bootstrap-dropdown.js"></script>
         <script src="/media/js/bootstrap.js"></script>
-        <script src="/media/js/bootstrap.min.js"></script>
         <script src="/media/js/bootstrap-modal.js"></script>
         <script src="/media/js/bootstrap-popover.js"></script>
         <script src="/media/js/bootstrap-scrollspy.js"></script>
@@ -47,7 +40,7 @@
         <script src="/media/js/bootstrap-transition.js"></script>
         <script src="/media/js/bootstrap-typeahead.js"></script>
 		{% block extra_js %}{% endblock %}
-		{% endblock %}
+		{% endblock %}        
 
 <link rel="icon" 
       type="image/png" 

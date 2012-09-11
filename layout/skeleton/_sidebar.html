@@ -1,44 +1,20 @@
 {% block all %}
 <div class="well sidebar-nav">
     <ul class="nav nav-list">
-        {% comment %}
-        <li class="nav-header">
-            MENU
-        </li>
-        {% endcomment %}
-        {% for module in site.children %}
-            {# TODO define something like NAVBAR_MODULE_NAME in settings file #}
-            {# {% ifequal module.name "documentation" %} #}
-        <li class="nav-header">
-            {{ module.name|unslugify }}
-        </li>
-                {% for list_page in module.pages|dictsort:"url" %}
-                {% if list_page.display_in_list %}
-                    <li {% ifequal list_page page %}class="active"{% endifequal %}>
-                        <a href="{{ list_page.url }}">{{ list_page.title }}</a>
-                    </li>
-                {% endif %}
-                {% endfor %}
-            {# {% endifequal %} #}
+		{% for item in menu %}
+			<li class="nav-header">
+		        {{ item.name }}
+				{% for res in site.content.node_from_relative_path(item.url).walk_resources() %}
+					<li><a href="{{ res.full_url }}">{{ res.meta.title }}</a></li>
+				{% endfor %}
+        	</li>  
         {% endfor %}
+
         <li class="nav-header">Source code</li>
-        <li><a href="https://github.com/ipeirotis/Troia-Server">1. Server</a></li>
-        <li><a href="https://github.com/ipeirotis/Troia-Java-Client">2. Java Client</a></li>
-        <li><a href="https://github.com/ipeirotis/Troia-Tester">3. Test data generator</a></li>        
-        <li><a href="https://github.com/ipeirotis/Troia-Web">4. Website</a></li>
-        {% comment %}
-        <!-- Show all modules and sites within. For example only... -->
-        {% for module in site.children %}
-        <li class="nav-header">
-            {{ module.name|unslugify }}
-        </li>
-            {% for list_page in module.pages %}
-            <li {% ifequal list_page page %}class="active"{% endifequal %}>
-                <a href="{{ list_page.url }}">{{ list_page.title }}</a>
-            </li>
-            {% endfor %}
-        {% endfor %}
-        {% endcomment %}
+        <li><a href="https://github.com/ipeirotis/Troia-Server">Server</a></li>
+        <li><a href="https://github.com/ipeirotis/Troia-Java-Client">Java Client</a></li>
+        <li><a href="https://github.com/ipeirotis/Troia-Tester">Test data generator</a></li>        
+        <li><a href="https://github.com/ipeirotis/Troia-Web">Website</a></li>
     </ul>
 </div>
 {% endblock %}
