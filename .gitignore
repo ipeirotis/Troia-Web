@@ -29,3 +29,4 @@ pip-log.txt
 *~
 deploy
 *.css
+.hyde_deps
