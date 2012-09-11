@@ -3,12 +3,11 @@
 {% block all %}
     <ul class="breadcrumb">
 		{% if node.parent %}
-			<span class="divider">/</span>
-			<li><a href="{{ node.full_url }}">{{ node.name }}</a></li>
+			<li><a href="{{ node.full_url }}">{{ node.name|upper }}</a></li>
 		{% endif %}
 		<span class="divider">/</span>
 		<li class="active">
-            <a href="{{ resource.full_url }}">{{ resource.meta.title }}</a>
+            <a href="{{ resource.full_url }}">{{ resource.meta.title|upper }}</a>
         </li>
     </ul>
 {% endblock %}

@@ -4,8 +4,8 @@
 		{% for item in menu %}
 			<li class="nav-header">
 		        {{ item.name }}
-				{% for res in site.content.node_from_relative_path(item.url).walk_resources() %}
-					<li><a href="{{ res.full_url }}">{{ res.meta.title }}</a></li>
+				{% for res in site.content.node_from_relative_path(item.url).walk_resources()|sort(reverse=true) %}
+					<li {% if resource.url == res.url %}class="active"{% endif %}><a href="{{ res.full_url }}">{{ loop.index }}. {{ res.meta.title }}</a></li>
 				{% endfor %}
         	</li>  
         {% endfor %}
