@@ -319,6 +319,7 @@ To see labels probability distribution:
 You should get:
 
 ::
+
     Object label probabilities:
     [(u'url1', {u'notporn': 1.0, u'porn': 0.0}),
      (u'url2', {u'notporn': 0.0, u'porn': 1.0}),
@@ -332,7 +333,6 @@ To extract worker summary:
 ::
 
     workers_summary = str(troia_client.print_worker_summary(True, ID))
-    print
     print "Workers summary:"
     print workers_summary
 
