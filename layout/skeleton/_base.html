@@ -29,8 +29,9 @@
 		
 		{% block extra_css %}{% endblock %}
 		{% endblock %}
-
+		
 		{% block js %}
+		
         <script src="/media/js/jquery-1.7.2.js"></script>
         <script src="/media/js/bootstrap-alert.js"></script>
         <script src="/media/js/bootstrap-button.js"></script>
@@ -45,7 +46,16 @@
         <script src="/media/js/bootstrap-tooltip.js"></script>
         <script src="/media/js/bootstrap-transition.js"></script>
         <script src="/media/js/bootstrap-typeahead.js"></script>
-		{% block extra_js %}{% endblock %}
+
+		{% block extra_js %}
+		<script type="text/javascript" src="//use.typekit.net/esn7nhw.js"></script>
+		<script type="text/javascript">try{Typekit.load();}catch(e){}</script>				
+		{% endblock %}
+		<script type="text/javascript">
+		$(function() {
+			$('.dropdown-toggle').dropdown();
+		});		
+		</script>
 		{% endblock %}        
 
 <link rel="icon" 
@@ -54,15 +64,23 @@
 
 	</head>
     <body>
+		<div class="pre_header"></div>
+		<div class="header">
+			<a href="" class="logo"></a>
+			<h1>Quality Control API</h1>
+			<h1>for Crowdsourcing Applications</h1>
+			<button>
+				<p>check out</p>
+				<p>the demo version</p>
+			</button>
+			{% include "skeleton/_sidebar.html" %}
+		</div>
+		<div class="post_header"></div>
         {% include "skeleton/_navigation.html" %}
         
         <div class="container">
-            {% include "skeleton/_breadcrumbs.html" %}
             <div class="row-fluid">
-                <div class="span3">
-                    {% include "skeleton/_sidebar.html" %}
-                </div>
-                <div class="span9">
+                <div class="span12">
                     {% block header %}
                     <div>
                         <h1>{{ resource.meta.title }}</h1>

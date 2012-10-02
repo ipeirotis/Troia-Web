@@ -1,20 +1,27 @@
 {% block all %}
-<div class="well sidebar-nav">
-    <ul class="nav nav-list">
-		{% for item in menu %}
-			<li class="nav-header">
-		        {{ item.name }}
-				{% for res in site.content.node_from_relative_path(item.url).walk_resources()|sort(reverse=true) %}
-					<li {% if resource.url == res.url %}class="active"{% endif %}><a href="{{ res.full_url }}">{{ loop.index }}. {{ res.meta.title }}</a></li>
-				{% endfor %}
-        	</li>  
-        {% endfor %}
+	
+	
+<div class="dropdown" id="main-menu">
+	{% for item in menu %}
+		<a data-toggle="dropdown" class="dropdown-toggle" role="button" id="drop3" href="#">{{ item.name }}<b class="caret"></b></a>
+		<ul aria-labelledby="drop3" role="menu" class="dropdown-menu">
+			{% for res in site.content.node_from_relative_path(item.url).walk_resources()|sort(reverse=true) %}
+				<li {% if resource.url == res.url %}class="active"{% endif %}>
+					<a tabindex="-1" href="{{ res.full_url }}">{{ loop.index }}. {{ res.meta.title }}</a>
+				</li>
+			{% endfor %}
+		</ul>
+	{% endfor %}
 
-        <li class="nav-header">Source code</li>
-        <li><a href="https://github.com/ipeirotis/Troia-Server">Server</a></li>
-        <li><a href="https://github.com/ipeirotis/Troia-Java-Client">Java Client</a></li>
-        <li><a href="https://github.com/ipeirotis/Troia-Tester">Test data generator</a></li>        
-        <li><a href="https://github.com/ipeirotis/Troia-Web">Website</a></li>
-    </ul>
+	<a data-toggle="dropdown" class="dropdown-toggle" role="button" id="drop3" href="#">Source code<b class="caret"></b></a>
+	<ul aria-labelledby="drop3" role="menu" class="dropdown-menu">
+		<li><a href="https://github.com/ipeirotis/Troia-Server">Server</a></li>
+		<li><a href="https://github.com/ipeirotis/Troia-Java-Client">Java Client</a></li>
+		<li><a href="https://github.com/ipeirotis/Troia-Tester">Test data generator</a></li>   
+		<li><a href="https://github.com/ipeirotis/Troia-Web">Website</a></li>
+	</ul>
+	
 </div>
+
+
 {% endblock %}

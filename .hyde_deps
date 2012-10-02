@@ -12,8 +12,8 @@
   skeleton/_navigation.html, skeleton/_breadcrumbs.html, skeleton/_root.html]
 !!python/unicode 'how_it_works/algorithm.html': [skeleton/_sidebar.html, skeleton/_footer.html,
   skeleton/_base.html, skeleton/_navigation.html, skeleton/_breadcrumbs.html, skeleton/_root.html]
-!!python/unicode 'index.html': [skeleton/_sidebar.html, skeleton/_footer.html, skeleton/_base.html,
-  skeleton/_navigation.html, skeleton/_breadcrumbs.html, skeleton/_root.html]
+!!python/unicode 'index.html': [skeleton/_navigation.html, skeleton/_sidebar.html,
+  skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
 !!python/unicode 'media/css/bootstrap-responsive.css': []
 !!python/unicode 'media/css/bootstrap.css': []
 !!python/unicode 'media/css/dsas.css': []
