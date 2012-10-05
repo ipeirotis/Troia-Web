@@ -16,7 +16,7 @@
 
 		{% block css %}
 		{% if use_less_js %}
-			<link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+			<!--<link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>-->
 		    <link rel="stylesheet/less" href="/media/less/bootstrap.less">
 			<link rel="stylesheet/less" href="/media/less/responsive.less">        
 			<link rel="stylesheet/less" href="/media/less/troia.less">     
@@ -31,7 +31,8 @@
 		{% endblock %}
 		
 		{% block js %}
-		
+				<script type="text/javascript" src="//use.typekit.net/esn7nhw.js"></script>
+		<script type="text/javascript">try{Typekit.load();}catch(e){}</script>		
         <script src="/media/js/jquery-1.7.2.js"></script>
         <script src="/media/js/bootstrap-alert.js"></script>
         <script src="/media/js/bootstrap-button.js"></script>
@@ -48,8 +49,7 @@
         <script src="/media/js/bootstrap-typeahead.js"></script>
 
 		{% block extra_js %}
-		<script type="text/javascript" src="//use.typekit.net/esn7nhw.js"></script>
-		<script type="text/javascript">try{Typekit.load();}catch(e){}</script>				
+	
 		{% endblock %}
 		<script type="text/javascript">
 		$(function() {
@@ -68,7 +68,7 @@
 		<div class="header">
 			<a href="" class="logo"></a>
 			<h1>Quality Control API</h1>
-			<h1>for Crowdsourcing Applications</h1>
+			<h1 class="tk-trajan-pro">for Crowdsourcing Applications</h1>
 			<button>
 				<p>check out</p>
 				<p>the demo version</p>
@@ -83,8 +83,7 @@
                 <div class="span12">
                     {% block header %}
                     <div>
-                        <h1>{{ resource.meta.title }}</h1>
-                        <hr>
+                        <h1 class="first">{{ resource.meta.title }}</h1>
                         {% block header_content %}
                         {% endblock %}
                     </div>
@@ -92,10 +91,12 @@
                     {% block content %}{% endblock %}
                 </div>
             </div>
-            {% block footer %}
-                {% include "skeleton/_footer.html" %}
-            {% endblock %}
+
         </div>
+		{% block footer %}
+			{% include "skeleton/_footer.html" %}
+		{% endblock %}		
+		
 	</body>
 </html>
 {% endblock %}

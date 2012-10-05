@@ -1,22 +1,30 @@
 {% extends "skeleton/_root.html" %}
 
 {% block all %}
-<div class="navbar">
-
-        <div class="container">
-            <button type="button"class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="brand" href="/">
-                <img src="/media/img/logo_b.png" alt="troia" />
-            </a>
-            <div style="float:right; margin-top:13px;">
-                <span style="color:#fff;"><em>Project Troia</em>: Quality Control for Crowdsourcing Applications</span>
-                 <a class="btn btn-success" href="https://github.com/ipeirotis/Troia-Server"><i class="icon-download icon-white"></i> Get latest code from <em>github</em></a>
-            </div>
-        </div>
-
-</div>
+<ul class="nav nav-pills">
+        <li class="dropdown">
+          <a href="/" data-toggle="dropdown" role="button" id="drop0" class="dropdown-toggle">Home</a>
+        </li>   
+        {% for item in menu %}
+        <li class="dropdown">
+          <a href="#" data-toggle="dropdown" role="button" id="drop{{ loop.index }}" class="dropdown-toggle">{{ item.name }}<b class="caret"></b></a>
+          <ul aria-labelledby="drop{{ loop.index }}" role="menu" class="dropdown-menu" id="menu{{ loop.index }}">
+                {% for res in site.content.node_from_relative_path(item.url).walk_resources()|sort(reverse=true) %}
+                    <li {% if resource.url == res.url %}class="active"{% endif %}>
+                        <a tabindex="-1" href="{{ res.full_url }}">{{ loop.index }}. {{ res.meta.title }}</a>
+                    </li>
+                {% endfor %}                
+          </ul>
+        </li>
+    {% endfor %}
+        <li class="dropdown">
+          <a href="#" data-toggle="dropdown" role="button" id="drop4" class="dropdown-toggle">Source Code<b class="caret"></b></a>
+          <ul aria-labelledby="drop4" role="menu" class="dropdown-menu" id="menu4">
+            <li><a tabindex="-1" href="https://github.com/ipeirotis/Troia-Server">1. Server</a></li>
+            <li><a tabindex="-1" href="https://github.com/ipeirotis/Troia-Java-Client">2. Java Client</a></li>
+            <li><a tabindex="-1" href="https://github.com/ipeirotis/Troia-Tester">3. Test data generator</a></li>
+            <li><a tabindex="-1" href="https://github.com/ipeirotis/Troia-Web">4. Website</a></li>
+          </ul>
+        </li>        
+</ul>
 {% endblock %}
