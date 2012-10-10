@@ -282,7 +282,7 @@ def deploy_web(update_env=False, confpath=DEFAULT_PATH):
     # Project root alredy exists. Current remote user is assummed to be an
     # onwer of the directory.
     src_root = '{source_root}/Troia-Web'.format(**conf)
-    clone_or_update(src_root, conf['troia_web_repo'], branch="mb-mashepa-api")
+    clone_or_update(src_root, conf['troia_web_repo'])
     ensure_env(update=update_env, path=conf['virtualenv_root'],
                reqpath='{}/requirements.txt'.format(src_root))
     with prefix('source {virtualenv_root}/bin/activate'.format(**conf)):
