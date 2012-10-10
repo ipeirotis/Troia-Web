@@ -10,27 +10,30 @@
         <meta name="author" content="">
 		<title>
 			{% block title %}
-            {{ site.name }} : {{ page.title }}
+            {{ sitetitle }} : {{ resource.meta.title }}
 			{% endblock %}
         </title>
-        <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-        {% if use_less_js %}
-        <link rel="stylesheet/less" href="/media/less/bootstrap.less">
-		<link rel="stylesheet/less" href="/media/less/responsive.less">        
-		<link rel="stylesheet/less" href="/media/less/troia.less">     
-        <script src="/media/js/less.js"></script>
-        {% endif %}
 
 		{% block css %}
-        {% if not use_less_js %}
-        <link rel="stylesheet" href="{{ site.url }}/media/css/bootstrap.css" type="text/css" />
-		<link rel="stylesheet" href="{{ site.url }}/media/css/bootstrap-responsive.css" type="text/css" /> 
-        <link rel="stylesheet" href="{{ site.url }}/media/css/troia.css" type="text/css" /> 
-        {% endif %}
+		{% if use_less_js %}
+			<!--<link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>-->
+		    <link rel="stylesheet/less" href="/media/less/bootstrap.less">
+			<link rel="stylesheet/less" href="/media/less/responsive.less">        
+			<link rel="stylesheet/less" href="/media/less/troia.less">     
+		    <script src="/media/js/less.js"></script>
+			
+		{% else %}
+			<link rel="stylesheet" href="{{ site.url }}/media/css/bootstrap.css" type="text/css" />
+			<link rel="stylesheet" href="{{ site.url }}/media/css/bootstrap-responsive.css" type="text/css" />
+        	<link rel="stylesheet" href="{{ site.url }}/media/css/troia.css" type="text/css" />
+		{% endif %}
+		
 		{% block extra_css %}{% endblock %}
 		{% endblock %}
 		
 		{% block js %}
+				<script type="text/javascript" src="//use.typekit.net/esn7nhw.js"></script>
+		<script type="text/javascript">try{Typekit.load();}catch(e){}</script>		
         <script src="/media/js/jquery-1.7.2.js"></script>
         <script src="/media/js/bootstrap-alert.js"></script>
         <script src="/media/js/bootstrap-button.js"></script>
@@ -38,7 +41,6 @@
         <script src="/media/js/bootstrap-collapse.js"></script>
         <script src="/media/js/bootstrap-dropdown.js"></script>
         <script src="/media/js/bootstrap.js"></script>
-        <script src="/media/js/bootstrap.min.js"></script>
         <script src="/media/js/bootstrap-modal.js"></script>
         <script src="/media/js/bootstrap-popover.js"></script>
         <script src="/media/js/bootstrap-scrollspy.js"></script>
@@ -46,8 +48,76 @@
         <script src="/media/js/bootstrap-tooltip.js"></script>
         <script src="/media/js/bootstrap-transition.js"></script>
         <script src="/media/js/bootstrap-typeahead.js"></script>
-		{% block extra_js %}{% endblock %}
+		<script src="/media/js/jquery.selectbox-0.2.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+	<script>!window.jQuery.ui && document.write(unescape('%3Cscript src="jquery/jquery-ui-1.8.21.custom.min.js"%3E%3C/script%3E'))</script>
+	<script src="/media/js/jquery.mousewheel.min.js"></script>
+	<script src="/media/js/jquery.mCustomScrollbar.js"></script>
+
+
+
+		{% block extra_js %}
+	
 		{% endblock %}
+		<script type="text/javascript">
+		$(function() {
+			//$("textarea").mCustomScrollbar();
+			$('.dropdown-toggle').dropdown();
+			//$("textarea.field.span12").scrollbar();
+			//$('textarea').uscrollbar();
+			$("#iternumber").selectbox();
+		});
+		(function($){
+			$(window).load(function(){
+				var textArea=$(".content2 textarea");
+				textArea.wrap("<div class='textarea-wrapper' />");
+				var textAreaWrapper=textArea.parent(".textarea-wrapper");
+				textAreaWrapper.mCustomScrollbar({scrollInertia:0});
+				var hiddenDiv=$(document.createElement("div")),
+        			content=null;
+    			hiddenDiv.addClass("hiddendiv");
+    			$("body").prepend(hiddenDiv);
+    			textArea.bind("keydown",function(e){
+        			content=$(this).val();
+					var clength=content.length;
+        			var cursorPosition=textArea.getCursorPosition();
+					content="<span>"+content.substr(0,cursorPosition)+"</span>"+content.substr(cursorPosition,content.length);
+					content=content.replace(/\n/g,"<br />");
+        			hiddenDiv.html(content+"<br />");
+        			$(this).css("height",hiddenDiv.height());
+					textAreaWrapper.mCustomScrollbar("update");
+					var hiddenDivSpan=hiddenDiv.children("span"),
+						hiddenDivSpanOffset=parseInt(hiddenDivSpan.css("line-height"))-parseInt(hiddenDivSpan.css("font-size")),
+						viewLimitBottom=(parseInt(hiddenDiv.css("min-height")))-hiddenDivSpanOffset,
+						viewLimitTop=hiddenDivSpanOffset,
+						viewRatio=Math.round(hiddenDivSpan.height()+textAreaWrapper.find(".mCSB_container").position().top);
+					if(viewRatio>viewLimitBottom || viewRatio<viewLimitTop){
+						if((hiddenDivSpan.height()-hiddenDivSpanOffset)>0){
+							textAreaWrapper.mCustomScrollbar("scrollTo",hiddenDivSpan.height()-hiddenDivSpanOffset);
+						}else{
+							textAreaWrapper.mCustomScrollbar("scrollTo","top");
+						}
+					}
+    			});
+				$.fn.getCursorPosition=function(){
+        			var el=$(this).get(0),
+						pos=0;
+        			if("selectionStart" in el){
+            			pos=el.selectionStart;
+        			}else if("selection" in document){
+            			el.focus();
+            			var sel=document.selection.createRange(),
+							selLength=document.selection.createRange().text.length;
+            			sel.moveStart("character",-el.value.length);
+            			pos=sel.text.length-selLength;
+        			}
+        			return pos;
+    			}
+			});
+		})(jQuery);
+	
+		</script>
+		{% endblock %}        
 
 <link rel="icon" 
       type="image/png" 
@@ -55,19 +125,33 @@
 
 	</head>
     <body>
+<!--<div class="wrapper">
+	<div class="content2">
+		<form>
+			<textarea></textarea>
+		</form>
+	</div>
+</div>	-->
+		<div class="pre_header"></div>
+		<div class="header">
+			<a href="" class="logo"></a>
+			<h1>Quality Control API</h1>
+			<h1 class="tk-trajan-pro">for Crowdsourcing Applications</h1>
+			<button>
+				<p>check out</p>
+				<p>the demo version</p>
+			</button>
+			{% include "skeleton/_sidebar.html" %}
+		</div>
+		<div class="post_header"></div>
         {% include "skeleton/_navigation.html" %}
         
         <div class="container">
-            {% include "skeleton/_breadcrumbs.html" %}
             <div class="row-fluid">
-                <div class="span3">
-                    {% include "skeleton/_sidebar.html" %}
-                </div>
-                <div class="span9">
+                <div class="span12">
                     {% block header %}
                     <div>
-                        <h1>{{ page.title }}</h1>
-                        <hr>
+                        <h1 class="first">{{ resource.meta.title }}</h1>
                         {% block header_content %}
                         {% endblock %}
                     </div>
@@ -75,11 +159,9 @@
                     {% block content %}{% endblock %}
                 </div>
             </div>
-            {% block footer %}
-                {% include "skeleton/_footer.html" %}
-            {% endblock %}
-        </div>
 
+        </div>
+        <!-- Michał's GA integration. -->
         <script type="text/javascript">
 
           var _gaq = _gaq || [];
@@ -97,7 +179,9 @@
           })();
 
         </script>
-        
+		{% block footer %}
+			{% include "skeleton/_footer.html" %}
+		{% endblock %}		
 	</body>
 </html>
 {% endblock %}

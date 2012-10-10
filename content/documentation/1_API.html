@@ -1,12 +1,13 @@
-{% extends "skeleton/_base.html" %}
-{% hyde
-    title: "1. API"
-%}
+---
+extends: skeleton/_base.html
+title: API
+---
 
 {% block content %}
 
 <div class="row-fluid">
     <div class="span12">
+
 {% restructuredtext %}
 
 Troia is service that runs within tomcat server and takes requests from via HTTP.
@@ -15,11 +16,11 @@ It uses POST and GET methods to send request data.
 Service address
 ---------------
 To call services provided by Troia you have to call HTTP connection to correct location.
-Correct format is as follows 
+Correct format is as follows
 
 ::
 
-    http://<host>:<port>/<path>/rest/<service> 
+    http://<host>:<port>/<path>/rest/<service>
 
 Where:
 
@@ -29,7 +30,7 @@ Where:
 - <service> is name of service that's going to be called
 
 So for example if service is set up on local host in server path "GetAnotherLabel" with port 8080
-configured address for ping service will look like that :
+configured address for ping service will look like that:
 
 ::
 
@@ -46,7 +47,7 @@ are basic Troia functionality tests : "ping" and "pingDB".
 Services overwiew
 -----------------
 Here is list of available services with information what method should be used to send them parameters.
-As you can see some service names show up more then once, to see what that means you need to read 
+As you can see some service names show up more then once, to see what that means you need to read
 detailed description of this service in latter part of this tutorial
 
 - ``ping`` : ``none``
@@ -77,15 +78,15 @@ Services ping and pingDB do not send any parameters so request method is irrelev
 JSON usage
 ----------
 Most of those services send strings created by serializing objects with JSON as responses and require
-similar format of parameter input. It means that to be able to correctly use Troia you will have 
+similar format of parameter input. It means that to be able to correctly use Troia you will have
 to recreate some of those objects on client side or alternatively manually parse JSON strings into
 processable output. Troia is written in Java and uses *com.google.gson.Gson* class for serialization.
 Below there is a description of classes that need to be recreated for simple use of Troia services,
 of course their names and methods are not important.
 
 Category
-~~~~~~~~
-Category represents single category in request and besides name contains priority and misclassification 
+........
+Category represents single category in request and besides name contains priority and misclassification
 cost map. Fields:
 
 - ``name`` : ``string``
@@ -93,7 +94,7 @@ cost map. Fields:
 - ``misclassification_cost`` : ``Map<string,double>``
 
 Label
-~~~~~
+.....
 This class represents label assigned to object by worker. Fields:
 
 - ``workerName`` : ``string``
@@ -101,14 +102,14 @@ This class represents label assigned to object by worker. Fields:
 - ``categoryName`` : ``string``
 
 GoldLabel
-~~~~~~~~~
+.........
 This class represents correct label for given object. Fields:
 
 - ``objectName`` : ``string``
 - ``correctCategory`` : ``string``
 
 MisclassificationCost
-~~~~~~~~~~~~~~~~~~~~~
+.....................
 This class contains cost of misclassification from one category to another. Fields:
 
 - ``categoryFrom`` : ``string``
@@ -124,16 +125,16 @@ they are or should be string resulting from JSON serialization.** For more detai
 you should check part of this tutorial dealing with JSON usage in Troia.
 
 ping
-~~~~
+....
 Ping is service used for testing if Troia server is up. If yes it should return string containing info
-about date and hour of service realization for example : 
+about date and hour of service realization for example :
  
 ::
 
     processing request at: 2012-07-18T12:03:06.037+02:00
 
 pingDB
-~~~~~~
+......
 This is service used for testing if databases server used by Troia is up and accessible for modifications.
 It tries to add and remove form database request with one category and id "1234512345".
 Response of this service is string containing information similar to ping but also description
@@ -148,37 +149,37 @@ of actions it took towards database. Example of pingDB output :
     DawidSkene object with id=1234512345 has been removed from the DB...successfully
 
 reset
-~~~~~
+.....
 Removes request with given id from Troia database and writes simple string if removal was succesfull.
 Parameters :
 
 - ``id`` : ``string``
 
 exists
-~~~~~~
+......
 Returns boolean value indicating if request with given id exists.
 Parameters:
 
 - ``id`` : ``string``
 
 loadCategories
-~~~~~~~~~~~~~~
-Uploads collection of categories to request with given id and returns a simple success message. 
+..............
+Uploads collection of categories to request with given id and returns a simple success message.
 Parameters
  
 - ``id`` : ``string``
 - ``categories`` : ``Collection<Category>``
 
 loadCosts
-~~~~~~~~~
-Uploads collection of misclassification costs to request with given id and returns a simple success message. 
+.........
+Uploads collection of misclassification costs to request with given id and returns a simple success message.
 Parameters:
  
 - ``id`` : ``string``
 - ``costs`` : ``Collection<Cost>``
 
 loadWorkerAssignedLabel
-~~~~~~~~~~~~~~~~~~~~~~~
+.......................
 Uploads single label to request with given id and returns a simple success message.
 Parameters:
 
@@ -186,7 +187,7 @@ Parameters:
 - ``data`` : ``Label``
 
 loadWorkerAssignedLabels
-~~~~~~~~~~~~~~~~~~~~~~~~
+........................
 Uploads collection of labels to request with given id and returns a simple success message.
 Parameters :
 
@@ -194,7 +195,7 @@ Parameters :
 - ``data`` : ``Collection<Label>``
 
 loadGoldLabel
-~~~~~~~~~~~~~
+.............
 Uploads single gold label to request with given id and returns a simple success message.
 Parameters :
 
@@ -202,7 +203,7 @@ Parameters :
 - ``data`` : ``GoldLabel``
 
 loadGoldLabels
-~~~~~~~~~~~~~~
+..............
 Uploads collection of gold labels to request with given id and returns a simple success message.
 Parameters :
 
@@ -210,7 +211,7 @@ Parameters :
 - ``data`` : ``Collection<GoldLabel>``
 
 majorityVote
-~~~~~~~~~~~~
+............
 Computes majority vote for object that name was given as a parameter.
 Returns name of category generated by voting.
 Parameters:
@@ -219,7 +220,7 @@ Parameters:
 - ``objectName`` : ``string``
 
 majorityVotes
-~~~~~~~~~~~~~
+.............
 Calculates majority vote for objects that names were included in collection given
 as a parameter. Parameters to this service can be sent via POST and GET as well.
 It returns map associating object name with category name (``Map<string,string>``)
@@ -229,7 +230,7 @@ Parameters:
 - ``objects`` : ``Collection<String>``
 
 objectProb
-~~~~~~~~~~
+..........
 Calculates probabilities of object category association for object with given name.
 Returns map associating probabilities with category names (``Map<string,double>``)
 Parameters:
@@ -238,10 +239,10 @@ Parameters:
 - ``object`` : ``string``
 
 objectProbs
-~~~~~~~~~~~
+...........
 Calculates probabilities of object category association for objects with names
 given in string collection.
-Returns map that translates object name into map associating probabilities with category names 
+Returns map that translates object name into map associating probabilities with category names
 (``Map<string,Map<string,double>>``)
 Parameters:
 
@@ -249,32 +250,32 @@ Parameters:
 - ``objects`` : ``Collection<string>``
 
 computeBlocking
-~~~~~~~~~~~~~~~
-Make a asynchronous callback  to execute the iterative Dawid-Skene algorithm
+...............
+Make a asynchronous callback to execute the iterative Dawid-Skene algorithm
 Parameters:
 
 - ``id`` : ``string``
 - ``iterations`` : ``integer``
 
 classPriors
-~~~~~~~~~~~
+...........
 Returns map that associates class names with their priorities (``Map<string,double>``).
 Parameters:
 
 - ``id`` : ``string``
 
 printWorkerSummary
-~~~~~~~~~~~~~~~~~~
-Returns a string that contains information about workers scores in 
+..................
+Returns a string that contains information about workers scores in
 readable format
 Parameters:
 
-- ``id`` : ``string`` 
+- ``id`` : ``string``
 - ``verbose`` : ``boolean``
 
 printObjectsProbs
-~~~~~~~~~~~~~~~~~
-Returns a string that contains information about object class probabilities in 
+.................
+Returns a string that contains information about object class probabilities in
 readable format
 Parameters:
 
@@ -282,14 +283,14 @@ Parameters:
 - ``entropy`` : ``double``
 
 printPriors
-~~~~~~~~~~~
+...........
 Returns string that contains class priorities in readable format
 Parameters:
 
 - ``id`` : ``string``
 
 getDawidSkene
-~~~~~~~~~~~~~
+.............
 Returns whole Dawid-Skene model for request with given id. Using this service requires recreating whole
 Troia object model and is outside of this tutorial range. If you want to use it you have to get highly
 familiar with Troia source code.
@@ -299,6 +300,7 @@ Parameters:
 
 
 {% endrestructuredtext %}
+
     </div>
 </div>
 {% endblock %}

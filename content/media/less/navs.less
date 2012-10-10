@@ -86,14 +86,16 @@
 }
 .nav-tabs > li,
 .nav-pills > li {
-  float: left;
+  //float: left;
+  display: inline-block;
+  padding: 0 20px;
 }
 .nav-tabs > li > a,
 .nav-pills > li > a {
-  padding-right: 12px;
-  padding-left: 12px;
-  margin-right: 2px;
-  line-height: 14px; // keeps the overall height an even number
+  //padding-right: 12px;
+  //padding-left: 12px;
+  //margin-right: 2px;
+  //line-height: 14px;
 }
 
 // TABS
@@ -101,7 +103,7 @@
 
 // Give the tabs something to sit on
 .nav-tabs {
-  border-bottom: 1px solid #ddd;
+  //border-bottom: 1px solid #ddd;
 }
 // Make the list-items overlay the bottom border
 .nav-tabs > li {
@@ -114,17 +116,17 @@
   line-height: @baseLineHeight;
   border: 1px solid transparent;
   .border-radius(4px 4px 0 0);
-  &:hover {
-    border-color: @grayLighter @grayLighter #ddd;
-  }
+  //&:hover {
+  //  border-color: @grayLighter @grayLighter #ddd;
+  //}
 }
 // Active state, and it's :hover to override normal :hover
 .nav-tabs > .active > a,
 .nav-tabs > .active > a:hover {
-  color: @gray;
-  background-color: @white;
-  border: 1px solid #ddd;
-  border-bottom-color: transparent;
+  //color: @gray;
+  //background-color: @white;
+  //border: 1px solid #ddd;
+  //border-bottom-color: transparent;
   cursor: default;
 }
 
@@ -134,18 +136,17 @@
 
 // Links rendered as pills
 .nav-pills > li > a {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  margin-top: 2px;
-  margin-bottom: 2px;
-  .border-radius(5px);
+  //padding-top: 8px;
+  //padding-bottom: 8px;
+  //margin-top: 2px;
+  //margin-bottom: 2px;
+  //.border-radius(5px);
 }
 
 // Active state
 .nav-pills > .active > a,
 .nav-pills > .active > a:hover {
-  color: @white;
-  background-color: @linkColor;
+  color: #86c828;
 }
 
 
@@ -205,22 +206,22 @@
 // Make carets use linkColor to start
 .nav-tabs .dropdown-toggle .caret,
 .nav-pills .dropdown-toggle .caret {
-  border-top-color: @linkColor;
-  border-bottom-color: @linkColor;
+  border-top-color: #86c828;
+  border-bottom-color: #86c828;
   margin-top: 6px;
 }
 .nav-tabs .dropdown-toggle:hover .caret,
 .nav-pills .dropdown-toggle:hover .caret {
-  border-top-color: @linkColorHover;
-  border-bottom-color: @linkColorHover;
+  border-top-color: #86c828;
+  border-bottom-color: #86c828;
 }
 
 // Active dropdown links
 // -------------------------
 .nav-tabs .active .dropdown-toggle .caret,
 .nav-pills .active .dropdown-toggle .caret {
-  border-top-color: @grayDark;
-  border-bottom-color: @grayDark;
+  border-top-color: #86c828;
+  border-bottom-color: #86c828;
 }
 
 // Active:hover dropdown links
@@ -235,16 +236,16 @@
 .nav-tabs .open .dropdown-toggle,
 .nav-pills .open .dropdown-toggle,
 .nav > li.dropdown.open.active > a:hover {
-  color: @white;
-  background-color: @grayLight;
-  border-color: @grayLight;
+  //color: @white;
+  //background-color: @grayLight;
+  //border-color: @grayLight;
 }
 .nav li.dropdown.open .caret,
 .nav li.dropdown.open.active .caret,
 .nav li.dropdown.open a:hover .caret {
-  border-top-color: @white;
-  border-bottom-color: @white;
-  .opacity(100);
+  //border-top-color: @white;
+  //border-bottom-color: @white;
+  //.opacity(100);
 }
 
 // Dropdowns in stacked tabs

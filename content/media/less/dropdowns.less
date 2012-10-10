@@ -26,7 +26,6 @@
   border-right: 4px solid transparent;
   border-left:  4px solid transparent;
   content: "";
-  .opacity(30);
 }
 
 // Place the caret
@@ -50,9 +49,10 @@
   float: left;
   min-width: 160px;
   padding: 4px 0;
-  margin: 1px 0 0; // override default ul
+  margin: -3px 0 0; // override default ul
   list-style: none;
-  background-color: @dropdownBackground;
+  //background-color: @dropdownBackground;
+  background-color: #242529;
   border: 1px solid #ccc;
   border: 1px solid rgba(0,0,0,.2);
   *border-right-width: 2px;
@@ -62,7 +62,7 @@
   -webkit-background-clip: padding-box;
      -moz-background-clip: padding;
           background-clip: padding-box;
-
+font-family: "trajan-pro",sans-serif;
   // Aligns the dropdown menu to right
   &.pull-right {
     right: 0;
@@ -81,8 +81,9 @@
     clear: both;
     font-weight: normal;
     line-height: @baseLineHeight;
-    color: @dropdownLinkColor;
+    color: white;
     white-space: nowrap;
+    text-align: left;
   }
 }
 
@@ -91,9 +92,9 @@
 .dropdown-menu li > a:hover,
 .dropdown-menu .active > a,
 .dropdown-menu .active > a:hover {
-  color: @dropdownLinkColorHover;
+  color: #86c828;
   text-decoration: none;
-  background-color: @dropdownLinkBackgroundHover;
+  //background-color: @dropdownLinkBackgroundHover;
 }
 
 // Open state for the dropdown

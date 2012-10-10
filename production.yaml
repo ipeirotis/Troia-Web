@@ -1,0 +1,17 @@
+extends: site.yaml
+mode: production
+context:
+    data:
+        menu:
+            -
+                name: Documentation
+                description: 
+                type: node
+                url: documentation
+            -
+                name: Tutorials
+                description: 
+                type: node
+                url: tutorials
+        sitetitle: Troia
+        use_less_js: false
