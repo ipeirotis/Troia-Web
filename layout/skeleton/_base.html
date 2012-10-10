@@ -21,10 +21,11 @@
 			<link rel="stylesheet/less" href="/media/less/responsive.less">        
 			<link rel="stylesheet/less" href="/media/less/troia.less">     
 		    <script src="/media/js/less.js"></script>
+			
 		{% else %}
 			<link rel="stylesheet" href="{{ site.url }}/media/css/bootstrap.css" type="text/css" />
 			<link rel="stylesheet" href="{{ site.url }}/media/css/bootstrap-responsive.css" type="text/css" />
-        	<link rel="stylesheet" href="{{ site.url }}/media/css/troia.css" type="text/css" /> 
+        	<link rel="stylesheet" href="{{ site.url }}/media/css/troia.css" type="text/css" />
 		{% endif %}
 		
 		{% block extra_css %}{% endblock %}
@@ -47,14 +48,74 @@
         <script src="/media/js/bootstrap-tooltip.js"></script>
         <script src="/media/js/bootstrap-transition.js"></script>
         <script src="/media/js/bootstrap-typeahead.js"></script>
+		<script src="/media/js/jquery.selectbox-0.2.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+	<script>!window.jQuery.ui && document.write(unescape('%3Cscript src="jquery/jquery-ui-1.8.21.custom.min.js"%3E%3C/script%3E'))</script>
+	<script src="/media/js/jquery.mousewheel.min.js"></script>
+	<script src="/media/js/jquery.mCustomScrollbar.js"></script>
+
+
 
 		{% block extra_js %}
 	
 		{% endblock %}
 		<script type="text/javascript">
 		$(function() {
+			//$("textarea").mCustomScrollbar();
 			$('.dropdown-toggle').dropdown();
-		});		
+			//$("textarea.field.span12").scrollbar();
+			//$('textarea').uscrollbar();
+			$("#iternumber").selectbox();
+		});
+		(function($){
+			$(window).load(function(){
+				var textArea=$(".content2 textarea");
+				textArea.wrap("<div class='textarea-wrapper' />");
+				var textAreaWrapper=textArea.parent(".textarea-wrapper");
+				textAreaWrapper.mCustomScrollbar({scrollInertia:0});
+				var hiddenDiv=$(document.createElement("div")),
+        			content=null;
+    			hiddenDiv.addClass("hiddendiv");
+    			$("body").prepend(hiddenDiv);
+    			textArea.bind("keydown",function(e){
+        			content=$(this).val();
+					var clength=content.length;
+        			var cursorPosition=textArea.getCursorPosition();
+					content="<span>"+content.substr(0,cursorPosition)+"</span>"+content.substr(cursorPosition,content.length);
+					content=content.replace(/\n/g,"<br />");
+        			hiddenDiv.html(content+"<br />");
+        			$(this).css("height",hiddenDiv.height());
+					textAreaWrapper.mCustomScrollbar("update");
+					var hiddenDivSpan=hiddenDiv.children("span"),
+						hiddenDivSpanOffset=parseInt(hiddenDivSpan.css("line-height"))-parseInt(hiddenDivSpan.css("font-size")),
+						viewLimitBottom=(parseInt(hiddenDiv.css("min-height")))-hiddenDivSpanOffset,
+						viewLimitTop=hiddenDivSpanOffset,
+						viewRatio=Math.round(hiddenDivSpan.height()+textAreaWrapper.find(".mCSB_container").position().top);
+					if(viewRatio>viewLimitBottom || viewRatio<viewLimitTop){
+						if((hiddenDivSpan.height()-hiddenDivSpanOffset)>0){
+							textAreaWrapper.mCustomScrollbar("scrollTo",hiddenDivSpan.height()-hiddenDivSpanOffset);
+						}else{
+							textAreaWrapper.mCustomScrollbar("scrollTo","top");
+						}
+					}
+    			});
+				$.fn.getCursorPosition=function(){
+        			var el=$(this).get(0),
+						pos=0;
+        			if("selectionStart" in el){
+            			pos=el.selectionStart;
+        			}else if("selection" in document){
+            			el.focus();
+            			var sel=document.selection.createRange(),
+							selLength=document.selection.createRange().text.length;
+            			sel.moveStart("character",-el.value.length);
+            			pos=sel.text.length-selLength;
+        			}
+        			return pos;
+    			}
+			});
+		})(jQuery);
+	
 		</script>
 		{% endblock %}        
 
@@ -64,6 +125,13 @@
 
 	</head>
     <body>
+<!--<div class="wrapper">
+	<div class="content2">
+		<form>
+			<textarea></textarea>
+		</form>
+	</div>
+</div>	-->
 		<div class="pre_header"></div>
 		<div class="header">
 			<a href="" class="logo"></a>
