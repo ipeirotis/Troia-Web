@@ -15,11 +15,6 @@ context:
                 type: node
                 url: documentation
             -
-                name: How it works
-                description: 
-                type: node
-                url: how_it_works
-            -
                 name: Tutorials
                 description: 
                 type: node

@@ -28,7 +28,7 @@ For short we assume labels:
 
 
 Cost matrix
-~~~~~~~~~~~
+___________
 
 Cost matrix defines how bad it is to wrongly classify sample with label A whereas its true label is B.
 
@@ -42,7 +42,7 @@ Cost matrix defines how bad it is to wrongly classify sample with label A wherea
 
 
 Gold data
-~~~~~~~~~
+_________
 
 Samples for which correct label is known.
 
@@ -54,7 +54,7 @@ Samples for which correct label is known.
 
 
 Labels assigned by workers
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+__________________________
 
 Labels assigned by workers to given objects.
 
@@ -166,7 +166,7 @@ Sending data
 ------------
 
 Cost matrix
-~~~~~~~~~~~
+___________
 
 In Troia idea is to pass one row / column (it doesn't matter how you think of this) at time so we define costs of errors for class X by passing dictionary with labels as keys and floats as values.
 We can group them in list and pass them all at once.
@@ -193,7 +193,7 @@ Such cost matrix we can send to Troia Server:
 
 
 Gold data
-~~~~~~~~~
+_________
 
 In Python we would represent single gold sample as tuple with *object_id* and its *correct label*.
 We can group them in list so that:
@@ -221,7 +221,7 @@ or:
 
 
 Labels assigned by workers
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+__________________________
 
 In our case we would store single assign as tuple of *worker_id*, *object_id*, *label*.
 We can group them in list so that we can send them all at once or send single assigns.
