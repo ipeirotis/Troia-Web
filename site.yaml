@@ -6,9 +6,6 @@ plugins:
     - hyde.ext.plugins.meta.MetaPlugin
     - hyde.ext.plugins.auto_extend.AutoExtendPlugin
     - hyde.ext.plugins.syntext.SyntextPlugin
-    - hyde.ext.plugins.less.LessCSSPlugin
-less:
-    app: /usr/bin/lessc
 context:
     data:
         menu:
