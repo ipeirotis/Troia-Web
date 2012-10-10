@@ -166,8 +166,18 @@ def generate(src, dst):
     message(colors.blue('Generating static content'))
     # Ensure the static subdirectory exists.
     run('mkdir -p {}'.format(dst))
-    run('hyde -g -s \'{}\' -d \'{}\''.format(src, dst))
-
+    # Generate the static content.
+    run('hyde -s \'{}\' gen -d \'{}\''.format(src, dst))
+    # Compile less files.
+    media_root = '{}/media'.format(dst)
+    less_root = '{}/less'.format(media_root)
+    css_root = '{}/css'.format(media_root)
+    message(colors.blue('Compiling less files'))
+    run('{} {}/bootstrap.less > {}/bootstrap.css'.format(LESSC, less_root,
+            css_root))
+    run('{} {}/responsive.less > {}/responsive.css'.format(LESSC, less_root,
+            css_root))
+    run('{} {}/troia.less > {}/troia.css'.format(LESSC, less_root, css_root))
 
 
 @task
@@ -259,7 +269,7 @@ def generate_apidocs(confpath=DEFAULT_PATH):
 
 
 @task
-def deploy_web(update_env=False, confpath='default.json'):
+def deploy_web(update_env=False, confpath=DEFAULT_PATH):
     ''' Synchronizes the website content with the repository.
         Optionally udates Python's virtual environment. '''
     conf = readconf(confpath)
@@ -272,13 +282,8 @@ def deploy_web(update_env=False, confpath='default.json'):
     # Project root alredy exists. Current remote user is assummed to be an
     # onwer of the directory.
     src_root = '{source_root}/Troia-Web'.format(**conf)
-    clone_or_update(src_root, conf['troia_web_repo'])
+    clone_or_update(src_root, conf['troia_web_repo'], branch="mb-mashepa-api")
     ensure_env(update=update_env, path=conf['virtualenv_root'],
                reqpath='{}/requirements.txt'.format(src_root))
-    media_root = '{}/media'.format(src_root)
-    css_root = '{}/css'.format(media_root)
-    less_root = '{}/less'.format(media_root)
-    ensure_tree(media_root, 'css')
-    compile(less_root, css_root, ('troia.less', 'bootstrap.less'))
     with prefix('source {virtualenv_root}/bin/activate'.format(**conf)):
         generate(src_root, conf['hyde_root'])
