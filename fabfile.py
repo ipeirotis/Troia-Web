@@ -141,13 +141,6 @@ def ensure_tree(root, subdirs, use_sudo=False):
             func('mkdir -p {}'.format(subdir))
 
 
-def maven_build(path, repo, cmd, mvn="mvn"):
-    ''' Updates a local repository and builds the maven project. '''
-    clone_or_update(path, repo)
-    with cd(path):
-        run('{} {}'.format(mvn, cmd))
-
-
 def compile(input_dir, output_dir, files=[]):
     ''' Compiles less and moves resultant css to another directory for
         further processing using hyde. '''
@@ -201,15 +194,13 @@ def update_server(confpath=DEFAULT_PATH):
 @task
 def start_troia_server(confpath=DEFAULT_PATH):
     conf = readconf(confpath)
-    #with prefix("JDK_HOME={jdk_root}".format(**conf)):
-    run('{tomcat_root}/bin/catalina.sh start'.format(**conf))
+    run('{tomcat_root}/bin/catalina.sh start'.format(**conf), pty=False)
 
 
 @task
 def stop_troia_server(confpath=DEFAULT_PATH):
     conf = readconf(confpath)
-    #with prefix("JDK_HOME={jdk_root}".format(**conf)):
-    run('{tomcat_root}/bin/catalina.sh stop'.format(**conf))
+    run('{tomcat_root}/bin/catalina.sh stop'.format(**conf), pty=False)
 
 
 @task
@@ -223,49 +214,67 @@ def deploy_troia_server(confpath=DEFAULT_PATH):
     conf = readconf(confpath)
     # Ensure all services are already installed.
     ensure_srv(conf)
-    src = '{source_root}/Troia-Server'.format(**conf)
-    clone_or_update(src, conf['troia_server_repo'])
-    target = '{}/target/GetAnotherLabel.war'.format(src)
-    maven_build(src, target, cmd='package -Dmaven.test.skip=true',
-                mvn='{maven_root}/bin/mvn'.format(**conf))
-    run('cp {} {tomcat_root}/webapps'.format(target, **conf))
-    execute(restart_troia_server, confpath=confpath)
-    upload_template(
-        os.path.join(CONF_ROOT, 'troia-server', 'dawidskene.properties'),
-        '{tomcat_root}/webapps/GetAnotherLabel/WEB-INF/classes/dawidskene.properties'.format(**conf),
-        context=conf)
+    src_root = '{source_root}/Troia-Server'.format(**conf)
+    # Update Troia-Server repo.
+    clone_or_update(src_root, conf['troia_server_repo'])
+    maven_cmd = '{maven_root}/bin/mvn package -Dmaven.test.skip=true' \
+                .format(**conf)
+    def maven_build():
+        '''Builds the Troia-Server's .war file.'''
+        with cd(src_root):
+            run(maven_cmd)
+    # Build the .war file.
+    maven_build()
     media_root = '{hyde_root}/media'.format(**conf)
     ensure_tree(media_root, ('downloads'))
-    run('cp {} {}/downloads'.format(target, media_root))
+    target_path = '{}/target/GetAnotherLabel.war'.format(src_root)
+    # Copy this file to the downloads directory.
+    run('cp {} {}/downloads'.format(target_path, media_root))
+    # Replace the properties with custom file.
+    upload_template(
+        os.path.join(CONF_ROOT, 'troia-server', 'dawidskene.properties'),
+        '{}/src/main/resources/dawidskene.properties'.format(src_root),
+        context=conf)
+    # Again build .war file with custom properties.
+    maven_build()
+    execute(stop_troia_server, confpath=confpath)
+    # Clean and copy .war file to the tomcat's webapps directory.
+    run('rm -rf {tomcat_root}/webapps/GetAnotherLabel*'.format(**conf))
+    run('cp {} {tomcat_root}/webapps'.format(target_path, **conf))
+    execute(start_troia_server, confpath=confpath)
+
+
+@task
+def update_troia_server(confpath=DEFAULT_PATH):
+    conf = readconf(confpath)
+    # Upload tomcat configuration file.
+    upload_template(
+        os.path.join(CONF_ROOT, 'tomcat', 'server.xml'),
+        '{services_root}/tomcat/conf'.format(**conf),
+        context=conf)
     ensure_tree('{project_root}'.format(**conf), ('scripts', 'sql'))
+    # Upload scripts for cleaning database.
     upload_template(
         os.path.join(CONF_ROOT, 'db_clear.sh'),
         '{project_root}/scripts'.format(**conf),
         context=conf)
     put(os.path.join(CONF_ROOT, 'db_clear.sql'),
         '{sql_root}'.format(**conf))
-
-
-@task
-def update_troia_server(confpath=DEFAULT_PATH):
-    conf = readconf(confpath)
-    # Upload configuration file.
-    upload_template(
-        os.path.join(CONF_ROOT, 'tomcat', 'server.xml'),
-        '{services_root}/tomcat/conf'.format(**conf),
-        context=conf)
+    # Restart troia server.
     execute(restart_troia_server, confpath=confpath)
 
 
 @task
 def generate_apidocs(confpath=DEFAULT_PATH):
     conf = readconf(confpath)
-    src = '{source_root}/Troia-Java-Client'.format(**conf)
-    clone_or_update(src, conf['troia_client_repo'])
-    target = '{}/target/site/apidocs'.format(src)
-    maven_build(src, target, cmd='javadoc:javadoc',
-                mvn='{maven_root}/bin/mvn'.format(**conf))
-    run('cp -rf {} {static_root}'.format(target, **conf))
+    src_root = '{source_root}/Troia-Java-Client'.format(**conf)
+    clone_or_update(src_root, conf['troia_client_repo'])
+    target_path = '{}/target/site/apidocs'.format(src_root)
+    with cd(src_root):
+        run('{maven_root}/bin/mvn javadoc:javadoc'
+            .format(**conf))
+    run('rm -rf {static_root}/apidocs'.format(**conf))
+    run('cp -rf {} {static_root}'.format(target_path, **conf))
 
 
 @task
