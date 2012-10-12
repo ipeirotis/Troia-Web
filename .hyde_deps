@@ -6,6 +6,8 @@
   skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
 !!python/unicode 'documentation/4_python_client.html': [skeleton/_navigation.html,
   skeleton/_sidebar.html, skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
+!!python/unicode 'documentation/5_advanced_details.html': [skeleton/_navigation.html,
+  skeleton/_sidebar.html, skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
 !!python/unicode 'documentation/documentation.html': [skeleton/_innerlisting.html,
   skeleton/_listing.html, skeleton/_sidebar.html, skeleton/_footer.html, skeleton/_base.html,
   skeleton/_navigation.html, skeleton/_breadcrumbs.html, skeleton/_root.html]

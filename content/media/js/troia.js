@@ -238,7 +238,7 @@ function initialize() {
 	{
 		do_post('loadWorkerAssignedLabels',{
 			'id': id,
-			'labels': data
+			'data': data
 		});
 	};
 	
@@ -248,7 +248,7 @@ function initialize() {
 		if (data.length)
 			do_post('loadGoldLabels', {
 				'id': id,
-				'labels': data
+				'data': data
 			});
 	};
 	
@@ -275,8 +275,7 @@ function initialize() {
 		do_get('majorityVotes', {
 			'id': id
 		}, function(response){
-            json = $.parseJSON(response.responseText);
-            res = json.result;
+			res = response.responseText;
 		});
 		return res;
 	}
@@ -288,8 +287,7 @@ function initialize() {
 			'id': id,
 			'verbose': false
 		}, function(response){
-            json = $.parseJSON(response.responseText);
-            res = json.result;
+			res = response.responseText;
 		});
 		return res;
 	}
@@ -303,7 +301,7 @@ function initialize() {
 ///////////////end of post requests
 	
 	function create_classes_table(data) {
-		return _.template($("#classes_template").html(), {data: data} );
+		return _.template($("#classes_template").html(), {data: JSON.parse(data)} );
 	};
 	
 	function create_workers_table(data) {
@@ -355,7 +353,7 @@ function initialize() {
 			for(k=0;k<cell_num;k++) {
 				cell[k]=document.createElement('td');
 				cont=document.createElement('input');
-				$(cont).css('width', 100);
+				$(cont).css('width', 'auto');
 				$(cont).prop('value', category['misclassification_cost'][labels[k]]);
 				cell[k].appendChild(cont);
 				row[c].appendChild(cell[k]);

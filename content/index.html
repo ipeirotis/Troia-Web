@@ -7,28 +7,44 @@ title: About project Troia
 
 {% block content %}
 
-<h1>Project Troia</h1>
-<hr /> 
-<! 
-    XXX header is not displayed (in the RST) 
-    when there is the only one on the page 
--->
+<!--<h1>How to get started?</h1>-->
+<div class="row no-left-margin">
+    <div class="span9">
+        <div class="step_1">
+            <div class="img_step_1"></div>
+            <div class="step_2_header">
+                <span class="almost_h2">1.&nbsp;</span><h2>In order to start you need to have a task to outsource. </h2>
+            </div>
+            
+            <p>The tasks can be anything that requires human evaluation. The workers evaluate the assigned task and provide a response. The response can take several forms such as binary (spam or not spam, relevant or not relevant), multiple choice, and continuous (reviews on 1 to 5 scale).</p>
+        </div>
+        <div class="step_2">
+            <h2>2. Create a project for your task on Troia Server</h2>
+        </div>
+        <div class="step_3">
+            <div class="img_step_3"></div>
+            <div class="step_2_header">
+                <span class="almost_h2">3.&nbsp;</span><h2>Upload your Task's Data</h2>
+            </div>            
+            <p>Data can be uploaded in batch or as individual data streams</p>
+        </div>
+        <div class="step_4">
+            <h2>4. Get back quality estimates for your workers 
+and your data</h2>
+        </div>
+        <div class="step_5">
+            <p></p>
+            <button></button>
+        </div>          
+        
+        
+    </div>
+    <div class="span3">Mechanical Turk and other crowdsourcing platforms allow for easy online distribution of tasks to users, allowing anyone to work on your tasks. Unfortunately, the answers submitted by the users are of imperfect quality: No worker is perfect. In fact, some workers can be submitting completely random results.
+        <a href="#" class="button">Read more about Troia</a>
+    </div>
+</div>
 
-{% restructuredtext %}
-**Troia** is a quality control web service for crowdsourcing applications.
-asas
-Mechanical Turk and other crowdsourcing platforms allow for easy online
-distribution of tasks to users, allowing anyone to work on your tasks.
-Unfortunately, the answers submitted by the users are of imperfect quality: No
-worker is perfect. In fact, some workers can be submitting completely random
-results.
 
-A few highlights of Troia's capabilities:
-
-- Perform quality control for both discrete or continuous data
-- Use redundancy or gold data (or a combination), to estimate worker quality
-- Estimate in **real-time** both worker and data quality
-{% endrestructuredtext %}
 
 
 {% endblock %}
