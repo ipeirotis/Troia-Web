@@ -20,7 +20,7 @@ context:
                 type: node
                 url: tutorials
         sitetitle: Troia
-        use_less_js: true
+        use_less_js: false
 meta:
     nodemeta: meta.yaml
     created: !!timestamp 2010-01-01 00:00:00
