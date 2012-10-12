@@ -160,7 +160,7 @@ def generate(src, dst):
     # Ensure the static subdirectory exists.
     run('mkdir -p {}'.format(dst))
     # Generate the static content.
-    run('hyde -s \'{}\' gen -d \'{}\''.format(src, dst))
+    run('hyde -s \'{0}\' gen -d \'{1}\' -c \'{0}/production.yaml\''.format(src, dst))
     # Compile less files.
     media_root = '{}/media'.format(dst)
     less_root = '{}/less'.format(media_root)
