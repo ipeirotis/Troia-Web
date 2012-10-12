@@ -353,7 +353,7 @@ function initialize() {
 			for(k=0;k<cell_num;k++) {
 				cell[k]=document.createElement('td');
 				cont=document.createElement('input');
-				$(cont).css('width', 100);
+				$(cont).css('width', 'auto');
 				$(cont).prop('value', category['misclassification_cost'][labels[k]]);
 				cell[k].appendChild(cont);
 				row[c].appendChild(cell[k]);

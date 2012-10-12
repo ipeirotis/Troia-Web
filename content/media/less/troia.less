@@ -546,6 +546,7 @@ textarea {
             font-size: 14px;
             color: #979797;
             background: transparent;
+            border: none;
         }            
     }    
 }
@@ -676,17 +677,22 @@ table {
     font-size: 12px;
     text-align: center;
     width: 100%;
+    max-width: 890px;
     tr {
         
         td {
+            border-top: 1px solid #dddddd;
+            border-right: 1px solid #dddddd;
             padding: 13px 0;
             vertical-align: middle;
             input {
                 margin: 0;
                 padding: 0;
-                position: relative;
-                bottom: -4px;
-                top: 0;
+                margin: 0 !important;
+                position: static;
+            }
+            &:last-child {
+                border-right: none;
             }
         }
         &:first-child {
@@ -701,5 +707,13 @@ table {
 
         
     }
+}
+
+.btn-info:hover, .btn-info:active, .btn-info.active, .btn-info.disabled, .btn-info[disabled] {
+    background-color: inherit;
+}
+
+.btn.disabled, .btn[disabled] {
+    background: url("http://217.113.235.108:8002/media/less/../img/button_1.png") repeat-x scroll left center transparent;
 }
 
