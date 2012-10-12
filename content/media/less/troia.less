@@ -203,6 +203,7 @@ body > .container {
     .almost_h2 {
         font-size: 20px;
         line-height: 20px;
+        float: left;
     }
     
     .step_1 {
@@ -213,14 +214,14 @@ body > .container {
             height: 183px;
             float: left;
         }
-        .step_2_header {
+        .step_1_header {
             float: right;
             text-align: left;
             margin-top: 32px;
         }
         h2 {
             float: right;
-            width: 320px;
+            width: 311px;
             font-size: 20px;
             line-height: 20px;
         }
@@ -236,7 +237,8 @@ body > .container {
         }
     }       
     .step_2 {
-        margin: 10px 0;
+        margin: 10px 0 10px 20px;
+        padding-top: 20px;
         clear: both;
         h2 {
             font-size: 20px;
@@ -246,6 +248,11 @@ body > .container {
     
     .step_3 {
         text-align: right;
+        margin-top: 30px;
+        .step_3_header {
+            float: right;
+            margin-top: 30px;            
+        }
         .img_step_3 {
             background: url(../img/step-3.png) transparent right center no-repeat;
             width: 216px;
@@ -255,30 +262,49 @@ body > .container {
         h2 {
             float: right;
             text-align: left;
-            width: 320px;
+            width: 248px;
             font-size: 20px;
             line-height: 20px;         
         }
         p {
+            color: #979797;
+            float: right;
+            font-family: "Aller";
+            font-size: 13px;
+            font-style: italic;
+            margin: 10px;
             text-align: right;
             width: 225px;
+        }
+        .step_3_arrow {
+            width: 90px;
+            height: 52px;
+            background: url(../img/step-3-arrow.png) transparent right center no-repeat;
             float: right;
+            margin-top: 41px;
+            margin-right: 31px;
         }
     }
     
     .step_4 {
-        margin: 10px 0;
+        margin: 10px 0 10px 20px;
         clear: both;
         h2 {
             font-size: 20px;
-            line-height: 20px;            
+            line-height: 20px;
+            margin-left: 20px;
+            width: 490px;            
         }
     }    
 
     .step_5 {
+        margin-top: 70px;
         text-align: right;
         p {
-            
+            color: #8f8f8f;
+            font-family: "myriad-pro",sans-serif;
+            font-size: 20px;
+            font-weight: 300;
         }
         a.button {
             
@@ -819,7 +845,7 @@ table {
 }
 
 .btn-info:hover, .btn-info:active, .btn-info.active, .btn-info.disabled, .btn-info[disabled] {
-    background-color: inherit;
+    //background-color: inherit;
 }
 
 .btn.disabled, .btn[disabled] {
