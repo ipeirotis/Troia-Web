@@ -9,6 +9,14 @@ context:
                 type: node
                 url: documentation
             -
+<<<<<<< HEAD
+=======
+                name: How it works
+                description: 
+                type: node
+                url: how_it_works
+            -
+>>>>>>> new_hyde
                 name: Tutorials
                 description: 
                 type: node
