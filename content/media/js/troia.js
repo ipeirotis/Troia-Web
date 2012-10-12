@@ -238,7 +238,7 @@ function initialize() {
 	{
 		do_post('loadWorkerAssignedLabels',{
 			'id': id,
-			'data': data
+            'labels': data
 		});
 	};
 	
@@ -248,7 +248,7 @@ function initialize() {
 		if (data.length)
 			do_post('loadGoldLabels', {
 				'id': id,
-				'data': data
+                'labels': data
 			});
 	};
 	
@@ -275,7 +275,8 @@ function initialize() {
 		do_get('majorityVotes', {
 			'id': id
 		}, function(response){
-			res = response.responseText;
+            json = $.parseJSON(response.responseText);
+            res = json.result;
 		});
 		return res;
 	}
@@ -287,7 +288,8 @@ function initialize() {
 			'id': id,
 			'verbose': false
 		}, function(response){
-			res = response.responseText;
+            json = $.parseJSON(response.responseText);
+            res = json.result;
 		});
 		return res;
 	}
@@ -301,7 +303,7 @@ function initialize() {
 ///////////////end of post requests
 	
 	function create_classes_table(data) {
-		return _.template($("#classes_template").html(), {data: JSON.parse(data)} );
+		return _.template($("#classes_template").html(), {data: data});
 	};
 	
 	function create_workers_table(data) {
