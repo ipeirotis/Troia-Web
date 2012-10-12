@@ -9,7 +9,7 @@
         <li class="dropdown">
           <a href="#" data-toggle="dropdown" role="button" id="drop{{ loop.index }}" class="dropdown-toggle">{{ item.name }}<b class="caret"></b></a>
           <ul aria-labelledby="drop{{ loop.index }}" role="menu" class="dropdown-menu" id="menu{{ loop.index }}">
-                {% for res in site.content.node_from_relative_path(item.url).walk_resources()|sort(reverse=true) %}
+              {% for res in site.content.node_from_relative_path(item.url).walk_resources()|sort(reverse=False,attribute='full_url') %}
                     <li {% if resource.url == res.url %}class="active"{% endif %}>
                         <a tabindex="-1" href="{{ res.full_url }}">{{ loop.index }}. {{ res.meta.title }}</a>
                     </li>
