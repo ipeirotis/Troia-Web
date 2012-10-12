@@ -188,15 +188,16 @@ body > .container {
     }
     .no-left-margin {
         margin-left: 0;
-        .span9 {
-            padding-right: 60px;
+        .span8 {
+            padding-right: 18px;
             border-right: 1px solid #f0f0f0;
         }
-        .span3 {
+        .span4 {
             color: #979797;
             font-size: 14px;
             font-family: "Aller";
             font-style: italic;
+            margin-top: 30px;
         }
     }
     
@@ -520,111 +521,6 @@ textarea {
     
 }
 
-//.content2 .textarea-wrapper {
-//    height: 287px;
-//    overflow: hidden;
-//    font-family: "Courier New", sans-serif;
-//    color: white;
-//    font-size: 12px;
-//    border: none;
-//    background: #2c2d2f;
-//    -webkit-border-radius: 0px 0px 2px 2px;
-//    border-radius: 0px 0px 2px 2px;    
-//}
-//.hiddendiv {
-//    font-family: Arial,sans-serif;
-//    font-size: 13px;
-//    left: -9999px;
-//    min-height: 140px;
-//    padding: 0 0 0 10px;
-//    position: absolute;
-//    top: -9999px;
-//    visibility: hidden;
-//    white-space: pre-wrap;
-//    width: 210px;
-//    word-wrap: break-word;
-//}
-//.mCSB_scrollTools {
-//    padding: 5px;
-//}
-//
-//
-//
-//
-///* basic scrollbar styling */
-///* vertical scrollbar */
-//.mCSB_container{
-//	width:auto;
-//	margin-right:30px;
-//	overflow:hidden;
-//}
-//.mCSB_container.mCS_no_scrollbar{
-//	margin-right:0;
-//}
-//.mCustomScrollBox .mCSB_scrollTools{
-//	width:16px;
-//	height:100%;
-//	top:0;
-//	right:0;
-//}
-//.mCSB_scrollTools .mCSB_draggerContainer{
-//	height:100%;
-//	-webkit-box-sizing:border-box;
-//	-moz-box-sizing:border-box;
-//	box-sizing:border-box;
-//}
-//.mCSB_scrollTools .mCSB_buttonUp+.mCSB_draggerContainer{
-//	padding-bottom:40px;
-//}
-//.mCSB_scrollTools .mCSB_draggerRail{
-//	width:2px;
-//	height:100%;
-//	margin:0 auto;
-//}
-//.mCSB_scrollTools .mCSB_dragger{
-//	cursor:pointer;
-//	width:100%;
-//	height:30px;
-//}
-//.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{
-//	width:8px;
-//	height:100%;
-//	margin:0 auto;
-//	text-align:center;
-//}
-//.mCSB_scrollTools .mCSB_buttonUp,
-//.mCSB_scrollTools .mCSB_buttonDown{
-//	height:20px;
-//	overflow:hidden;
-//	margin:0 auto;
-//	cursor:pointer;
-//}
-//.mCSB_scrollTools .mCSB_buttonDown{
-//	bottom:0;
-//	margin-top:-40px;
-//}
-//.mCSB_scrollTools .mCSB_draggerRail{
-//	background: transparent;
-//}
-//.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{
-//	background: #5e5e5e;
-//}
-//.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar{
-//	background: #5e5e5e;
-//}
-//.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-//.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{
-//	background: #5e5e5e;
-//}
-//.mCSB_scrollTools .mCSB_buttonUp,
-//.mCSB_scrollTools .mCSB_buttonDown,
-//.mCSB_scrollTools .mCSB_buttonLeft,
-//.mCSB_scrollTools .mCSB_buttonRight{
-//	background-image:url(mCSB_buttons.png);
-//	background-repeat:no-repeat;
-//	opacity:0.4;
-//	filter:"alpha(opacity=40)"; -ms-filter:"alpha(opacity=40)"; /* old ie */
-//}
 
 #data_form {
     position: relative;
@@ -849,6 +745,51 @@ table {
 }
 
 .btn.disabled, .btn[disabled] {
-    background: url("http://217.113.235.108:8002/media/less/../img/button_1.png") repeat-x scroll left center transparent;
+    background: url("../img/button_1.png") repeat-x scroll left center transparent;
 }
+
+
+
+.btn-read-more {
+    float: right;
+    margin-top: 17px;
+    display: block;
+    border-radius: 4px;
+    font-family: "myriad-pro",sans-serif;
+    font-weight: 300px;
+    font-size: 14px;
+    line-height: 13px;
+    padding: 10px 45px 10px 10px;
+    text-align: left;
+    text-decoration: none;
+    font-style: normal;
+    text-shadow: 0 0 1px #000000;
+    position: relative;
+    .read-more-white {
+        background-color: rgba(255, 255, 255, 0.2);
+        display: block;
+        width: 33px;
+        height: 33px;
+        float: right;
+        position: absolute;
+        right: 0;
+        top: 0;
+        .read-more-icon {
+            background: url("../img/button-read-more.png") no-repeat 8px 10px transparent;
+            display: block;
+            width: 33px;
+            height: 33px;
+            float: right;
+            position: absolute;
+            right: 0;
+            top: 0;            
+        }
+    }
+    &:hover {
+        text-decoration: none;
+        background-position: left center;
+        -moz-transform: none;        
+    }
+}
+
 
