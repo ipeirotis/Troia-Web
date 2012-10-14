@@ -4,7 +4,7 @@
     "static_dir": "static",
     "source_dir": "source",
     "virtualenv_dir": "virtualenv",
-    "troia_web_repo": "git://github.com/dkoleda/Troia-Web.git",
+    "troia_web_repo": "git://github.com/ipeirotis/Troia-Web.git",
     "troia_server_repo": "git://github.com/ipeirotis/Troia-Server.git",
     "troia_java_client_repo": "git://github.com/ipeirotis/Troia-Java-Client.git",
     "python": "/usr/bin/python2.7",
