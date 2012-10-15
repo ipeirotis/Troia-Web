@@ -1,62 +1,50 @@
 function initialize() {
-	var api_url = "/api/";
-	var iters = 1;
-	var id = 123;
-	$('#jobid').prop('value', id);
-	var category_list = []; //lista klas
-	var old_category_list = [];
-	var data_error = false;
-	var gold_error = false;
+
+	var apiUrl = '/api/';
+    var id = 123;
+	var categoryList = [];
+	var oldCategoryList = [];
+    var chunkSize = 2;
+
 //	var table_created = false;
+
 	$('#response').hide();
-	load_test_data();
-	set_textarea_maxrows(50);
+	loadTestData();
+	setTextareaMaxrows(50);
 	
-	$('#send_data').click(function(){
-		//validate
-		var data = parse_worker_assigned_labels();
-		parse_gold_labels();
-		if (gold_error)
-		{
-			$('#myTab li:nth-child(2) a').tab('show');
-			return;
-		}
-		if (data_error)
-		{
-			$('#myTab li:nth-child(1) a').tab('show');
-			return;
-		}
-		//btn change
-		var btn_text =$(this).text();
+	$('#send_data').click(function() {
+		// Validate input.
+		var workerLabels = parseWorkerAssignedLabels();
+        var goldLabels = parseGoldLabels();
+        var costMatrix = parseCostMatrix(workerLabels);
+		// Change button.
 		$(this).addClass('disabled');
-		
-		//posting data
-		reset();
-		id = parseInt($('#jobid').prop('value'));
+		var buttonText = $(this).text();
 		$(this).text('Sending data..');
-		load_cost_matrix();
-		load_worker_assigned_labels(data);
-		load_gold_labels();
-		
-		//compute and get answer
+        // Upload data.
+		reset(id);
+		loadWorkerAssignedLabels(id, workerLabels);
+		loadGoldLabels(id, goldLabels);
+		loadCostMatrix(id, costMatrix);
+		// Compute and get answer.
 		$('#response').show();
-		i = 0;
+		var i = 0;
+        var numIterations = 1;
 		var that = this;
-		interval_func = setInterval(function(){
+		func = setInterval(function() {
 			i += 1;
-			if (i>$('#iternumber').val())
-			{
-				clearInterval(interval_func);
+			if (i > $('#num_iterations').val()) {
+				clearInterval(func);
 				$(that).removeClass('disabled');
-				$(that).text(btn_text);
-				return;
-			}
-			$(that).text('Iteration ' + i + '..');
-			compute(iters, function(res){
+				$(that).text(buttonText);
+			} else {
+			    $(that).text('Iteration ' + i + '..');
+			    compute(numIterations, function(res) {
 //				$('#workers').html(worker_summary().replace(/\n/gi, '<br/>'));
-				$('#workers').html(create_workers_table(worker_summary()));
-				$('#classes').html(create_classes_table(majority_votes()));
-			});
+				    $('#workers').html(create_workers_table(worker_summary()));
+				    $('#classes').html(create_classes_table(majority_votes()));
+                });
+            }
 		}, 1500);
 	});
 	
@@ -66,146 +54,179 @@ function initialize() {
 //    		table_created = true;
     		parse_worker_assigned_labels();
     		if (!_.isEqual(old_category_list, category_list))
-    			create_table(category_list);
-    		$('#mytable input').numeric({ negative : false });
+    			createCostMatrix(categoryList);
+    		$('#cost_matrix input').numeric({ negative : false });
     	}
     });
     
 
-    function set_textarea_maxrows(rows)
-    {
-    	function handler(e)
-    	{
-    		if(this.value.split('\n').length > rows)
-                this.value = this.value.split('\n').slice(0, rows).join('\n');
+    function setTextareaMaxrows(maxRows) {
+    	function handler(e) {
+    		if (this.value.split('\n').length > maxRows)
+                this.value = this.value.split('\n').slice(0, maxRows).join('\n');
     	}
     	$('#id_data').keyup(handler);
     	$('#id_gold_data').keyup(handler);
     }
 
-    function load_test_data()
-    {
+    function loadTestData() {
     	$('#id_data').val("worker1 http://sunnyfun.com    porn\nworker1 http://sex-mission.com porn\nworker1 http://google.com      porn\nworker1 http://youporn.com     porn\nworker1 http://yahoo.com       porn\nworker2 http://sunnyfun.com    notporn\nworker2 http://sex-mission.com porn\nworker2 http://google.com      notporn\nworker2 http://youporn.com     porn\nworker2 http://yahoo.com       porn\nworker3 http://sunnyfun.com    notporn\nworker3 http://sex-mission.com porn\nworker3 http://google.com      notporn\nworker3 http://youporn.com     porn\nworker3 http://yahoo.com       notporn\nworker4 http://sunnyfun.com    notporn\nworker4 http://sex-mission.com porn\nworker4 http://google.com      notporn\nworker4 http://youporn.com     porn\nworker4 http://yahoo.com       notporn\nworker5 http://sunnyfun.com    porn\nworker5 http://sex-mission.com notporn\nworker5 http://google.com      porn\nworker5 http://youporn.com     notporn	\nworker5 http://yahoo.com       porn");
     	$('#id_gold_data').val("http://google.com      notporn");
-    	parse_worker_assigned_labels();
-		create_table(category_list);
+    	parseWorkerAssignedLabels();
+		createCostMatrix(categoryList);
     };
     
-    function jsonify(data)
-    {
-    	var post_data = {};
+    function jsonify(data) {
+    	var result = {};
 		for (var key in data) {
-			post_data[key] = JSON.stringify(data[key]);
+			result[key] = JSON.stringify(data[key]);
 		};
-		return post_data;
+		return result;
     };
 	
-	function do_post(url, data)
-	{
+    /** Performs a POST request. */
+	function post(url, data, async, success) {
+        if (!success) {
+            success == function(data, textStatus, jqXHR) {
+                console.debug('POST request complete');
+            }
+        }
 		$.ajax({
-	        url: api_url + url,
-	        type: "POST",
-	        async: false,
+	        url: apiUrl + url,
+	        type: 'post',
+	        async: async,
 	        data: jsonify(data),
-	        success: function(data, textStatus, jqXHR)
-	        {
-//	        	console.log('success')
-	        }
+	        success: success
+        });
+	};
+
+    /** Performs a POST request. Sends data in chunks. */
+    function postInChunks(url, data, async, success) {
+        if (false) { //TODO
+            console.warn('Attempt to post in chunks non-array object');
+        }
+        var chunk = undefined;
+        var offset = 0;
+        var reminder = undefined;
+        do {
+            limit = Math.min(chunkSize, data.length - offset);
+            chunk = data.slice(offset, offset + limit);
+            post(url, chunk, async, success);
+            offset += limit;
+        } while (offset < data.length);
+    }
+	
+    /** Performs a POST request. Sends data in chunks but only along specified
+     * axis (field). */
+    function postInAxisChunks(url, data, axis, async, success) {
+        if (false) { //TODO
+            console.warn('Attempt to post in chunks non-array object');
+        }
+        var chunk = undefined;
+        var offset = 0;
+        var reminder = undefined;
+        newData = data;
+        do {
+            limit = Math.min(chunkSize, data[axis].length - offset);
+            chunk = data[axis].slice(offset, offset + limit);
+            newData[axis] = chunk;
+            post(url, newData, async, success);
+            offset += limit;
+        } while (offset < data[axis].length);
+    }
+
+	function get(url, data, async, complete) {
+		if (!complete) {
+			complete = function(res){
+                console.debug('GET request complete');
+            };
+        }
+		$.ajax({
+	        url: apiUrl + url,
+	        type: 'get',
+	        async: async,
+	        data: jsonify(data),
+	        complete: complete
 	    });
 	};
 	
-	function do_get(url, data, complete_fun)
-	{
-		if (! complete_fun)
-			complete_fun = function(res){};
-		$.ajax({
-	        url: api_url + url,
-	        type: "GET",
-	        async: false,
-	        data: jsonify(data),
-	        complete: complete_fun
-	    });
-	};
-	
-	function misclassification_cost(labels, label)
+	function misclassificationCost(labels, label) {
 	//returns {'a': 1.0, 'b': 1.0, 'c': 0, 'd': 1.0} for labels=[a, b, c, d], label=c
-	{
-		var ret = {};
-		var avg = 1.0/(labels.length-1.0);
-		_.each(labels, function(l){
+		var result = {};
+		var avg = 1.0 / (labels.length - 1.0);
+		_.each(labels, function(l) {
 			if (l !== label)
-				ret[l] = avg;
+				result[l] = avg;
 		});
-		ret[label] = 0;
-		return ret;
+		result[label] = 0;
+		return result;
 	};
 	
 	function categories(labels){
-		var ret = [];
-		_.each(labels, function(l){
-			ret.push({
+		var result = [];
+		_.each(labels, function(l) {
+			result.push({
 				'prior': 1.0,
 				'name': l,
-				'misclassification_cost': misclassification_cost(labels, l)
+				'misclassificationCost': misclassificationCost(labels, l)
 			});
 		});
-		return ret;
+		return result;
 	};
-	
-	function parse_worker_assigned_labels()
-	{
+
+    /** Parses labels input. */
+	function parseWorkerAssignedLabels() {
 		var data = [];
-		old_category_list = category_list;
-		category_list = [];
-		data_error = false;
+		oldCategoryList = categoryList;
+		categoryList = [];
+		var dataError = false;
 		_.each($("#id_data").val().split(/\n/), function(line){
-			var parsed_line = _.compact(line.split(/[\t ]/));
-			if (parsed_line.length !== 3)
-			{
+			var parsedLine = _.compact(line.split(/[\t ]/));
+			if (parsedLine.length !== 3) {
 				$('#data .control-group').addClass('error');
-				$('#data span').text('Only 3 words per line.');
-				data_error = true;
+				$('#data span').text('Only 3 words per line allowed.');
+				dataError = true;
 			}
 			data.push({
-				'workerName': parsed_line[0],
-				'objectName': parsed_line[1],
-				'categoryName': parsed_line[2]
+				'workerName': parsedLine[0],
+				'objectName': parsedLine[1],
+				'categoryName': parsedLine[2]
 			});
-			if (parsed_line[2])
-				category_list.push(parsed_line[2]);
+			if (parsedLine[2]) {
+				categoryList.push(parsedLine[2]);
+            }
 		});
-		if (!data_error)
-		{
+		if (dataError) {
+			$('#myTab li:nth-child(1) a').tab('show');
+		} else {
 			$('#data .control-group').removeClass('error');
 			$('#data span').text('');
 		}
-		
-		category_list = _.uniq(category_list);
-		
+        categoryList = _.uniq(categoryList);
 		return data;
 	};
-	
-	function parse_gold_labels()
-	{
+
+    /** Parses gold labels input. */
+	function parseGoldLabels() {
 		var data = [];
-		gold_error = false;
-		if ($("#id_gold_data").val())
-		{
+		var dataError = false;
+		if ($("#id_gold_data").val()) {
 			_.each($("#id_gold_data").val().split(/\n/), function(line){
-				var parsed_line = _.compact(line.split(/[\t ]/));
-				if (parsed_line.length !== 2)
-				{
+				var parsedLine = _.compact(line.split(/[\t ]/));
+				if (parsedLine.length !== 2) {
 					$('#gold .control-group').addClass('error');
-					$('#gold span').text('Only 2 words per line.');
-					gold_error = true;
+					$('#gold span').text('Only 2 words per line allowed.');
+					dataError = true;
 				}
 				data.push({
-					'objectName': parsed_line[0],
-					'correctCategory': parsed_line[1]
+					'objectName': parsedLine[0],
+					'correctCategory': parsedLine[1]
 				});
 			});
-			if (!gold_error)
-			{
+            if (goldError) {
+                $('#myTab li:nth-child(2) a').tab('show');
+                data = undefined;
+            } else {
 				$('#gold .control-group').removeClass('error');
 				$('#gold span').text('');
 			}
@@ -213,117 +234,110 @@ function initialize() {
 		return data;
 	};
 	
-	function parse_cost_matrix(labels)
-	{
-		var ret = [];
+    /** Parses cost matrix input. */
+	function parseCostMatrix(labels) {
+		var data = [];
 		var k = 0;
 		var l = labels.length;
-		_.each($('#mytable input'), function(i){
-			if (k%l == 0){
+		_.each($('#cost_matrix_inner input'), function(i) {
+			if (k % l === 0){
 				d = {};
-				ret.push({
+				data.push({
 					'prior': 1.0,
-					'name': labels[k/l],
-					'misclassification_cost': d
+					'name': labels[k / l],
+					'misclassificationCost': d
 				});
 			}
-			d[labels[k%l]] = parseFloat($(i).prop('value'));
+			d[labels[k % l]] = parseFloat($(i).prop('value'));
 			k += 1;
 		});
-		return ret;
+		return data;
+	};
+
+	function loadWorkerAssignedLabels(id, labels) {
+		postInAxisChunks('loadWorkerAssignedLabels', {
+            'id': id,
+            'labels': labels
+        }, 'labels');
 	};
 	
-//////////////post requests
-	function load_worker_assigned_labels(data)
-	{
-		do_post('loadWorkerAssignedLabels',{
-			'id': id,
-            'labels': data
-		});
-	};
-	
-	function load_gold_labels()
-	{
-		var data = parse_gold_labels()
-		if (data.length)
-			do_post('loadGoldLabels', {
+	function loadGoldLabels(id, labels) {
+		if (labels)
+			post('loadGoldLabels', {
 				'id': id,
-                'labels': data
+                'labels': parseGoldLabels()
 			});
 	};
 	
-	function load_cost_matrix()
-	{
-		
-		do_post('loadCategories', {
+	function loadCostMatrix(id, costMatrix) {
+		post('loadCategories', {
 			'id': id,
-			'categories': parse_cost_matrix(category_list)
+			'categories': costMatrix
 		});
 	};
 	
-	function compute(it, fun)
-	{
-		do_get('computeBlocking', {
+	function compute(id, numIterations, func) {
+		get('computeBlocking', {
 			'id': id,
-			'iterations': it
-		}, fun);
+			'iterations': numIterations
+		}, func);
 	}
 	
-	function majority_votes()
-	{
-		var res;
-		do_get('majorityVotes', {
+	function majorityVotes(id) {
+		var result = undefined;
+		get('majorityVotes', {
 			'id': id
 		}, function(response){
             json = $.parseJSON(response.responseText);
-            res = json.result;
+            result = json.result;
 		});
-		return res;
+		return result;
 	}
 	
-	function worker_summary()
+	function workerSummary(id)
 	{
-		var res;
-		do_get('printWorkerSummary', {
-			'id': id,
-			'verbose': false
-		}, function(response){
+		var result = undefined;
+        var success = function(response) {
             json = $.parseJSON(response.responseText);
-            res = json.result;
-		});
-		return res;
+            result = json.result;
+        };
+		get('printWorkerSummary', {
+            'id': id,
+            'verbose': false
+        }, success);
+		return result;
 	}
 	
-	function reset()
+	function reset(id)
 	{
-		do_get('reset', {
-			'id': id
-		});
+		get('reset', {
+            'id': id
+        });
 	}
-///////////////end of post requests
 	
-	function create_classes_table(data) {
-		return _.template($("#classes_template").html(), {data: data});
+	function createClassesTable(classes) {
+		return _.template($("#classes_template").html(), {
+            classes: classes 
+        });
 	};
 	
-	function create_workers_table(data) {
+	function createWorkersTable(data) {
 		var regex = /Worker: ([0-9a-zA-Z]+)\nError Rate: (\d+.\d*%)\nQuality \(Expected\): (---|\d+.\d*%)\nQuality \(Optimized\): (\-\-\-|\d+.\d*%)\nNumber of Annotations: (\d+)\nNumber of Gold Tests: (\d+)\nConfusion Matrix: \n(^(.)+\n)*/mg;
 		var regexc = /Worker: ([0-9a-zA-Z]+)\nError Rate: (\d+.\d*%)\nQuality \(Expected\): (---|\d+.\d*%)\nQuality \(Optimized\): (\-\-\-|\d+.\d*%)\nNumber of Annotations: (\d+)\nNumber of Gold Tests: (\d+)\nConfusion Matrix: \n((.|\n)*)/m;
-		var ret = []
-		_.each(data.match(regex), function(m){
-			ret.push(regexc.exec(m));
+		var result = [];
+		_.each(data.match(regex), function(m) {
+			result.push(regexc.exec(m));
 		});		
-		return _.template($("#workers_template").html(), {data: ret} );
+		return _.template($("#workers_template").html(), {workers: result} );
 	}
 
-	function create_table(labels) {
-		$('#mytable').empty();
-		row=new Array();
-		cell=new Array();
-		cat = categories(labels);
-	
-		row_num=labels.length;
-		cell_num=labels.length;
+	function createCostMatrix(labels) {
+		$('#cost_matrix_inner').empty();
+		row = new Array();
+		cell = new Array();
+		cat= categories(labels);
+		row_num = labels.length;
+		cell_num = labels.length;
 		
 		tab=document.createElement('table');
 		tab.setAttribute('id','newtable');
@@ -356,14 +370,14 @@ function initialize() {
 				cell[k]=document.createElement('td');
 				cont=document.createElement('input');
 				$(cont).css('width', 'auto');
-				$(cont).prop('value', category['misclassification_cost'][labels[k]]);
+				$(cont).prop('value', category['misclassificationCost'][labels[k]]);
 				cell[k].appendChild(cont);
 				row[c].appendChild(cell[k]);
 			}
 			tbo.appendChild(row[c]);
 		}
 		tab.appendChild(tbo);
-		$('#mytable')[0].appendChild(tab);
+		$('#cost_matrix')[0].appendChild(tab);
 	};	
 }
 
