@@ -1,7 +1,7 @@
 function initialize() {
 
 	var apiUrl = '/api/';
-    var id = 123;
+    var id = parseInt(Math.random()*1000000000000);
 	var categoryList = [];
 	var oldCategoryList = [];
     var chunkSize = 2;
@@ -10,39 +10,41 @@ function initialize() {
 
 	$('#response').hide();
 	loadTestData();
-	setTextareaMaxrows(50);
+	//	setTextareaMaxrows(50);
 	
 	$('#send_data').click(function() {
 		// Validate input.
 		var workerLabels = parseWorkerAssignedLabels();
         var goldLabels = parseGoldLabels();
-        var costMatrix = parseCostMatrix(workerLabels);
+        var costMatrix = parseCostMatrix(categoryList);
 		// Change button.
 		$(this).addClass('disabled');
 		var buttonText = $(this).text();
 		$(this).text('Sending data..');
         // Upload data.
 		reset(id);
+		loadCostMatrix(id, costMatrix);
 		loadWorkerAssignedLabels(id, workerLabels);
 		loadGoldLabels(id, goldLabels);
-		loadCostMatrix(id, costMatrix);
 		// Compute and get answer.
+		$('#classes').text("");
+		$('#workers').text("");
 		$('#response').show();
 		var i = 0;
         var numIterations = 1;
 		var that = this;
 		func = setInterval(function() {
 			i += 1;
-			if (i > $('#num_iterations').val()) {
+			if (i > $('#id_num_iterations').val()) {
 				clearInterval(func);
 				$(that).removeClass('disabled');
 				$(that).text(buttonText);
 			} else {
 			    $(that).text('Iteration ' + i + '..');
-			    compute(numIterations, function(res) {
+			    compute(id, numIterations, function(res) {
 //				$('#workers').html(worker_summary().replace(/\n/gi, '<br/>'));
-				    $('#workers').html(create_workers_table(worker_summary()));
-				    $('#classes').html(create_classes_table(majority_votes()));
+				    $('#workers').html(createWorkersTable(workerSummary(id)));
+				    $('#classes').html(createClassesTable(majorityVotes(id)));
                 });
             }
 		}, 1500);
@@ -52,26 +54,27 @@ function initialize() {
     	if (e.target.getAttribute('href') === '#matrix') // && !table_created)
     	{
 //    		table_created = true;
-    		parse_worker_assigned_labels();
-    		if (!_.isEqual(old_category_list, category_list))
+    		parseWorkerAssignedLabels();
+    		if (!_.isEqual(oldCategoryList, categoryList))
     			createCostMatrix(categoryList);
     		$('#cost_matrix input').numeric({ negative : false });
     	}
     });
     
 
-    function setTextareaMaxrows(maxRows) {
-    	function handler(e) {
-    		if (this.value.split('\n').length > maxRows)
-                this.value = this.value.split('\n').slice(0, maxRows).join('\n');
-    	}
-    	$('#id_data').keyup(handler);
-    	$('#id_gold_data').keyup(handler);
-    }
+//TROIA-88
+//    function setTextareaMaxrows(maxRows) {
+//    	function handler(e) {
+//    		if (this.value.split('\n').length > maxRows)
+//                this.value = this.value.split('\n').slice(0, maxRows).join('\n');
+//    	}
+//    	$('#id_data').keyup(handler);
+//    	$('#id_gold_data').keyup(handler);
+//    }
 
     function loadTestData() {
     	$('#id_data').val("worker1 http://sunnyfun.com    porn\nworker1 http://sex-mission.com porn\nworker1 http://google.com      porn\nworker1 http://youporn.com     porn\nworker1 http://yahoo.com       porn\nworker2 http://sunnyfun.com    notporn\nworker2 http://sex-mission.com porn\nworker2 http://google.com      notporn\nworker2 http://youporn.com     porn\nworker2 http://yahoo.com       porn\nworker3 http://sunnyfun.com    notporn\nworker3 http://sex-mission.com porn\nworker3 http://google.com      notporn\nworker3 http://youporn.com     porn\nworker3 http://yahoo.com       notporn\nworker4 http://sunnyfun.com    notporn\nworker4 http://sex-mission.com porn\nworker4 http://google.com      notporn\nworker4 http://youporn.com     porn\nworker4 http://yahoo.com       notporn\nworker5 http://sunnyfun.com    porn\nworker5 http://sex-mission.com notporn\nworker5 http://google.com      porn\nworker5 http://youporn.com     notporn	\nworker5 http://yahoo.com       porn");
-    	$('#id_gold_data').val("http://google.com      notporn");
+    	$('#id_gold_labels').val("http://google.com      notporn");
     	parseWorkerAssignedLabels();
 		createCostMatrix(categoryList);
     };
@@ -210,8 +213,8 @@ function initialize() {
 	function parseGoldLabels() {
 		var data = [];
 		var dataError = false;
-		if ($("#id_gold_data").val()) {
-			_.each($("#id_gold_data").val().split(/\n/), function(line){
+		if ($("#id_gold_labels").val()) {
+			_.each($("#id_gold_labels").val().split(/\n/), function(line){
 				var parsedLine = _.compact(line.split(/[\t ]/));
 				if (parsedLine.length !== 2) {
 					$('#gold .control-group').addClass('error');
@@ -223,7 +226,7 @@ function initialize() {
 					'correctCategory': parsedLine[1]
 				});
 			});
-            if (goldError) {
+            if (dataError) {
                 $('#myTab li:nth-child(2) a').tab('show');
                 data = undefined;
             } else {
@@ -239,13 +242,13 @@ function initialize() {
 		var data = [];
 		var k = 0;
 		var l = labels.length;
-		_.each($('#cost_matrix_inner input'), function(i) {
+		_.each($('#cost_matrix input'), function(i) {
 			if (k % l === 0){
 				d = {};
 				data.push({
 					'prior': 1.0,
 					'name': labels[k / l],
-					'misclassificationCost': d
+					'misclassification_cost': d
 				});
 			}
 			d[labels[k % l]] = parseFloat($(i).prop('value'));
@@ -255,17 +258,17 @@ function initialize() {
 	};
 
 	function loadWorkerAssignedLabels(id, labels) {
-		postInAxisChunks('loadWorkerAssignedLabels', {
+		post('loadWorkerAssignedLabels', {
             'id': id,
             'labels': labels
-        }, 'labels');
+        });
 	};
 	
 	function loadGoldLabels(id, labels) {
 		if (labels)
 			post('loadGoldLabels', {
 				'id': id,
-                'labels': parseGoldLabels()
+                'labels': labels
 			});
 	};
 	
@@ -332,7 +335,7 @@ function initialize() {
 	}
 
 	function createCostMatrix(labels) {
-		$('#cost_matrix_inner').empty();
+		$('#cost_matrix').empty();
 		row = new Array();
 		cell = new Array();
 		cat= categories(labels);
