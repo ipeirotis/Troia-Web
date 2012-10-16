@@ -47,62 +47,15 @@ h3 {margin:10px 0; font-weight: normal;}
     }
     h1 {
         position: absolute;
-        left: 283px;
-        top: 29px;
+        left: 384px;
+        top: 60px;
         font-family: "trajan-pro",sans-serif;
         font-size: 20px;
         color: #2c2c2c;
         
     }
     h1 + h1 {
-        top: 53px;
-    }
-    
-    .demo_button {
-        width: 226px;
-        padding: 10px 0;
-        background: #fbfbfb;
-        background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZiZmJmYiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNkZWRlZGUiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-        background: -moz-linear-gradient(top,  #fbfbfb 0%, #dedede 100%);
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fbfbfb), color-stop(100%,#dedede));
-        background: -webkit-linear-gradient(top,  #fbfbfb 0%,#dedede 100%);
-        background: -o-linear-gradient(top,  #fbfbfb 0%,#dedede 100%);
-        background: -ms-linear-gradient(top,  #fbfbfb 0%,#dedede 100%);
-        background: linear-gradient(to bottom,  #fbfbfb 0%,#dedede 100%);
-        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fbfbfb', endColorstr='#dedede',GradientType=0 );
-        -webkit-border-radius: 3px;
-        border-radius: 3px;
-        border: 1px solid white;
-        -webkit-box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.05);
-        box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.05);
-        position: absolute;
-        top: 32px;
-        right: 15px;
-        text-align: center;
-        p {
-            color: #6e6d6d;
-            font-family: "trajan-pro",sans-serif;
-            font-weight: bold;
-            font-size: 20px;
-            margin: 0;
-            padding: 0;
-            text-transform: uppercase;
-            text-shadow: 1px 1px 1px #ffffff;
-            filter: dropshadow(color=#ffffff, offx=1, offy=1);            
-        }
-        p+p {
-            color: #393939;
-            font-size: 16px;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin: 0;
-            padding: 0;
-            line-height: 16px;
-            margin-top: 8px;
-        }
-        &:hover {
-            text-decoration: none;
-        }
+        top: 84px;
     }
     
 }
@@ -198,6 +151,7 @@ body > .container {
             font-family: "Aller";
             font-style: italic;
             margin-top: 30px;
+            position: relative;
         }
     }
     
@@ -210,10 +164,12 @@ body > .container {
     .step_1 {
         text-align: right;
         .img_step_1 {
-            background: url(../img/step-1.png) transparent right center no-repeat;
-            width: 216px;
-            height: 183px;
+            background: url(../img/step-a.png) transparent right center no-repeat;
+            width: 160px;
+            height: 160px;
             float: left;
+            margin-left: 15px;
+            margin-top: 50px;
         }
         .step_1_header {
             float: right;
@@ -238,34 +194,51 @@ body > .container {
         }
     }       
     .step_2 {
+        .img_step_2 {
+            background: url(../img/step-b.png) transparent right center no-repeat;
+            width: 160px;
+            height: 160px;
+            float: right;
+        }        
         margin: 10px 0 10px 20px;
         padding-top: 20px;
         clear: both;
+        .almost_h2 {
+            margin-top: 60px;
+        }
         h2 {
+            width: 383px;
+            margin-top: 60px;
             font-size: 20px;
             line-height: 20px;            
         }
     }
     
     .step_3 {
+        clear: both;
         text-align: right;
-        margin-top: 30px;
+        padding-top: 30px;
         .step_3_header {
             float: right;
             margin-top: 30px;            
         }
         .img_step_3 {
-            background: url(../img/step-3.png) transparent right center no-repeat;
-            width: 216px;
-            height: 183px;
+            background: url(../img/step-c.png) transparent right center no-repeat;
+            width: 160px;
+            height: 160px;
             float: left;
+            margin-left: 15px;
         }
+        .almost_h2 {
+            margin-top: 15px;
+        }        
         h2 {
             float: right;
-            text-align: left;
-            width: 248px;
             font-size: 20px;
-            line-height: 20px;         
+            line-height: 20px;
+            margin-top: 15px;
+            text-align: left;
+            width: 293px;       
         }
         p {
             color: #979797;
@@ -276,42 +249,34 @@ body > .container {
             margin: 10px;
             text-align: right;
             width: 225px;
-        }
-        .step_3_arrow {
-            width: 90px;
-            height: 52px;
-            background: url(../img/step-3-arrow.png) transparent right center no-repeat;
-            float: right;
-            margin-top: 41px;
-            margin-right: 31px;
         }
     }
     
     .step_4 {
+        clear: both;
+        .img_step_4 {
+            background: url(../img/step-d.png) transparent right center no-repeat;
+            width: 160px;
+            height: 160px;
+            float: right;
+        }        
         margin: 10px 0 10px 20px;
         clear: both;
+        .almost_h2 {
+            margin-top: 55px;
+        }
         h2 {
             font-size: 20px;
             line-height: 20px;
-            margin-left: 20px;
-            width: 490px;            
+            width: 380px;
+            float: left;
+            margin-top: 55px;         
         }
-
-        p {
-            color: #979797;
-            float: right;
-            font-family: "Aller";
-            font-size: 13px;
-            font-style: italic;
-            margin: 10px;
-            text-align: right;
-            width: 225px;
-        }
-
     }    
 
     .step_5 {
-        margin-top: 70px;
+        clear: both;
+        padding-top: 70px;
         padding-bottom: 40px;
         text-align: right;
         p {
@@ -325,7 +290,53 @@ body > .container {
             
         }
     }
-    
+   
+    .demo_button {
+        width: 226px;
+        padding: 10px 0;
+        background: #fbfbfb;
+        background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZiZmJmYiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNkZWRlZGUiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+        background: -moz-linear-gradient(top,  #fbfbfb 0%, #dedede 100%);
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fbfbfb), color-stop(100%,#dedede));
+        background: -webkit-linear-gradient(top,  #fbfbfb 0%,#dedede 100%);
+        background: -o-linear-gradient(top,  #fbfbfb 0%,#dedede 100%);
+        background: -ms-linear-gradient(top,  #fbfbfb 0%,#dedede 100%);
+        background: linear-gradient(to bottom,  #fbfbfb 0%,#dedede 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fbfbfb', endColorstr='#dedede',GradientType=0 );
+        -webkit-border-radius: 3px;
+        border-radius: 3px;
+        border: 1px solid white;
+        -webkit-box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.05);
+        box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.05);
+        position: absolute;
+        top: 310px;
+        right: 34px;
+        text-align: center;
+        p {
+            color: #6e6d6d;
+            font-family: "trajan-pro",sans-serif;
+            font-weight: bold;
+            font-size: 20px;
+            margin: 0;
+            padding: 0;
+            text-transform: uppercase;
+            text-shadow: 1px 1px 1px #ffffff;
+            filter: dropshadow(color=#ffffff, offx=1, offy=1);            
+        }
+        p+p {
+            color: #393939;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 0;
+            padding: 0;
+            line-height: 16px;
+            margin-top: 8px;
+        }
+        &:hover {
+            text-decoration: none;
+        }
+    } 
     
 }
 
@@ -354,8 +365,8 @@ footer {
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#222327', endColorstr='#000000',GradientType=0 );    
     border-top: 1px solid #949496;
     .true_footer {
-        padding: 20px 35px 15px 35px;
-        width: 890px;
+        padding: 20px 10px 15px 35px;
+        width: 915px;
         margin: 0 auto;
         position: relative;
         text-align: right;
@@ -382,7 +393,7 @@ footer {
         }
         div {
             text-align: left;
-            float: left;
+            float: right;
             margin-right: 52px;
             h4 {
                 background: url(../img/footer_liner.png) transparent repeat-x bottom left;
@@ -404,16 +415,25 @@ footer {
                 font-weight: 600;
                 font-size: 14px;
                 color: white;
-                text-transform: lowercase;
                 line-height: 14px;
                 &:hover {
                     color: #86c828;
                 }
             }
         }
+        .footer_menu2 {
+            a:last-child {
+                display: none; /*just hidden, don't know how to remove from menu*/
+            }
+        }
         .footer_menu1 {
-            margin-left: 225px;
-        }      
+            a+a+a {
+                display: none; /*just hidden, don't know how to remove from menu*/
+            }
+        }
+        .footer_menu3 {
+            margin-right: 0;
+        }
         &:after {
             content: ".";
             display: block;
