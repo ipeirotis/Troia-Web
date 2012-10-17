@@ -121,10 +121,10 @@ title: Demo application
 					<th>Number of Gold Tests</th>
 					<th>Confusion Matrix</th>
 				</tr>
-			<% 	for (var i = 0; i < data.length; i++) { %>
+			<% 	for (var i = 0; i < workers.length; i++) { %>
 				<tr>
-				<% 	for (var j = 1; j < data[i].length -1; j++) { %>
-					<td><%= data[i][j] %></td>
+				<% 	for (var j = 1; j < workers[i].length -1; j++) { %>
+					<td><%= workers[i][j] %></td>
 						<% }; %>
 				</tr>
 			<% }; %>

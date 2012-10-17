@@ -1,7 +1,7 @@
 function initialize() {
 
 	var apiUrl = '/api/';
-    var id = parseInt(Math.random()*1000000000000);
+	var id = 1;
 	var categoryList = [];
 	var oldCategoryList = [];
     var chunkSize = 100;
@@ -13,6 +13,7 @@ function initialize() {
 	//	setTextareaMaxrows(50);
 	
 	$('#send_data').click(function() {
+		id = parseInt(Math.random()*1000000000000);
 		// Validate input.
 		var workerLabels = parseWorkerAssignedLabels();
         var goldLabels = parseGoldLabels();
@@ -22,7 +23,8 @@ function initialize() {
 		var buttonText = $(this).text();
 		$(this).text('Sending data..');
         // Upload data.
-		//reset(id);
+		if(exists(id))
+			reset(id);
 		loadCostMatrix(id, costMatrix);
 		loadWorkerAssignedLabels(id, workerLabels);
 		loadGoldLabels(id, goldLabels);
@@ -288,6 +290,17 @@ function initialize() {
 		}, false, func);
 	}
 	
+	function exists(id) {
+		ret = false;
+		get('exists', {
+			'id': id
+		}, false, function (res){
+			json = $.parseJSON(res.responseText);
+            ret = json.result;
+		});
+		return ret;
+	}
+	
 	function majorityVotes(id) {
 		var result = undefined;
 		get('majorityVotes', {
@@ -329,11 +342,69 @@ function initialize() {
 		var regex = /Worker: ([0-9a-zA-Z]+)\nError Rate: (\d+.\d*%)\nQuality \(Expected\): (---|\d+.\d*%)\nQuality \(Optimized\): (\-\-\-|\d+.\d*%)\nNumber of Annotations: (\d+)\nNumber of Gold Tests: (\d+)\nConfusion Matrix: \n(^(.)+\n)*/mg;
 		var regexc = /Worker: ([0-9a-zA-Z]+)\nError Rate: (\d+.\d*%)\nQuality \(Expected\): (---|\d+.\d*%)\nQuality \(Optimized\): (\-\-\-|\d+.\d*%)\nNumber of Annotations: (\d+)\nNumber of Gold Tests: (\d+)\nConfusion Matrix: \n((.|\n)*)/m;
 		var result = [];
+		var matrix_regex = /P\[([0-9a-zA-Z]+)\->([0-9a-zA-Z]+)\]=(\d+.\d*%)/mg;
+		var matrix_regexc = /P\[([0-9a-zA-Z]+)\->([0-9a-zA-Z]+)\]=(\d+.\d*%)/m;
 		_.each(data.match(regex), function(m) {
-			result.push(regexc.exec(m));
+			res = regexc.exec(m);
+			matrix_res = [];
+			_.each(res[7].match(matrix_regex), function(m) {
+				matrix_res.push(matrix_regexc.exec(m));
+			});
+			res[7] = createConfusionMatrix(categoryList, matrix_res);
+			result.push(res);
 		});		
 		return _.template($("#workers_template").html(), {workers: result} );
 	}
+	
+	function createConfusionMatrix(labels, matrix_res) {
+		row = new Array();
+		cell = new Array();
+		row_num = labels.length;
+		cell_num = labels.length;
+		
+		tab=document.createElement('table');
+		tbo=document.createElement('tbody');
+		
+		//header
+		row = document.createElement('tr');
+		row.appendChild(document.createElement('td'))
+		for(k=0;k<cell_num;k++) {
+			cell=document.createElement('td');
+			cont = document.createTextNode(labels[k])
+			cell.appendChild(cont);
+			row.appendChild(cell);
+		}
+		tbo.appendChild(row);
+		 
+		//body
+		for(c=0;c<row_num;c++){
+			row[c]=document.createElement('tr');
+			cell=document.createElement('td');
+			cont = document.createTextNode(labels[c]);
+			cell.appendChild(cont);
+			row[c].appendChild(cell);
+		 
+			for(k=0;k<cell_num;k++) {
+				cell[k]=document.createElement('td');
+//				var val = 0;
+//				for (x=0; x<cell_num*cell_num; x++)
+//					if (matrix_res[x][1] === labels[c] && matrix_res[x][2] === labels[k])
+//					{
+//						val = matrix_res[x][3];
+//						break;
+//					}
+				cont=document.createTextNode(matrix_res[c*cell_num + k][3]);
+				cell[k].appendChild(cont);
+				row[c].appendChild(cell[k]);
+			}
+			tbo.appendChild(row[c]);
+		}
+		tab.appendChild(tbo);
+		
+		var tmp = document.createElement("div");
+		tmp.appendChild(tab);
+		return tmp.innerHTML;
+	};	
 
 	function createCostMatrix(labels) {
 		$('#cost_matrix').empty();
@@ -382,7 +453,7 @@ function initialize() {
 		}
 		tab.appendChild(tbo);
 		$('#cost_matrix')[0].appendChild(tab);
-	};	
+	}
 }
 
 $(document).ready(function() {
