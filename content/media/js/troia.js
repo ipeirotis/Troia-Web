@@ -4,7 +4,7 @@ function initialize() {
     var id = parseInt(Math.random()*1000000000000);
 	var categoryList = [];
 	var oldCategoryList = [];
-    var chunkSize = 2;
+    var chunkSize = 100;
 
 //	var table_created = false;
 
@@ -22,7 +22,7 @@ function initialize() {
 		var buttonText = $(this).text();
 		$(this).text('Sending data..');
         // Upload data.
-		reset(id);
+		//reset(id);
 		loadCostMatrix(id, costMatrix);
 		loadWorkerAssignedLabels(id, workerLabels);
 		loadGoldLabels(id, goldLabels);
@@ -125,15 +125,17 @@ function initialize() {
         if (false) { //TODO
             console.warn('Attempt to post in chunks non-array object');
         }
-        var chunk = undefined;
         var offset = 0;
         var reminder = undefined;
-        newData = data;
+        var limit = 0;
         do {
+        	var newData = jQuery.extend({}, data);
             limit = Math.min(chunkSize, data[axis].length - offset);
-            chunk = data[axis].slice(offset, offset + limit);
-            newData[axis] = chunk;
-            post(url, newData, async, success);
+            newData[axis] = newData[axis].slice(offset, offset + limit);
+            post(url, newData, async, function(res){
+            	var p = 100*offset/data[axis].length;
+            	$('#send_data').text("Sending data (" + p.toString() + "%)...");
+            });
             offset += limit;
         } while (offset < data[axis].length);
     }
@@ -258,10 +260,10 @@ function initialize() {
 	};
 
 	function loadWorkerAssignedLabels(id, labels) {
-		post('loadWorkerAssignedLabels', {
+		postInAxisChunks('loadWorkerAssignedLabels', {
             'id': id,
             'labels': labels
-        });
+        }, "labels", false);
 	};
 	
 	function loadGoldLabels(id, labels) {
@@ -269,28 +271,28 @@ function initialize() {
 			post('loadGoldLabels', {
 				'id': id,
                 'labels': labels
-			});
+			}, false);
 	};
 	
 	function loadCostMatrix(id, costMatrix) {
 		post('loadCategories', {
 			'id': id,
 			'categories': costMatrix
-		});
+		}, false);
 	};
 	
 	function compute(id, numIterations, func) {
 		get('computeBlocking', {
 			'id': id,
 			'iterations': numIterations
-		}, func);
+		}, false, func);
 	}
 	
 	function majorityVotes(id) {
 		var result = undefined;
 		get('majorityVotes', {
 			'id': id
-		}, function(response){
+		}, false, function(response){
             json = $.parseJSON(response.responseText);
             result = json.result;
 		});
@@ -300,14 +302,13 @@ function initialize() {
 	function workerSummary(id)
 	{
 		var result = undefined;
-        var success = function(response) {
-            json = $.parseJSON(response.responseText);
-            result = json.result;
-        };
 		get('printWorkerSummary', {
             'id': id,
             'verbose': false
-        }, success);
+        }, false, function(response) {
+            json = $.parseJSON(response.responseText);
+            result = json.result;
+        });
 		return result;
 	}
 	
