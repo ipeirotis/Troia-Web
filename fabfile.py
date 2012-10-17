@@ -34,8 +34,8 @@ def readconf(cpath):
         cset('virtualenv_root', '{project_root}/virtualenv'.format(**conf))
         cset('scripts_root', '{project_root}/scripts'.format(**conf))
         cset('sql_root', '{project_root}/sql'.format(**conf))
-        cset('tomcat_root','{services_root}/tomcat'.format(**conf))
-        cset('maven_root','{services_root}/maven'.format(**conf))
+        cset('tomcat_root', '{services_root}/tomcat'.format(**conf))
+        cset('maven_root', '{services_root}/maven'.format(**conf))
         cset('hyde_root', '{static_root}/hyde'.format(**conf))
         return conf
     raise Exception('Could not read the configuration file')
@@ -291,7 +291,7 @@ def deploy_web(update_env=False, confpath=DEFAULT_PATH):
     # Project root alredy exists. Current remote user is assummed to be an
     # onwer of the directory.
     src_root = '{source_root}/Troia-Web'.format(**conf)
-    clone_or_update(src_root, conf['troia_web_repo'])
+    clone_or_update(src_root, conf['troia_web_repo'], branch=conf['troia_web_repo_branch'])
     ensure_env(update=update_env, path=conf['virtualenv_root'],
                reqpath='{}/requirements.txt'.format(src_root))
     with prefix('source {virtualenv_root}/bin/activate'.format(**conf)):
