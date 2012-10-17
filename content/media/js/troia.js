@@ -6,11 +6,8 @@ function initialize() {
 	var oldCategoryList = [];
     var chunkSize = 100;
 
-//	var table_created = false;
-
 	$('#response').hide();
 	loadTestData();
-	//	setTextareaMaxrows(50);
 	
 	$('#send_data').click(function() {
 		id = parseInt(Math.random()*1000000000000);
@@ -32,30 +29,33 @@ function initialize() {
 		$('#classes').text("");
 		$('#workers').text("");
 		$('#response').show();
-		var i = 0;
+		var i = 1;
         var numIterations = 1;
 		var that = this;
-		func = setInterval(function() {
-			i += 1;
-			if (i > $('#id_num_iterations').val()) {
+		func = function(res) {
+			$(that).text('Iteration ' + i + '..');
+	    	workerSummary(id);
+	    	majorityVotes(id);
+	    	if (i < $('#id_num_iterations').val())
+	    	{
+	    		setTimeout(function() {
+	    			compute(id, numIterations, func);
+	    		}, 1500);
+	    	}
+	    	else
+	    	{
 				clearInterval(func);
 				$(that).removeClass('disabled');
 				$(that).text(buttonText);
-			} else {
-			    $(that).text('Iteration ' + i + '..');
-			    compute(id, numIterations, function(res) {
-//				$('#workers').html(worker_summary().replace(/\n/gi, '<br/>'));
-				    $('#workers').html(createWorkersTable(workerSummary(id)));
-				    $('#classes').html(createClassesTable(majorityVotes(id)));
-                });
-            }
-		}, 1500);
+	    	}
+	    	i++;
+        }
+		compute(id, numIterations, func);
 	});
 	
     $('a[data-toggle="tab"]').on('shown', function (e) {
-    	if (e.target.getAttribute('href') === '#matrix') // && !table_created)
+    	if (e.target.getAttribute('href') === '#matrix')
     	{
-//    		table_created = true;
     		parseWorkerAssignedLabels();
     		if (!_.isEqual(oldCategoryList, categoryList))
     			createCostMatrix(categoryList);
@@ -63,17 +63,6 @@ function initialize() {
     	}
     });
     
-
-//TROIA-88
-//    function setTextareaMaxrows(maxRows) {
-//    	function handler(e) {
-//    		if (this.value.split('\n').length > maxRows)
-//                this.value = this.value.split('\n').slice(0, maxRows).join('\n');
-//    	}
-//    	$('#id_data').keyup(handler);
-//    	$('#id_gold_data').keyup(handler);
-//    }
-
     function loadTestData() {
     	$('#id_data').val("worker1 http://sunnyfun.com    porn\nworker1 http://sex-mission.com porn\nworker1 http://google.com      porn\nworker1 http://youporn.com     porn\nworker1 http://yahoo.com       porn\nworker2 http://sunnyfun.com    notporn\nworker2 http://sex-mission.com porn\nworker2 http://google.com      notporn\nworker2 http://youporn.com     porn\nworker2 http://yahoo.com       porn\nworker3 http://sunnyfun.com    notporn\nworker3 http://sex-mission.com porn\nworker3 http://google.com      notporn\nworker3 http://youporn.com     porn\nworker3 http://yahoo.com       notporn\nworker4 http://sunnyfun.com    notporn\nworker4 http://sex-mission.com porn\nworker4 http://google.com      notporn\nworker4 http://youporn.com     porn\nworker4 http://yahoo.com       notporn\nworker5 http://sunnyfun.com    porn\nworker5 http://sex-mission.com notporn\nworker5 http://google.com      porn\nworker5 http://youporn.com     notporn	\nworker5 http://yahoo.com       porn");
     	$('#id_gold_labels').val("http://google.com      notporn");
@@ -96,7 +85,7 @@ function initialize() {
                 console.debug('POST request complete');
             }
         }
-		$.ajax({
+        $.ajax({
 	        url: apiUrl + url,
 	        type: 'post',
 	        async: async,
@@ -104,22 +93,6 @@ function initialize() {
 	        success: success
         });
 	};
-
-    /** Performs a POST request. Sends data in chunks. */
-    function postInChunks(url, data, async, success) {
-        if (false) { //TODO
-            console.warn('Attempt to post in chunks non-array object');
-        }
-        var chunk = undefined;
-        var offset = 0;
-        var reminder = undefined;
-        do {
-            limit = Math.min(chunkSize, data.length - offset);
-            chunk = data.slice(offset, offset + limit);
-            post(url, chunk, async, success);
-            offset += limit;
-        } while (offset < data.length);
-    }
 	
     /** Performs a POST request. Sends data in chunks but only along specified
      * axis (field). */
@@ -135,8 +108,8 @@ function initialize() {
             limit = Math.min(chunkSize, data[axis].length - offset);
             newData[axis] = newData[axis].slice(offset, offset + limit);
             post(url, newData, async, function(res){
-            	var p = 100*offset/data[axis].length;
-            	$('#send_data').text("Sending data (" + p.toString() + "%)...");
+            	var p = Math.floor(100*offset/data[axis].length);
+            	$('#send_data').text("Sending " + axis + " (" + p.toString() + "%)...");
             });
             offset += limit;
         } while (offset < data[axis].length);
@@ -158,7 +131,7 @@ function initialize() {
 	};
 	
 	function misclassificationCost(labels, label) {
-	//returns {'a': 1.0, 'b': 1.0, 'c': 0, 'd': 1.0} for labels=[a, b, c, d], label=c
+	//returns {'a': 0.33, 'b': 0.33, 'c': 0, 'd': 0.33} for labels=[a, b, c, d], label=c
 		var result = {};
 		var avg = 1.0 / (labels.length - 1.0);
 		_.each(labels, function(l) {
@@ -273,21 +246,21 @@ function initialize() {
 			post('loadGoldLabels', {
 				'id': id,
                 'labels': labels
-			}, false);
+			}, true);
 	};
 	
 	function loadCostMatrix(id, costMatrix) {
 		post('loadCategories', {
 			'id': id,
 			'categories': costMatrix
-		}, false);
+		}, true);
 	};
 	
 	function compute(id, numIterations, func) {
 		get('computeBlocking', {
 			'id': id,
 			'iterations': numIterations
-		}, false, func);
+		}, true, func);
 	}
 	
 	function exists(id) {
@@ -302,27 +275,23 @@ function initialize() {
 	}
 	
 	function majorityVotes(id) {
-		var result = undefined;
 		get('majorityVotes', {
 			'id': id
-		}, false, function(response){
+		}, true, function(response){
             json = $.parseJSON(response.responseText);
-            result = json.result;
+            $('#classes').html(createClassesTable(json.result));
 		});
-		return result;
 	}
 	
 	function workerSummary(id)
 	{
-		var result = undefined;
 		get('printWorkerSummary', {
             'id': id,
             'verbose': false
-        }, false, function(response) {
+        }, true, function(response) {
             json = $.parseJSON(response.responseText);
-            result = json.result;
+    	    $('#workers').html(createWorkersTable(json.result));
         });
-		return result;
 	}
 	
 	function reset(id)
@@ -415,7 +384,6 @@ function initialize() {
 		cell_num = labels.length;
 		
 		tab=document.createElement('table');
-		tab.setAttribute('id','newtable');
 		tbo=document.createElement('tbody');
 		
 		//header
