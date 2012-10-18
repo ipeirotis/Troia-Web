@@ -4,70 +4,78 @@ function initialize() {
 	var id = 1;
 	var categoryList = [];
 	var oldCategoryList = [];
-    var chunkSize = 100;
+    var chunkSize = 500;
 
 	$('#response').hide();
+	$(".alert").hide();
 	loadTestData();
+	setTextareaMaxrows(200);
 	
 	$('#send_data').click(function() {
+		$(".alert").hide();
 		id = parseInt(Math.random()*1000000000000);
-		// Validate input.
-		var workerLabels = parseWorkerAssignedLabels();
-        var goldLabels = parseGoldLabels();
-        var costMatrix = parseCostMatrix(categoryList);
-		// Change button.
-		$(this).addClass('disabled');
-		var buttonText = $(this).text();
-		$(this).text('Sending data..');
-        // Upload data.
-		if(exists(id))
-			reset(id);
-		loadCostMatrix(id, costMatrix);
-		loadWorkerAssignedLabels(id, workerLabels);
-		loadGoldLabels(id, goldLabels);
-		// Compute and get answer.
-		$('#classes').text("");
-		$('#workers').text("");
-		$('#response').show();
-		var i = 1;
-        var numIterations = 1;
-		var that = this;
-		
-		timeoutFunc = function()
+		if (ping())
 		{
-			isComputed(id, function(res2){
-				json = $.parseJSON(res2.responseText);
-				if(!json.result)
-					setTimeout(timeoutFunc, 500);
-				else
-				{
-					$(that).text('Iteration ' + i + '..');
-			    	workerSummary(id);
-			    	majorityVotes(id);
-			    	if (i < $('#id_num_iterations').val())
-			    	{
-			    		setTimeout(function() {
-			    			compute(id, numIterations, function() {
-			    				setTimeout(timeoutFunc, 500);
-			    			});
-			    		}, 1500);
-			    	}
-			    	else
-			    	{
-						$(that).removeClass('disabled');
-						$(that).text(buttonText);
-			    	}
-			    	i++;
-				}
-			})
-		};
-		
-		compute(id, numIterations, function() {
-			setTimeout(timeoutFunc, 500);
-		});
+			// Validate input.
+			var workerLabels = parseWorkerAssignedLabels();
+	        var goldLabels = parseGoldLabels();
+	        var costMatrix = parseCostMatrix(categoryList);
+	        //if job exists, reset it
+	        if(exists(id))
+	        	reset(id);
+			// Change button.
+			$(this).addClass('disabled');
+			var buttonText = $(this).text();
+			$(this).text('Sending data..');
+	        // Upload data.
+			loadCostMatrix(id, costMatrix);
+			loadWorkerAssignedLabels(id, workerLabels);
+			loadGoldLabels(id, goldLabels);
+			// Compute and get answer.
+			$('#classes').text("");
+			$('#workers').text("");
+			$('#response').show();
+			var i = 1;
+	        var numIterations = 1;
+			var that = this;
+			
+			timeoutFunc = function()
+			{
+				isComputed(id, function(res2){
+					json = $.parseJSON(res2.responseText);
+					if(!json.result)
+						setTimeout(timeoutFunc, 500);
+					else
+					{
+						$(that).text('Iteration ' + i + '..');
+				    	workerSummary(id);
+				    	majorityVotes(id);
+				    	if (i < $('#id_num_iterations').val())
+				    	{
+				    		setTimeout(function() {
+				    			compute(id, numIterations, function() {
+				    				setTimeout(timeoutFunc, 500);
+				    			});
+				    		}, 1500);
+				    	}
+				    	else
+				    	{
+							$(that).removeClass('disabled');
+							$(that).text(buttonText);
+				    	}
+				    	i++;
+					}
+				})
+			};
+			
+			compute(id, numIterations, function() {
+				setTimeout(timeoutFunc, 500);
+			});
+		}
 	});
 	
     $('a[data-toggle="tab"]').on('shown', function (e) {
+    	$(".alert").hide();
     	if (e.target.getAttribute('href') === '#matrix')
     	{
     		parseWorkerAssignedLabels();
@@ -76,6 +84,20 @@ function initialize() {
     		$('#cost_matrix input').numeric({ negative : false });
     	}
     });
+    
+    function setTextareaMaxrows(maxRows) {
+    	function handler(e) {
+    		if (this.value.split('\n').length > maxRows){
+    			this.value = this.value.split('\n').slice(0, maxRows).join('\n');
+    			$(".alert p").text('Only ' + maxRows.toString() + ' lines allowed.');
+    			$(".alert").show();
+    		}
+    		else
+    			$(".alert").hide();
+    	}
+    	$('#id_data').keyup(handler);
+    	$('#id_gold_data').keyup(handler);
+    }
     
     function loadTestData() {
     	$('#id_data').val("worker1 http://sunnyfun.com    porn\nworker1 http://sex-mission.com porn\nworker1 http://google.com      porn\nworker1 http://youporn.com     porn\nworker1 http://yahoo.com       porn\nworker2 http://sunnyfun.com    notporn\nworker2 http://sex-mission.com porn\nworker2 http://google.com      notporn\nworker2 http://youporn.com     porn\nworker2 http://yahoo.com       porn\nworker3 http://sunnyfun.com    notporn\nworker3 http://sex-mission.com porn\nworker3 http://google.com      notporn\nworker3 http://youporn.com     porn\nworker3 http://yahoo.com       notporn\nworker4 http://sunnyfun.com    notporn\nworker4 http://sex-mission.com porn\nworker4 http://google.com      notporn\nworker4 http://youporn.com     porn\nworker4 http://yahoo.com       notporn\nworker5 http://sunnyfun.com    porn\nworker5 http://sex-mission.com notporn\nworker5 http://google.com      porn\nworker5 http://youporn.com     notporn	\nworker5 http://yahoo.com       porn");
@@ -129,18 +151,25 @@ function initialize() {
         } while (offset < data[axis].length);
     }
 
-	function get(url, data, async, complete) {
+	function get(url, data, async, complete, error) {
 		if (!complete) {
 			complete = function(res){
                 console.debug('GET request complete');
             };
         }
+		if (!error) {
+			error = function(jqXHR, textStatus, errorThrown) {
+				$(".alert p").text("Troia server error (" + errorThrown.toString() + ").");
+				$(".alert").show();
+			}
+		}
 		$.ajax({
 	        url: apiUrl + url,
 	        type: 'get',
 	        async: async,
 	        data: jsonify(data),
-	        complete: complete
+	        success: complete,
+	        error: error
 	    });
 	};
 	
@@ -174,11 +203,11 @@ function initialize() {
 		oldCategoryList = categoryList;
 		categoryList = [];
 		var dataError = false;
-		_.each($("#id_data").val().split(/\n/), function(line){
+		_.each($("#id_data").val().split(/\n/), function(line, ind){
 			var parsedLine = _.compact(line.split(/[\t ]/));
 			if (parsedLine.length !== 3) {
 				$('#data .control-group').addClass('error');
-				$('#data span').text('Only 3 words per line allowed.');
+				$('#data span').text('Only 3 words per line allowed. Check your ' + (ind+1).toString() + ' line.');
 				dataError = true;
 			}
 			data.push({
@@ -290,6 +319,18 @@ function initialize() {
 		}, false, function (res){
 			json = $.parseJSON(res.responseText);
             ret = json.result;
+		});
+		return ret;
+	}
+	
+	function ping() {
+		ret = false;
+		get('ping', {}, false, function() {
+			ret = true;
+		}, function(jqXHR, textStatus, errorThrown) {
+			ret = false;
+			$(".alert p").text("Troia server error (" + errorThrown.toString() + ").");
+			$(".alert").show();
 		});
 		return ret;
 	}
