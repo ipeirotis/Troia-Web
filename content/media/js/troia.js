@@ -32,25 +32,39 @@ function initialize() {
 		var i = 1;
         var numIterations = 1;
 		var that = this;
-		func = function(res) {
-			$(that).text('Iteration ' + i + '..');
-	    	workerSummary(id);
-	    	majorityVotes(id);
-	    	if (i < $('#id_num_iterations').val())
-	    	{
-	    		setTimeout(function() {
-	    			compute(id, numIterations, func);
-	    		}, 1500);
-	    	}
-	    	else
-	    	{
-				clearInterval(func);
-				$(that).removeClass('disabled');
-				$(that).text(buttonText);
-	    	}
-	    	i++;
-        }
-		compute(id, numIterations, func);
+		
+		timeoutFunc = function()
+		{
+			isComputed(id, function(res2){
+				json = $.parseJSON(res2.responseText);
+				if(!json.result)
+					setTimeout(timeoutFunc, 500);
+				else
+				{
+					$(that).text('Iteration ' + i + '..');
+			    	workerSummary(id);
+			    	majorityVotes(id);
+			    	if (i < $('#id_num_iterations').val())
+			    	{
+			    		setTimeout(function() {
+			    			compute(id, numIterations, function() {
+			    				setTimeout(timeoutFunc, 500);
+			    			});
+			    		}, 1500);
+			    	}
+			    	else
+			    	{
+						$(that).removeClass('disabled');
+						$(that).text(buttonText);
+			    	}
+			    	i++;
+				}
+			})
+		};
+		
+		compute(id, numIterations, function() {
+			setTimeout(timeoutFunc, 500);
+		});
 	});
 	
     $('a[data-toggle="tab"]').on('shown', function (e) {
@@ -257,9 +271,15 @@ function initialize() {
 	};
 	
 	function compute(id, numIterations, func) {
-		get('computeBlocking', {
+		get('computeNotBlocking', {
 			'id': id,
 			'iterations': numIterations
+		}, true, func);
+	}
+
+	function isComputed(id, func) {
+		get('isComputed', {
+			'id': id
 		}, true, func);
 	}
 	
