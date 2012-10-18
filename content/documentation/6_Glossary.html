@@ -1,0 +1,21 @@
+
+---
+extends: skeleton/_base.html
+title: Glossary
+---
+
+{% block content %}
+
+<div class="row-fluid">
+    <div class="span12">
+		{% restructuredtext %}
+
+- Assigned Label: The label assigned by a worker to an object
+- Gold Label: The correct label for an object; the algorithm uses it to estimate the quality of a worker
+- Evaluation Label: The correct label for an object; this label is *not* used by the algorithm. It is only used to evaluate the output of the algorithm and understand the accuracy of the estimations
+
+		{% endrestructuredtext %}
+    </div>
+</div>
+{% endblock %}
+

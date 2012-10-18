@@ -1,16 +1,24 @@
 !!python/unicode 'documentation/1_API.html': [skeleton/_navigation.html, skeleton/_sidebar.html,
   skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
+!!python/unicode 'documentation/1_Java_client.html': [skeleton/_navigation.html, skeleton/_sidebar.html,
+  skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
 !!python/unicode 'documentation/2_Test_data_generator.html': [skeleton/_navigation.html,
   skeleton/_sidebar.html, skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
+!!python/unicode 'documentation/3_API.html': [skeleton/_navigation.html, skeleton/_sidebar.html,
+  skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
 !!python/unicode 'documentation/3_Java_client.html': [skeleton/_navigation.html, skeleton/_sidebar.html,
   skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
 !!python/unicode 'documentation/4_python_client.html': [skeleton/_navigation.html,
   skeleton/_sidebar.html, skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
 !!python/unicode 'documentation/5_advanced_details.html': [skeleton/_navigation.html,
   skeleton/_sidebar.html, skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
+!!python/unicode 'documentation/6_Glossary.html': [skeleton/_navigation.html, skeleton/_sidebar.html,
+  skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
 !!python/unicode 'documentation/documentation.html': [skeleton/_innerlisting.html,
   skeleton/_listing.html, skeleton/_sidebar.html, skeleton/_footer.html, skeleton/_base.html,
   skeleton/_navigation.html, skeleton/_breadcrumbs.html, skeleton/_root.html]
+!!python/unicode 'documentation/python_client.html': [skeleton/_navigation.html, skeleton/_sidebar.html,
+  skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
 !!python/unicode 'how_it_works/algorithm.html': [skeleton/_navigation.html, skeleton/_sidebar.html,
   skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
 !!python/unicode 'index.html': [skeleton/_navigation.html, skeleton/_sidebar.html,
@@ -103,11 +111,15 @@
 !!python/unicode 'media/less/wells.less': []
 !!python/unicode 'media/license': []
 !!python/unicode 'media/readme': []
+!!python/unicode 'tutorials/1_Java_client.html': [skeleton/_navigation.html, skeleton/_sidebar.html,
+  skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
 !!python/unicode 'tutorials/1_demo_application.html': [skeleton/_navigation.html,
   skeleton/_sidebar.html, skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
 !!python/unicode 'tutorials/2_installation.html': [skeleton/_navigation.html, skeleton/_sidebar.html,
   skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
 !!python/unicode 'tutorials/3_Java_client.html': [skeleton/_navigation.html, skeleton/_sidebar.html,
   skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
+!!python/unicode 'tutorials/3_demo_application.html': [skeleton/_navigation.html,
+  skeleton/_sidebar.html, skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]
 !!python/unicode 'tutorials/4_python_client.html': [skeleton/_navigation.html, skeleton/_sidebar.html,
   skeleton/_base.html, skeleton/_footer.html, skeleton/_root.html]

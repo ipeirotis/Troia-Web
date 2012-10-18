@@ -5,6 +5,7 @@
     "source_dir": "source",
     "virtualenv_dir": "virtualenv",
     "troia_web_repo": "git://github.com/ipeirotis/Troia-Web.git",
+    "troia_web_repo_branch": "mb-js-client",
     "troia_server_repo": "git://github.com/ipeirotis/Troia-Server.git",
     "troia_java_client_repo": "git://github.com/ipeirotis/Troia-Java-Client.git",
     "python": "/usr/bin/python2.7",
