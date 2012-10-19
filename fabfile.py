@@ -252,6 +252,12 @@ def update_troia_server(confpath=DEFAULT_PATH):
         os.path.join(CONF_ROOT, 'tomcat', 'server.xml'),
         '{services_root}/tomcat/conf'.format(**conf),
         context=conf)
+    # Upload mysql configuration file.
+    upload_template(
+        os.path.join(CONF_ROOT, 'mysql', 'my.cnf'),
+        '/etc/mysql',
+        use_sudo=True,
+        context=conf)
     ensure_tree('{project_root}'.format(**conf), ('scripts', 'sql'))
     # Upload scripts for cleaning database.
     upload_template(
@@ -260,6 +266,8 @@ def update_troia_server(confpath=DEFAULT_PATH):
         context=conf)
     put(os.path.join(CONF_ROOT, 'db_clear.sql'),
         '{sql_root}'.format(**conf))
+    # Restart mysql server.
+    sudo('service mysql restart')
     # Restart troia server.
     execute(restart_troia_server, confpath=confpath)
 
