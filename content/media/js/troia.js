@@ -9,7 +9,7 @@ function initialize() {
 	$('#response').hide();
 	$(".alert").hide();
 	loadTestData();
-	setTextareaMaxrows(200);
+	setTextareaMaxrows(20000);
 	
 	$('#send_data').click(function() {
 		$(".alert").hide();
