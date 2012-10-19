@@ -157,15 +157,17 @@ def compile(input_dir, output_dir, files=[]):
 
 def generate(src, dst):
     message(colors.blue('Generating static content'))
-    # Ensure the static subdirectory exists.
+    # Clear the static subdirectory.
+    run('rm -rf {}'.format(dst))
     run('mkdir -p {}'.format(dst))
     # Generate the static content.
     run('hyde -s \'{0}\' gen -d \'{1}\' -c \'{0}/production.yaml\''.format(src, dst))
-    # Compile less files.
     media_root = '{}/media'.format(dst)
     less_root = '{}/less'.format(media_root)
     css_root = '{}/css'.format(media_root)
     message(colors.blue('Compiling less files'))
+    # Compile less files.
+    run('mkdir -p {}'.format(css_root))
     run('{} {}/bootstrap.less > {}/bootstrap.css'.format(LESSC, less_root,
             css_root))
     run('{} {}/responsive.less > {}/responsive.css'.format(LESSC, less_root,
@@ -264,8 +266,10 @@ def update_troia_server(confpath=DEFAULT_PATH):
         os.path.join(CONF_ROOT, 'db_clear.sh'),
         '{project_root}/scripts'.format(**conf),
         context=conf)
-    put(os.path.join(CONF_ROOT, 'db_clear.sql'),
-        '{sql_root}'.format(**conf))
+    upload_template(
+        os.path.join(CONF_ROOT, 'db_clear.sql'),
+        '{sql_root}'.format(**conf),
+        context=conf)
     # Restart mysql server.
     sudo('service mysql restart')
     # Restart troia server.
