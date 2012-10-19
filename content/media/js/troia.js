@@ -43,7 +43,7 @@ function initialize() {
 			{
 				$(that).text('Iteration ' + i + '..');
 				isComputed(id, function(res2){
-					json = $.parseJSON(res2);
+					json = $.parseJSON(res2.responseText);
 					if(!json.result)
 						setTimeout(timeoutFunc, 500);
 					else
@@ -168,7 +168,7 @@ function initialize() {
 	        type: 'get',
 	        async: async,
 	        data: jsonify(data),
-	        success: complete,
+	        complete: complete,
 	        error: error
 	    });
 	};
@@ -317,7 +317,7 @@ function initialize() {
 		get('exists', {
 			'id': id
 		}, false, function (res){
-			json = $.parseJSON(res);
+			json = $.parseJSON(res.responseText);
             ret = json.result;
 		});
 		return ret;
@@ -339,7 +339,7 @@ function initialize() {
 		get('majorityVotes', {
 			'id': id
 		}, true, function(response){
-            json = $.parseJSON(response);
+            json = $.parseJSON(response.responseText);
             $('#classes').html(createClassesTable(json.result));
 		});
 	}
@@ -350,7 +350,7 @@ function initialize() {
             'id': id,
             'verbose': false
         }, true, function(response) {
-            json = $.parseJSON(response);
+            json = $.parseJSON(response.responseText);
     	    $('#workers').html(createWorkersTable(json.result));
         });
 	}
