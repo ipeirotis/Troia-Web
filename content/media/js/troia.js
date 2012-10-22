@@ -70,9 +70,11 @@ function initialize() {
 				})
 			};
 			
-			compute(id, numIterations, function() {
-				setTimeout(timeoutFunc, 500);
-			});
+			setTimeout(function() {
+				compute(id, numIterations, function() {
+					setTimeout(timeoutFunc, 500);
+				});
+			}, 2000);
 		}
 	});
 	
@@ -128,7 +130,11 @@ function initialize() {
 	        type: 'post',
 	        async: async,
 	        data: jsonify(data),
-	        success: success
+	        success: success,
+	        error: function(jqXHR, textStatus, errorThrown) {
+				$(".alert p").text("Troia server error (" + errorThrown.toString() + ").");
+				$(".alert").show();
+			}
         });
 	};
 	
@@ -285,15 +291,15 @@ function initialize() {
 		postInAxisChunks('loadWorkerAssignedLabels', {
             'id': id,
             'labels': labels
-        }, "labels", false);
+        }, "labels", true);
 	};
 	
 	function loadGoldLabels(id, labels) {
 		if (labels)
-			post('loadGoldLabels', {
+			postInAxisChunks('loadGoldLabels', {
 				'id': id,
                 'labels': labels
-			}, true);
+			}, "labels", true);
 	};
 	
 	function loadCostMatrix(id, costMatrix) {
