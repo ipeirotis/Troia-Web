@@ -2,7 +2,7 @@ import os
 import json
 
 from fabric import colors
-from fabric.api import cd, env, execute, prefix, put, run, sudo, task
+from fabric.api import cd, env, execute, prefix, run, settings, sudo, task
 from fabric.contrib.files import exists, upload_template
 
 
@@ -196,13 +196,17 @@ def update_server(confpath=DEFAULT_PATH):
 @task
 def start_troia_server(confpath=DEFAULT_PATH):
     conf = readconf(confpath)
-    run('{tomcat_root}/bin/catalina.sh start'.format(**conf), pty=False)
+    run('CATALINA_PID={tomcat_root}/temp/catalina.pid '
+        '{tomcat_root}/bin/catalina.sh start'.format(**conf), pty=False)
 
 
 @task
 def stop_troia_server(confpath=DEFAULT_PATH):
     conf = readconf(confpath)
-    run('{tomcat_root}/bin/catalina.sh stop'.format(**conf), pty=False)
+    with settings(warn_only=True):
+        run('CATALINA_PID={tomcat_root}/temp/catalina.pid '
+            '{tomcat_root}/bin/catalina.sh stop -force'.format(**conf),
+            pty=False)
 
 
 @task
