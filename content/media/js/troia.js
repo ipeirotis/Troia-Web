@@ -43,8 +43,8 @@ function initialize() {
 			
 			timeoutFunc = function()
 			{
-				$(that).text('Iteration ' + i + '..');
 				isComputed(id, function(res2){
+					$(that).text('Iteration ' + i + '..');
 					json = $.parseJSON(res2.responseText);
 					if(!json.result)
 						setTimeout(timeoutFunc, 500);
@@ -74,7 +74,7 @@ function initialize() {
 				compute(id, numIterations, function() {
 					setTimeout(timeoutFunc, 500);
 				});
-			}, 2000);
+			}, 4000);
 		}
 	});
 	
@@ -243,11 +243,11 @@ function initialize() {
 		var data = [];
 		var dataError = false;
 		if ($("#id_gold_labels").val()) {
-			_.each($("#id_gold_labels").val().split(/\n/), function(line){
+			_.each($("#id_gold_labels").val().split(/\n/), function(line, ind){
 				var parsedLine = _.compact(line.split(/[\t ]/));
 				if (parsedLine.length !== 2) {
 					$('#gold .control-group').addClass('error');
-					$('#gold span').text('Only 2 words per line allowed.');
+					$('#gold span').text('Only 2 words per line allowed. Check your ' + (ind+1).toString() + ' line.');
 					dataError = true;
 				}
 				data.push({
