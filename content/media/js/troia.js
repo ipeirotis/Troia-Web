@@ -29,52 +29,57 @@ function initialize() {
 			$(this).addClass('disabled');
 			var buttonText = $(this).text();
 			$(this).text('Sending data..');
-	        // Upload data.
-			loadCostMatrix(id, costMatrix);
-			loadWorkerAssignedLabels(id, workerLabels);
-			loadGoldLabels(id, goldLabels);
-			// Compute and get answer.
-			$('#classes').text("");
-			$('#workers').text("");
-			$('#response').show();
-			var i = 1;
-	        var numIterations = 1;
+			
 			var that = this;
-			
-			timeoutFunc = function()
-			{
-				isComputed(id, function(res2){
-					$(that).text('Iteration ' + i + '..');
-					json = $.parseJSON(res2.responseText);
-					if(!json.result)
-						setTimeout(timeoutFunc, 500);
-					else
-					{
-				    	workerSummary(id);
-				    	majorityVotes(id);
-				    	if (i < $('#id_num_iterations').val())
-				    	{
-				    		setTimeout(function() {
-				    			compute(id, numIterations, function() {
-				    				setTimeout(timeoutFunc, 500);
-				    			});
-				    		}, 1500);
-				    	}
-				    	else
-				    	{
-							$(that).removeClass('disabled');
-							$(that).text(buttonText);
-				    	}
-				    	i++;
-					}
-				})
-			};
-			
-			setTimeout(function() {
-				compute(id, numIterations, function() {
-					setTimeout(timeoutFunc, 500);
+	        // Upload data.
+			loadCostMatrix(id, costMatrix, function() {
+				loadWorkerAssignedLabels(id, workerLabels, function() {
+					loadGoldLabels(id, goldLabels, function() {
+						// Compute and get answer.
+						$('#classes').text("");
+						$('#workers').text("");
+						$('#response').show();
+						var i = 1;
+				        var numIterations = 1;
+						
+						
+						timeoutFunc = function()
+						{
+							$(that).text('Iteration ' + i + '..');
+							isComputed(id, function(res2){
+								json = $.parseJSON(res2.responseText);
+								if(!json.result)
+									setTimeout(timeoutFunc, 500);
+								else
+								{
+							    	workerSummary(id);
+							    	majorityVotes(id);
+							    	if (i < $('#id_num_iterations').val())
+							    	{
+							    		setTimeout(function() {
+							    			compute(id, numIterations, function() {
+							    				setTimeout(timeoutFunc, 500);
+							    			});
+							    		}, 1500);
+							    	}
+							    	else
+							    	{
+										$(that).removeClass('disabled');
+										$(that).text(buttonText);
+							    	}
+							    	i++;
+								}
+							})
+						};
+						
+						setTimeout(function() {
+							compute(id, numIterations, function() {
+								setTimeout(timeoutFunc, 500);
+							});
+						}, 4000);
+					});
 				});
-			}, 4000);
+			});
 		}
 	});
 	
@@ -130,7 +135,7 @@ function initialize() {
 	        type: 'post',
 	        async: async,
 	        data: jsonify(data),
-	        success: success,
+	        complete: success,
 	        error: function(jqXHR, textStatus, errorThrown) {
 				$(".alert p").text("Troia server error (" + errorThrown.toString() + ").");
 				$(".alert").show();
@@ -140,23 +145,18 @@ function initialize() {
 	
     /** Performs a POST request. Sends data in chunks but only along specified
      * axis (field). */
-    function postInAxisChunks(url, data, axis, async, success) {
-        if (false) { //TODO
-            console.warn('Attempt to post in chunks non-array object');
-        }
-        var offset = 0;
-        var reminder = undefined;
-        var limit = 0;
-        do {
+    function postInAxisChunks(url, data, axis, async, offset, success) {
         	var newData = jQuery.extend({}, data);
-            limit = Math.min(chunkSize, data[axis].length - offset);
+            var limit = Math.min(chunkSize, data[axis].length - offset);
             newData[axis] = newData[axis].slice(offset, offset + limit);
             post(url, newData, async, function(res){
-            	var p = Math.floor(100*offset/data[axis].length);
+            	var p = Math.min(Math.floor(100*(offset+limit)/data[axis].length), 100);
             	$('#send_data').text("Sending " + axis + " (" + p.toString() + "%)...");
+            	if (offset+limit < data[axis].length)
+            		postInAxisChunks(url, data, axis, async, offset+limit, success);
+            	else
+            		success();
             });
-            offset += limit;
-        } while (offset < data[axis].length);
     }
 
 	function get(url, data, async, complete, error) {
@@ -287,26 +287,26 @@ function initialize() {
 		return data;
 	};
 
-	function loadWorkerAssignedLabels(id, labels) {
+	function loadWorkerAssignedLabels(id, labels, success) {
 		postInAxisChunks('loadWorkerAssignedLabels', {
             'id': id,
             'labels': labels
-        }, "labels", true);
+        }, "labels", true, 0, success);
 	};
 	
-	function loadGoldLabels(id, labels) {
+	function loadGoldLabels(id, labels, success) {
 		if (labels)
 			postInAxisChunks('loadGoldLabels', {
 				'id': id,
                 'labels': labels
-			}, "labels", true);
+			}, "labels", true, 0, success);
 	};
 	
-	function loadCostMatrix(id, costMatrix) {
+	function loadCostMatrix(id, costMatrix, success) {
 		post('loadCategories', {
 			'id': id,
 			'categories': costMatrix
-		}, true);
+		}, true, success);
 	};
 	
 	function compute(id, numIterations, func) {
