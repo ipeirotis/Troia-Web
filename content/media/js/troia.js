@@ -5,6 +5,7 @@ function initialize() {
 	var categoryList = [];
 	var oldCategoryList = [];
     var chunkSize = 500;
+    var hasErrors = false;
 
 	$('#response').hide();
 	$(".alert").hide();
@@ -14,12 +15,13 @@ function initialize() {
 	$('#send_data').click(function() {
 		$(".alert").hide();
 		id = parseInt(Math.random()*1000000000000);
-		if (ping())
+		hasErrors = false;
+		// Validate input.
+		var workerLabels = parseWorkerAssignedLabels();
+        var goldLabels = parseGoldLabels();
+        var costMatrix = parseCostMatrix(categoryList);
+		if (!hasErrors && ping())
 		{
-			// Validate input.
-			var workerLabels = parseWorkerAssignedLabels();
-	        var goldLabels = parseGoldLabels();
-	        var costMatrix = parseCostMatrix(categoryList);
 	        //if job exists, reset it
 	        if(exists(id))
 	        	reset(id);
@@ -220,6 +222,7 @@ function initialize() {
             }
 		});
 		if (dataError) {
+			hasErrors = true;
 			$('#myTab li:nth-child(1) a').tab('show');
 		} else {
 			$('#data .control-group').removeClass('error');
@@ -247,6 +250,7 @@ function initialize() {
 				});
 			});
             if (dataError) {
+            	hasErrors = true;
                 $('#myTab li:nth-child(2) a').tab('show');
                 data = undefined;
             } else {
