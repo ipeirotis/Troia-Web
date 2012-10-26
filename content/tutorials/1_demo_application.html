@@ -16,72 +16,94 @@ title: Demo application
 	  <strong>Error!</strong><p>Troia server not responding.</p>  
 	</div> 
     <div class="span12">
-		<form id="data_form" class="form-horizontal" method="post">					
-			<ul class="nav nav-tabs" id="myTab">
-				<!--<div class="span7">-->
-			    <li class="active"><a href="#data" data-toggle="tab">Data</a></li><li><a href="#gold" data-toggle="tab">Gold data</a></li><li><a href="#matrix" data-toggle="tab">Cost matrix</a></li>
-				<!--<div class="span7">-->
-		    </ul>
-			<div class="tab-content">
-				<div class="tab-pane active" id="data">
-					<div class="span7 wrapper">
-						<div class="control-group content2">
-							<textarea id="id_data" class="field span12" rows="15" cols="40" placeholder="worker object class"></textarea>
-							<span class="help-inline"></span>
-							<h3>Line format:</h3>
-							<pre>workerid[tab]objectid[tab]assignedlabel</pre>
+    	<div>
+    		<div class="page-header">
+    			<h2>1. Initial data</h2>
+    		</div>
+    		<p>
+    			Data set:
+    			<select id="id_data_choose" style="width: 100px;" class="select_down">
+    				<option value="1">Small pack</option>
+					<option value="2">Big pack</option>
+				</select>
+    		</p>
+    	</div>
+    	<div>
+    		<div class="page-header">
+    			<h2>2. Data</h2>
+    		</div>
+    		<p>
+    			<form id="data_form" class="form-horizontal" method="post">		
+					<ul class="nav nav-tabs" id="myTab">
+						<!--<div class="span7">-->
+					    <li class="active"><a href="#data" data-toggle="tab">Data</a></li>
+					    <li><a href="#gold" data-toggle="tab">Gold data</a></li>
+					    <li><a href="#matrix" data-toggle="tab">Cost matrix</a></li>
+						<!--<div class="span7">-->
+				    </ul>
+					<div class="tab-content">
+						<div class="tab-pane active" id="data">
+							<div class="span7 wrapper">
+								<div class="control-group content2">
+									<textarea id="id_data" class="field span12" rows="15" cols="40" placeholder="worker object class"></textarea>
+									<span class="help-inline"></span>
+									<h3>Line format:</h3>
+									<pre>workerid[tab]objectid[tab]assignedlabel</pre>
+								</div>
+							</div>
+							<div class="span5 well">
+								
+								<p>You can use the form below to calculate the quality of the workers that submit answers to your tasks on Mechanical Turk.</p>
+														
+								<p>The pre-populated example has five workers (worker1 to worker5), five objects (url1 to url5), and two classes (porn and notporn). The correct (but unknown) label for url1, url3, and url5 is notporn; for url2 and url4 is porn.</p>
+		
+								<p>The workers have varying levels of quality.</p>
+		
+								<ul>
+									<li>worker1 is lazy, and gives the answer porn all the time</li>
+									<li>worker2 is ok but not great. For example, labeled object5 as porn even though it is notporn</li>
+									<li>worker3 and worker4 are high-quality workers</li>
+									<li>worker5 is malicious, giving always the incorrect answer, trying to fool the system</li>
+								</ul>
+		
+							</div>
+						</div>
+						<div class="tab-pane" id="gold">
+							<div class="span7">
+								<div class="control-group">
+									<textarea id="id_gold_labels" class="field span12" rows="15" cols="40" placeholder="object class"></textarea>
+									<span class="help-inline"></span>
+									<h3>Line format:</h3>
+									<pre>objectid[tab]correctlabel</pre>
+								</div>
+							</div>
+							<div class="span5 well">
+								<p>Optionally, you may also provide a few known ("gold") answers. See <a href="http://behind-the-enemy-lines.blogspot.com/2010/09/worker-evaluation-in-crowdsourcing-gold.html">Worker Evaluation in Crowdsourcing: Gold Data or Multiple Workers?</a> for a discussion on how much help we can get from the usage of the "gold" answers.</p>
+		
+							</div>
+						</div>
+						<div class="tab-pane" id="matrix" >
+							<div id="cost_matrix" class="span7"></div>
+							<div class="span5 well">
+								<p>Cost matrix is calculated automaticly based on categories you've entered. You can change the default values.</p>	
+							</div>
 						</div>
 					</div>
-					<div class="span5 well">
-						
-						<p>You can use the form below to calculate the quality of the workers that submit answers to your tasks on Mechanical Turk.</p>
-												
-						<p>The pre-populated example has five workers (worker1 to worker5), five objects (url1 to url5), and two classes (porn and notporn). The correct (but unknown) label for url1, url3, and url5 is notporn; for url2 and url4 is porn.</p>
-
-						<p>The workers have varying levels of quality.</p>
-
-						<ul>
-							<li>worker1 is lazy, and gives the answer porn all the time</li>
-							<li>worker2 is ok but not great. For example, labeled object5 as porn even though it is notporn</li>
-							<li>worker3 and worker4 are high-quality workers</li>
-							<li>worker5 is malicious, giving always the incorrect answer, trying to fool the system</li>
-						</ul>
-
+					<div class="form-actions">
+							Iterations:
+		                    <select id="id_num_iterations" style="width: 100px;" class="select_down">
+		                        <option value="1">1</option>
+								<option value="5">5</option>
+								<option value="10">10</option>
+								<option value="25">25</option>
+								<option value="100">100</option>
+							</select>
+						<span type="button" class="btn btn-info" id="send_data">Send</span>
 					</div>
-				</div>
-				<div class="tab-pane" id="gold">
-					<div class="span7">
-						<div class="control-group">
-							<textarea id="id_gold_labels" class="field span12" rows="15" cols="40" placeholder="object class"></textarea>
-							<span class="help-inline"></span>
-							<h3>Line format:</h3>
-							<pre>objectid[tab]correctlabel</pre>
-						</div>
-					</div>
-					<div class="span5 well">
-						<p>Optionally, you may also provide a few known ("gold") answers. See <a href="http://behind-the-enemy-lines.blogspot.com/2010/09/worker-evaluation-in-crowdsourcing-gold.html">Worker Evaluation in Crowdsourcing: Gold Data or Multiple Workers?</a> for a discussion on how much help we can get from the usage of the "gold" answers.</p>
-
-					</div>
-				</div>
-				<div class="tab-pane" id="matrix" >
-					<div id="cost_matrix" class="span7"></div>
-					<div class="span5 well">
-						<p>Cost matrix is calculated automaticly based on categories you've entered. You can change the default values.</p>	
-					</div>
-				</div>
-			</div>
-			<div class="form-actions">
-					Iterations:
-                    <select id="id_num_iterations" style="width: 100px;" class="select_down">
-                        <option value="1">1</option>
-						<option value="5">5</option>
-						<option value="10">10</option>
-						<option value="25">25</option>
-						<option value="100">100</option>
-					</select>
-				<span type="button" class="btn btn-info" id="send_data">Send</span>
-			</div>
-		</form>
+				</form>
+    		</p>
+    	</div>
+	
 		<div id="response" class="span12">
 			<div class='row'>
 				<h3>Classes:</h3>
@@ -89,7 +111,7 @@ title: Demo application
 			</div>
 			<div class='row'>
 				<h3>Workers:</h3>
-				<div id="workers" class='span11'></div>
+				<div id="workers" class='span12'></div>
 			</div>
         </div>
 
@@ -117,11 +139,11 @@ title: Demo application
 			<table class='table table-striped'>
 				<tr>
 					<th>Worker</th>
-					<th class="small">Error Rate</th>
-					<th class="small">Quality (Expected)</th>
-					<th class="small">Quality (Optimized)</th>
-					<th class="small">Number of Annotations</th>
-					<th class="small">Number of Gold Tests</th>
+					<th>Error Rate</th>
+					<th>Quality (Expected)</th>
+					<th>Quality (Optimized)</th>
+					<th>Number of Annotations</th>
+					<th>Number of Gold Tests</th>
 					<th>Confusion Matrix</th>
 				</tr>
 			<% 	for (var i = 0; i < workers.length; i++) { %>
