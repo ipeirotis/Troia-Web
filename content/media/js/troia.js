@@ -12,10 +12,6 @@ function initialize() {
 	loadTestData();
 	setTextareaMaxrows(20000);
 	
-	$('#id_data_choose').change(function(){
-		loadTestData($('#id_data_choose :selected').val());
-	});
-	
 	$('#send_data').click(function() {
 		$(".alert").hide();
 		id = parseInt(Math.random()*1000000000000);
@@ -112,25 +108,9 @@ function initialize() {
     	$('#id_gold_data').keyup(handler);
     }
     
-    function loadTestData(type) {
-    	if (type)
-    	{
-    		$.ajax({
-	  			  url: "/media/txt/data" + type,
-	  		}).done(function(data) { 
-	  			$('#id_data').val(data);
-	  		});
-    		$.ajax({
-	  			  url: "/media/txt/gold" + type,
-	  		}).done(function(data) { 
-	  			$('#id_gold_labels').val(data);
-	  		});
-    	}
-    	else
-    	{
-    		$('#id_data').val("worker1 http://sunnyfun.com    porn\nworker1 http://sex-mission.com porn\nworker1 http://google.com      porn\nworker1 http://youporn.com     porn\nworker1 http://yahoo.com       porn\nworker2 http://sunnyfun.com    notporn\nworker2 http://sex-mission.com porn\nworker2 http://google.com      notporn\nworker2 http://youporn.com     porn\nworker2 http://yahoo.com       porn\nworker3 http://sunnyfun.com    notporn\nworker3 http://sex-mission.com porn\nworker3 http://google.com      notporn\nworker3 http://youporn.com     porn\nworker3 http://yahoo.com       notporn\nworker4 http://sunnyfun.com    notporn\nworker4 http://sex-mission.com porn\nworker4 http://google.com      notporn\nworker4 http://youporn.com     porn\nworker4 http://yahoo.com       notporn\nworker5 http://sunnyfun.com    porn\nworker5 http://sex-mission.com notporn\nworker5 http://google.com      porn\nworker5 http://youporn.com     notporn	\nworker5 http://yahoo.com       porn");
-    		$('#id_gold_labels').val("http://google.com      notporn");
-    	}
+    function loadTestData() {
+    	$('#id_data').val("worker1 http://sunnyfun.com    porn\nworker1 http://sex-mission.com porn\nworker1 http://google.com      porn\nworker1 http://youporn.com     porn\nworker1 http://yahoo.com       porn\nworker2 http://sunnyfun.com    notporn\nworker2 http://sex-mission.com porn\nworker2 http://google.com      notporn\nworker2 http://youporn.com     porn\nworker2 http://yahoo.com       porn\nworker3 http://sunnyfun.com    notporn\nworker3 http://sex-mission.com porn\nworker3 http://google.com      notporn\nworker3 http://youporn.com     porn\nworker3 http://yahoo.com       notporn\nworker4 http://sunnyfun.com    notporn\nworker4 http://sex-mission.com porn\nworker4 http://google.com      notporn\nworker4 http://youporn.com     porn\nworker4 http://yahoo.com       notporn\nworker5 http://sunnyfun.com    porn\nworker5 http://sex-mission.com notporn\nworker5 http://google.com      porn\nworker5 http://youporn.com     notporn	\nworker5 http://yahoo.com       porn");
+    	$('#id_gold_labels').val("http://google.com      notporn");
     	parseWorkerAssignedLabels();
 		createCostMatrix(categoryList);
     };
