@@ -1,108 +1,126 @@
 function initialize() {
 
 	var apiUrl = '/api/';
-	var id = 1;
+	var id = getURLParameter("id");
 	var categoryList = [];
 	var oldCategoryList = [];
     var chunkSize = 500;
     var hasErrors = false;
     var loading = false;
 
-	$('#response').hide();
+    $('#url').hide();
 	$(".alert").hide();
-	loadTestData();
-	setTextareaMaxrows(20000);
 	
-	$('#id_data_choose').change(function(){
-		loadTestData($('#id_data_choose :selected').val());
-	});
-	
-	$('#send_data').click(function() {
-		$(".alert").hide();
-		hasErrors = false;
-		// Validate input.
-		var workerLabels = parseWorkerAssignedLabels();
-        var goldLabels = parseGoldLabels();
-        var costMatrix = parseCostMatrix(categoryList);
-		if (!hasErrors && ping())
-		{
-			id = "troia-web-test-" + new Date().getTime().toString() + "-" + parseInt(Math.random()*1000000000000);
-			//if job exists, reset it
-	        if(exists(id))
-	        	reset(id);
-			// Change button.
-			$(this).addClass('disabled');
-			var buttonText = $(this).text();
-			$(this).text('Sending data..');
-			
-			var that = this;
-	        // Upload data.
-			loadCostMatrix(id, costMatrix, function() {
-				loadWorkerAssignedLabels(id, workerLabels, function() {
-					loadGoldLabels(id, goldLabels, function() {
-						// Compute and get answer.
-						$('#classes').text("");
-						$('#workers').text("");
-						$('#response').show();
-						var i = 1;
-				        var numIterations = 1;
-						
-						timeoutFunc = function()
-						{
-							$(that).text('Iteration ' + i + '..');
-							if (!loading) {
-								$("#overlay").fadeIn();
-								loading = true;
-							}
-							$t = $("#response");
-				    	    $("#overlay").css({
-				    	  	  opacity : 0.5,
-				    	  	  top     : $t.offset().top,
-				    	  	  width   : $t.outerWidth(),
-				    	  	  height  : $t.outerHeight()
-				    	    });
-				    		$("#img-load").css({
-				    		  top  : ($t.height() / 2),
-				    		  left : ($t.width() / 2)
-				    		});
-							isComputed(id, function(res2){
-								json = $.parseJSON(res2.responseText);
-								if(!json.result)
-									setTimeout(timeoutFunc, 500);
-								else
-								{
-							    	workerSummary(id);
-							    	majorityVotes(id);
-							    	if (i < $('#id_num_iterations').val())
-							    	{
-							    		setTimeout(function() {
-							    			compute(id, numIterations, function() {
-							    				setTimeout(timeoutFunc, 500);
-							    			});
-							    		}, 1500);
-							    	}
-							    	else
-							    	{
-										$(that).removeClass('disabled');
-										$(that).text(buttonText);
-										$("#overlay").fadeOut();
-							    	}
-							    	i++;
-								}
-							})
-						};
-						
-						setTimeout(function() {
-							$('#menuTab li:nth-child(2) a').tab('show');
-							compute(id, numIterations, function() {
-								setTimeout(timeoutFunc, 500);
-							});
-						}, 4000);
-					});
-				});
-			});
-		}
-	});
+    if (id) {
+    	//switch to results tab
+    	$('#menuTab li:nth-child(2) a').tab('show');
+    	//disable inputs tab
+    	$("#menuTab li:nth-child(1) a").attr("data-toggle", "").css("cursor",  "not-allowed");
+    	//print results
+    	workerSummary(id);
+    	majorityVotes(id);
+    }
+    else {
+    	$('#response').hide();
+    	loadTestData();
+    	setTextareaMaxrows(20000);
+    	
+    	//loading data on select change
+    	$('#id_data_choose').change(function(){
+    		loadTestData($('#id_data_choose :selected').val());
+    	});
+    	
+    	$('#send_data').click(function() {
+    		$(".alert").hide();
+    		hasErrors = false;
+    		// Validate input.
+    		var workerLabels = parseWorkerAssignedLabels();
+            var goldLabels = parseGoldLabels();
+            var costMatrix = parseCostMatrix(categoryList);
+    		if (!hasErrors && ping())
+    		{
+    			id = "troia-web-test-" + new Date().getTime().toString() + "-" + parseInt(Math.random()*1000000000000);
+    			//if job exists, reset it
+    	        if(exists(id))
+    	        	reset(id);
+    			// Change button.
+    			$(this).addClass('disabled');
+    			var buttonText = $(this).text();
+    			$(this).text('Sending data..');
+    			
+    			var that = this;
+    	        // Upload data.
+    			loadCostMatrix(id, costMatrix, function() {
+    				loadWorkerAssignedLabels(id, workerLabels, function() {
+    					loadGoldLabels(id, goldLabels, function() {
+    						// Compute and get answer.
+    						$('#classes').text("");
+    						$('#workers').text("");
+    						$('#response').show();
+    						var i = 1;
+    				        var numIterations = 1;
+    						
+    						timeoutFunc = function()
+    						{
+    							$(that).text('Iteration ' + i + '..');
+    							if (!loading) {
+    								$("#overlay").fadeIn();
+    								loading = true;
+    							}
+    							$t = $("#response");
+    				    	    $("#overlay").css({
+    				    	  	  opacity : 0.5,
+    				    	  	  top     : $t.offset().top,
+    				    	  	  width   : $t.outerWidth(),
+    				    	  	  height  : $t.outerHeight()
+    				    	    });
+    				    		$("#img-load").css({
+    				    		  top  : ($t.height() / 2),
+    				    		  left : ($t.width() / 2)
+    				    		});
+    							isComputed(id, function(res2){
+    								json = $.parseJSON(res2.responseText);
+    								if(!json.result)
+    									setTimeout(timeoutFunc, 500);
+    								else
+    								{
+    							    	workerSummary(id);
+    							    	majorityVotes(id);
+    							    	if (i < $('#id_num_iterations').val())
+    							    	{
+    							    		setTimeout(function() {
+    							    			compute(id, numIterations, function() {
+    							    				setTimeout(timeoutFunc, 500);
+    							    			});
+    							    		}, 1500);
+    							    	}
+    							    	else
+    							    	{
+    										$(that).removeClass('disabled');
+    										$(that).text(buttonText);
+    										$("#overlay").fadeOut();
+    										$("#url").fadeIn();
+    										$("#url pre").text(document.URL + "?id=" + id);
+    							    	}
+    							    	i++;
+    								}
+    							})
+    						};
+    						
+    						setTimeout(function() {
+    							$('#menuTab li:nth-child(2) a').tab('show');
+    							compute(id, numIterations, function() {
+    								setTimeout(timeoutFunc, 500);
+    							});
+    						}, 4000);
+    					});
+    				});
+    			});
+    		}
+    	});
+    }
+    
+
 	
     $('a[data-toggle="tab"]').on('shown', function (e) {
     	$(".alert").hide();
@@ -114,6 +132,10 @@ function initialize() {
     		$('#cost_matrix input').numeric({ negative : false });
     	}
     });
+    
+    function getURLParameter(name) {
+        return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+    }
     
     function setTextareaMaxrows(maxRows) {
     	function handler(e) {
@@ -421,12 +443,19 @@ function initialize() {
 		var result = [];
 		var matrix_regex = /P\[([0-9a-zA-Z]+)\->([0-9a-zA-Z]+)\]=(\d+.\d*%)/mg;
 		var matrix_regexc = /P\[([0-9a-zA-Z]+)\->([0-9a-zA-Z]+)\]=(\d+.\d*%)/m;
+		var labels = [];
 		_.each(data.match(regex), function(m) {
 			res = regexc.exec(m);
 			matrix_res = [];
 			_.each(res[7].match(matrix_regex), function(m) {
 				matrix_res.push(matrix_regexc.exec(m));
 			});
+			if (!_.size(categoryList)) {
+				_.each(matrix_res, function (el){
+					labels.push(el[1]);
+				});
+				categoryList = _.uniq(labels);
+			}
 			res[7] = createConfusionMatrix(categoryList, matrix_res);
 			result.push(res);
 		});		
