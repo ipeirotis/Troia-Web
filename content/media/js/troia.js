@@ -11,7 +11,7 @@ function initialize() {
     $('#url').hide();
 	$(".alert").hide();
 	
-    if (id) {
+    if (id && exists(id)) {
     	//switch to results tab
     	$('#menuTab li:nth-child(2) a').tab('show');
     	//disable inputs tab
@@ -21,6 +21,11 @@ function initialize() {
     	majorityVotes(id);
     }
     else {
+    	//when we provide id but it doesnt exist - show error
+    	if (id) {
+    		$(".alert p").text("Sorry, id=" + id + " hasn't been found.");
+			$(".alert").show();
+    	}
     	$('#response').hide();
     	loadTestData();
     	setTextareaMaxrows(20000);
