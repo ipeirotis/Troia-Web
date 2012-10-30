@@ -6,6 +6,7 @@ function initialize() {
 	var oldCategoryList = [];
     var chunkSize = 500;
     var hasErrors = false;
+    var loading = false;
 
 	$('#response').hide();
 	$(".alert").hide();
@@ -49,6 +50,21 @@ function initialize() {
 						timeoutFunc = function()
 						{
 							$(that).text('Iteration ' + i + '..');
+							if (!loading) {
+								$("#overlay").fadeIn();
+								loading = true;
+							}
+							$t = $("#response");
+				    	    $("#overlay").css({
+				    	  	  opacity : 0.5,
+				    	  	  top     : $t.offset().top,
+				    	  	  width   : $t.outerWidth(),
+				    	  	  height  : $t.outerHeight()
+				    	    });
+				    		$("#img-load").css({
+				    		  top  : ($t.height() / 2),
+				    		  left : ($t.width() / 2)
+				    		});
 							isComputed(id, function(res2){
 								json = $.parseJSON(res2.responseText);
 								if(!json.result)
@@ -69,6 +85,7 @@ function initialize() {
 							    	{
 										$(that).removeClass('disabled');
 										$(that).text(buttonText);
+										$("#overlay").fadeOut();
 							    	}
 							    	i++;
 								}
