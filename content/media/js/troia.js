@@ -19,7 +19,6 @@ function initialize() {
 	
 	$('#send_data').click(function() {
 		$(".alert").hide();
-		id = parseInt(Math.random()*1000000000000);
 		hasErrors = false;
 		// Validate input.
 		var workerLabels = parseWorkerAssignedLabels();
@@ -27,7 +26,8 @@ function initialize() {
         var costMatrix = parseCostMatrix(categoryList);
 		if (!hasErrors && ping())
 		{
-	        //if job exists, reset it
+			id = "troia-web-test-" + new Date().getTime().toString() + "-" + parseInt(Math.random()*1000000000000);
+			//if job exists, reset it
 	        if(exists(id))
 	        	reset(id);
 			// Change button.
