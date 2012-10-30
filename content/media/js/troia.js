@@ -46,7 +46,6 @@ function initialize() {
 						var i = 1;
 				        var numIterations = 1;
 						
-						
 						timeoutFunc = function()
 						{
 							$(that).text('Iteration ' + i + '..');
@@ -77,6 +76,7 @@ function initialize() {
 						};
 						
 						setTimeout(function() {
+							$('#menuTab li:nth-child(2) a').tab('show');
 							compute(id, numIterations, function() {
 								setTimeout(timeoutFunc, 500);
 							});
@@ -249,7 +249,7 @@ function initialize() {
 		});
 		if (dataError) {
 			hasErrors = true;
-			$('#myTab li:nth-child(1) a').tab('show');
+			$('#dataTab li:nth-child(1) a').tab('show');
 		} else {
 			$('#data .control-group').removeClass('error');
 			$('#data span').text('');
@@ -277,7 +277,7 @@ function initialize() {
 			});
             if (dataError) {
             	hasErrors = true;
-                $('#myTab li:nth-child(2) a').tab('show');
+                $('#dataTab li:nth-child(2) a').tab('show');
                 data = undefined;
             } else {
 				$('#gold .control-group').removeClass('error');
