@@ -11,7 +11,6 @@ Get the latest version of code:
 
     git clone git://github.com/10clouds/Troia-Web/
     
-
 Go to the project root directory and install required Python packages:
     
     pip install -r requirements.txt
@@ -22,18 +21,14 @@ Static content generation
 
 The website can be generated with command:
 
-    hyde -g -s path/to/website/source/ -d path/to/resultant/website/
-
-Or with (for automatic changes detection):
-
-    hyde -kg -s path/to/website/source/ -d path/to/resultant/website/
+    hyde gen
     
 Running
 -------
 
-The website can be served locally (using Cherrypy webserver) with command:
+The website can be served locally (using bulti-in hyde webserver) with command:
 
-    hyde -w -s path/to/website/source/ -d path/to/resultant/website
+    hyde serve
     
 Deployment
 ----------
