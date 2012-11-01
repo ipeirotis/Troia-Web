@@ -5,11 +5,13 @@
     "source_dir": "source",
     "virtualenv_dir": "virtualenv",
     "troia_web_repo": "git://github.com/ipeirotis/Troia-Web.git",
-    "troia_web_repo_branch": "mb-js-client",
+    "troia_web_repo_branch": "master",
     "troia_server_repo": "git://github.com/ipeirotis/Troia-Server.git",
+    "troia_server_branch": "master",
     "troia_java_client_repo": "git://github.com/ipeirotis/Troia-Java-Client.git",
+    "troia_java_client_branch": "master",
     "python": "/usr/bin/python2.7",
     "tomcat_url": "http://ftp.ps.pl/pub/apache/tomcat/tomcat-7/v7.0.29/bin/apache-tomcat-7.0.29.tar.gz",
     "maven_url": "http://www.apache.org/dyn/closer.cgi?path=/maven/binaries/apache-maven-3.0.4-bin.tar.gz",
-    "jdk_root": "/usr/lib/jvm/java-7-openjdk-i386"
+    "tomcat_port": "8080"
 }

@@ -22,8 +22,10 @@ def message(msg, *args, **kwargs):
 
 
 def readconf(cpath):
-    with open(cpath, 'r') as cfile:
+    with open(DEFAULT_PATH, 'r') as cfile:
         conf = json.load(cfile)
+    with open(cpath, 'r') as cfile:
+        conf.update(json.load(cfile))
         # For shorter notation.
         cset = conf.setdefault
         # Set some aux values.
@@ -54,7 +56,7 @@ def ensure_srv(conf):
         It takes care only about services that are under ``services``
         directory. '''
     if exists('{services_root}/tomcat/bin/catalina.sh'.format(**conf)) and \
-       exists('{services_root}/maven/bin/mvn'.format(**conf)):
+            exists('{services_root}/maven/bin/mvn'.format(**conf)):
         message('Services already installed. Skipping')
         return
     with cd('/tmp'):
@@ -169,15 +171,15 @@ def generate(src, dst):
     # Compile less files.
     run('mkdir -p {}'.format(css_root))
     run('{} {}/bootstrap.less > {}/bootstrap.css'.format(LESSC, less_root,
-            css_root))
+        css_root))
     run('{} {}/responsive.less > {}/responsive.css'.format(LESSC, less_root,
-            css_root))
+        css_root))
     run('{} {}/troia.less > {}/troia.css'.format(LESSC, less_root, css_root))
 
 
 @task
-def update_server(confpath=DEFAULT_PATH):
-    ''' Updates server configuration. '''
+def update_server(confpath=None):
+    """Reloads web server configuration and restart the server."""
     conf = readconf(confpath)
     apath = '/etc/nginx/sites-available/troia'
     epath = '/etc/nginx/sites-enabled/troia'
@@ -194,14 +196,16 @@ def update_server(confpath=DEFAULT_PATH):
 
 
 @task
-def start_troia_server(confpath=DEFAULT_PATH):
+def start_troia_server(confpath=None):
+    """Starts the troia server (tomcat)."""
     conf = readconf(confpath)
     run('CATALINA_PID={tomcat_root}/temp/catalina.pid '
         '{tomcat_root}/bin/catalina.sh start'.format(**conf), pty=False)
 
 
 @task
-def stop_troia_server(confpath=DEFAULT_PATH):
+def stop_troia_server(confpath=None):
+    """Stops the troia server (tomcat)."""
     conf = readconf(confpath)
     with settings(warn_only=True):
         run('CATALINA_PID={tomcat_root}/temp/catalina.pid '
@@ -210,25 +214,31 @@ def stop_troia_server(confpath=DEFAULT_PATH):
 
 
 @task
-def restart_troia_server(confpath=DEFAULT_PATH):
+def restart_troia_server(confpath=None):
+    """Stops and starts the troia server (tomcat)."""
     execute(stop_troia_server, confpath=confpath)
     execute(start_troia_server, confpath=confpath)
 
 
 @task
-def deploy_troia_server(confpath=DEFAULT_PATH):
+def deploy_troia_server(confpath=None):
+    """Performs the Troia-Server deployment in the tomcat servlet
+    container."""
     conf = readconf(confpath)
     # Ensure all services are already installed.
     ensure_srv(conf)
     src_root = '{source_root}/Troia-Server'.format(**conf)
     # Update Troia-Server repo.
-    clone_or_update(src_root, conf['troia_server_repo'])
+    clone_or_update(src_root, conf['troia_server_repo'],
+                    conf['troia_server_branch'])
     maven_cmd = '{maven_root}/bin/mvn package -Dmaven.test.skip=true' \
                 .format(**conf)
+
     def maven_build():
         '''Builds the Troia-Server's .war file.'''
         with cd(src_root):
             run(maven_cmd)
+
     # Build the .war file.
     maven_build()
     media_root = '{hyde_root}/media'.format(**conf)
@@ -284,7 +294,8 @@ def update_troia_server(confpath=DEFAULT_PATH):
 def generate_apidocs(confpath=DEFAULT_PATH):
     conf = readconf(confpath)
     src_root = '{source_root}/Troia-Java-Client'.format(**conf)
-    clone_or_update(src_root, conf['troia_client_repo'])
+    clone_or_update(src_root, conf['troia_client_repo'],
+                    conf['troia_client_branch'])
     target_path = '{}/target/site/apidocs'.format(src_root)
     with cd(src_root):
         run('{maven_root}/bin/mvn javadoc:javadoc'
@@ -307,7 +318,8 @@ def deploy_web(update_env=False, confpath=DEFAULT_PATH):
     # Project root alredy exists. Current remote user is assummed to be an
     # onwer of the directory.
     src_root = '{source_root}/Troia-Web'.format(**conf)
-    clone_or_update(src_root, conf['troia_web_repo'], branch=conf['troia_web_repo_branch'])
+    clone_or_update(src_root, conf['troia_web_repo'],
+                    branch=conf['troia_web_repo_branch'])
     ensure_env(update=update_env, path=conf['virtualenv_root'],
                reqpath='{}/requirements.txt'.format(src_root))
     with prefix('source {virtualenv_root}/bin/activate'.format(**conf)):
