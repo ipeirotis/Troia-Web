@@ -33,26 +33,55 @@ The website can be served locally (using bulti-in hyde webserver) with command:
 Deployment
 ----------
 
-It is convinient to add your ssh public key to ``authorized_keys`` on the destination host.
+It is convinient to add your ssh public key to ``authorized_keys`` on the
+destination host.
 
-There is a fabric script that does all deployment for you. Just run the following:
+You also have to prepare a configuration json file containing at least the 
+following settings:
 
-    fab deploy -H host -u username
+    {    
+        "db_user": "user",
+        "db_password": "password",
+        "db_name": "name",
+        "db_host": "host"
+    }
     
-For an update the Python's virtual environment use ``update_environment=True`` option:
+The fabric script does all deployment work for you. It performs several
+different tasks.
 
-    fab deploy:update_environment=True -H host -u username
+# Deployment of the Troia web site
 
-If the server configuration has been changed, one can reload it with ``update_server`` command:
+Just run the following:
 
-    fab update_server -H host -u username
+    fab deploy_web:confpath=path/to/conf.json -H host -u username
     
-The following command compiles and exposes the ``GetAnotherLabel.war`` file on the website:
+For an update of the Python's virtual environment use 
+``update_environment=True`` option:
 
-    fab update_troia_server -H host -u username
+    fab deploy_web:update_environment=True,path/to/conf.json -H host -u username
 
-Another command exists for generating the Troia Java Client API docs:
+# Generation of the Troia-Java-Client API docs
 
-    fab update_troia_client -H host -u username
-    
-    
+The following command generates and serves javadocs:
+
+    fab generate_apidocs:confpath=path/to/conf.json -H host -u username
+
+# Deployment of the Troia-Server
+
+One can deploy Troia-Server .war file in the tomcat servlet container using the
+following command:
+
+    fab deploy_troia_server:confpath=path/to/conf.json -H host -u username
+
+# Reloading the Troia-Server configuration
+
+If the Troia-Server configuration has been changed, one can reload it with
+the following command:
+
+    fab update_troia_server:confpath=path/to/conf.json -H host -u username
+
+# Reloading the web server configuration
+
+The Nginx configuration can be updated with:
+
+    fab update_server:confpath=path/to/conf.json -H host -u username
