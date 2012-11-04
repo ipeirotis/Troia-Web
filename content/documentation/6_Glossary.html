@@ -1,0 +1,31 @@
+
+---
+extends: skeleton/_base.html
+title: Glossary
+---
+
+{% block content %}
+
+<div class="row-fluid">
+    <div class="span12">
+		{% restructuredtext %}
+
+- Assigned Label: The label assigned by a worker to an object
+- Gold Label: The correct label for an object; the algorithm uses it to estimate the quality of a worker
+- Evaluation Label: The correct label for an object; this label is *not* used by the algorithm. It is only used to evaluate the output of the algorithm and understand the accuracy of the estimations
+
+
+- Datum: The object that needs to be labeled. Has an id that is unique to the object.
+- Label: The category (for the discrete case) or the value (for the continuous case) for the object.
+- Assigned Label: The label assigned by a worker to an object
+- Gold Label: The correct label for an object; the algorithm uses it to estimate the quality of a worker
+- Evaluation Label: The correct label for an object; this label is *not* used by the algorithm. It is only used to evaluate the output of the algorithm and understand the accuracy of the estimations.
+- Prior: The probability for a randomly chosen object to belong to a given category (discrete case) or to have a particular value (for the continuous case).
+- Confusion Matrix: A n x n matrix that contains the probabilities of misclassifying an object of a given category. The value of the matrix in the [i,j] position is the probability of labeling an object that belongs to category i, as an object that belongs to category j.
+- Cost Matrix: A n x n matrix that stores the cost of a misclassification.  The value of the matrix in the [i,j] position is the cost for labeling an object that belongs to category i, as an object that belongs to category j.
+
+		{% endrestructuredtext %}
+    </div>
+</div>
+{% endblock %}
+

@@ -1,211 +1,265 @@
 function initialize() {
-	var api_url = "/api/";
-	var iters = 1;
-	var id = 123;
-	$('#jobid').prop('value', id);
-	var category_list = []; //lista klas
-	var old_category_list = [];
-	var data_error = false;
-	var gold_error = false;
-//	var table_created = false;
+
+	var apiUrl = '/api/';
+	var id = 1;
+	var categoryList = [];
+	var oldCategoryList = [];
+    var chunkSize = 500;
+    var hasErrors = false;
+
 	$('#response').hide();
-	load_test_data();
-	set_textarea_maxrows(50);
+	$(".alert").hide();
+	loadTestData();
+	setTextareaMaxrows(20000);
 	
-	$('#send_data').click(function(){
-		//validate
-		var data = parse_worker_assigned_labels();
-		parse_gold_labels();
-		if (gold_error)
+	$('#send_data').click(function() {
+		$(".alert").hide();
+		id = parseInt(Math.random()*1000000000000);
+		hasErrors = false;
+		// Validate input.
+		var workerLabels = parseWorkerAssignedLabels();
+        var goldLabels = parseGoldLabels();
+        var costMatrix = parseCostMatrix(categoryList);
+		if (!hasErrors && ping())
 		{
-			$('#myTab li:nth-child(2) a').tab('show');
-			return;
-		}
-		if (data_error)
-		{
-			$('#myTab li:nth-child(1) a').tab('show');
-			return;
-		}
-		//btn change
-		var btn_text =$(this).text();
-		$(this).addClass('disabled');
-		
-		//posting data
-		reset();
-		id = parseInt($('#jobid').prop('value'));
-		$(this).text('Sending data..');
-		load_cost_matrix();
-		load_worker_assigned_labels(data);
-		load_gold_labels();
-		
-		//compute and get answer
-		$('#response').show();
-		i = 0;
-		var that = this;
-		interval_func = setInterval(function(){
-			i += 1;
-			if (i>$('#iternumber').val())
-			{
-				clearInterval(interval_func);
-				$(that).removeClass('disabled');
-				$(that).text(btn_text);
-				return;
-			}
-			$(that).text('Iteration ' + i + '..');
-			compute(iters, function(res){
-//				$('#workers').html(worker_summary().replace(/\n/gi, '<br/>'));
-				$('#workers').html(create_workers_table(worker_summary()));
-				$('#classes').html(create_classes_table(majority_votes()));
+	        //if job exists, reset it
+	        if(exists(id))
+	        	reset(id);
+			// Change button.
+			$(this).addClass('disabled');
+			var buttonText = $(this).text();
+			$(this).text('Sending data..');
+			
+			var that = this;
+	        // Upload data.
+			loadCostMatrix(id, costMatrix, function() {
+				loadWorkerAssignedLabels(id, workerLabels, function() {
+					loadGoldLabels(id, goldLabels, function() {
+						// Compute and get answer.
+						$('#classes').text("");
+						$('#workers').text("");
+						$('#response').show();
+						var i = 1;
+				        var numIterations = 1;
+						
+						
+						timeoutFunc = function()
+						{
+							$(that).text('Iteration ' + i + '..');
+							isComputed(id, function(res2){
+								json = $.parseJSON(res2.responseText);
+								if(!json.result)
+									setTimeout(timeoutFunc, 500);
+								else
+								{
+							    	workerSummary(id);
+							    	majorityVotes(id);
+							    	if (i < $('#id_num_iterations').val())
+							    	{
+							    		setTimeout(function() {
+							    			compute(id, numIterations, function() {
+							    				setTimeout(timeoutFunc, 500);
+							    			});
+							    		}, 1500);
+							    	}
+							    	else
+							    	{
+										$(that).removeClass('disabled');
+										$(that).text(buttonText);
+							    	}
+							    	i++;
+								}
+							})
+						};
+						
+						setTimeout(function() {
+							compute(id, numIterations, function() {
+								setTimeout(timeoutFunc, 500);
+							});
+						}, 4000);
+					});
+				});
 			});
-		}, 1500);
+		}
 	});
 	
     $('a[data-toggle="tab"]').on('shown', function (e) {
-    	if (e.target.getAttribute('href') === '#matrix') // && !table_created)
+    	$(".alert").hide();
+    	if (e.target.getAttribute('href') === '#matrix')
     	{
-//    		table_created = true;
-    		parse_worker_assigned_labels();
-    		if (!_.isEqual(old_category_list, category_list))
-    			create_table(category_list);
-    		$('#mytable input').numeric({ negative : false });
+    		parseWorkerAssignedLabels();
+    		if (!_.isEqual(oldCategoryList, categoryList))
+    			createCostMatrix(categoryList);
+    		$('#cost_matrix input').numeric({ negative : false });
     	}
     });
     
-
-    function set_textarea_maxrows(rows)
-    {
-    	function handler(e)
-    	{
-    		if(this.value.split('\n').length > rows)
-                this.value = this.value.split('\n').slice(0, rows).join('\n');
+    function setTextareaMaxrows(maxRows) {
+    	function handler(e) {
+    		if (this.value.split('\n').length > maxRows){
+    			this.value = this.value.split('\n').slice(0, maxRows).join('\n');
+    			$(".alert p").text('Only ' + maxRows.toString() + ' lines allowed.');
+    			$(".alert").show();
+    		}
+    		else
+    			$(".alert").hide();
     	}
     	$('#id_data').keyup(handler);
     	$('#id_gold_data').keyup(handler);
     }
-
-    function load_test_data()
-    {
+    
+    function loadTestData() {
     	$('#id_data').val("worker1 http://sunnyfun.com    porn\nworker1 http://sex-mission.com porn\nworker1 http://google.com      porn\nworker1 http://youporn.com     porn\nworker1 http://yahoo.com       porn\nworker2 http://sunnyfun.com    notporn\nworker2 http://sex-mission.com porn\nworker2 http://google.com      notporn\nworker2 http://youporn.com     porn\nworker2 http://yahoo.com       porn\nworker3 http://sunnyfun.com    notporn\nworker3 http://sex-mission.com porn\nworker3 http://google.com      notporn\nworker3 http://youporn.com     porn\nworker3 http://yahoo.com       notporn\nworker4 http://sunnyfun.com    notporn\nworker4 http://sex-mission.com porn\nworker4 http://google.com      notporn\nworker4 http://youporn.com     porn\nworker4 http://yahoo.com       notporn\nworker5 http://sunnyfun.com    porn\nworker5 http://sex-mission.com notporn\nworker5 http://google.com      porn\nworker5 http://youporn.com     notporn	\nworker5 http://yahoo.com       porn");
-    	$('#id_gold_data').val("http://google.com      notporn");
-    	parse_worker_assigned_labels();
-		create_table(category_list);
+    	$('#id_gold_labels').val("http://google.com      notporn");
+    	parseWorkerAssignedLabels();
+		createCostMatrix(categoryList);
     };
     
-    function jsonify(data)
-    {
-    	var post_data = {};
+    function jsonify(data) {
+    	var result = {};
 		for (var key in data) {
-			post_data[key] = JSON.stringify(data[key]);
+			result[key] = JSON.stringify(data[key]);
 		};
-		return post_data;
+		return result;
     };
 	
-	function do_post(url, data)
-	{
-		$.ajax({
-	        url: api_url + url,
-	        type: "POST",
-	        async: false,
+    /** Performs a POST request. */
+	function post(url, data, async, success) {
+        if (!success) {
+            success == function(data, textStatus, jqXHR) {
+                console.debug('POST request complete');
+            }
+        }
+        $.ajax({
+	        url: apiUrl + url,
+	        type: 'post',
+	        async: async,
 	        data: jsonify(data),
-	        success: function(data, textStatus, jqXHR)
-	        {
-//	        	console.log('success')
-	        }
+	        complete: success,
+	        error: function(jqXHR, textStatus, errorThrown) {
+				$(".alert p").text("Troia server error (" + errorThrown.toString() + ").");
+				$(".alert").show();
+			}
+        });
+	};
+	
+    /** Performs a POST request. Sends data in chunks but only along specified
+     * axis (field). */
+    function postInAxisChunks(url, data, axis, async, offset, success) {
+        	var newData = jQuery.extend({}, data);
+            var limit = Math.min(chunkSize, data[axis].length - offset);
+            newData[axis] = newData[axis].slice(offset, offset + limit);
+            post(url, newData, async, function(res){
+            	var p = Math.min(Math.floor(100*(offset+limit)/data[axis].length), 100);
+            	$('#send_data').text("Sending " + axis + " (" + p.toString() + "%)...");
+            	if (offset+limit < data[axis].length)
+            		postInAxisChunks(url, data, axis, async, offset+limit, success);
+            	else
+            		success();
+            });
+    }
+
+	function get(url, data, async, complete, error) {
+		if (!complete) {
+			complete = function(res){
+                console.debug('GET request complete');
+            };
+        }
+		if (!error) {
+			error = function(jqXHR, textStatus, errorThrown) {
+				$(".alert p").text("Troia server error (" + errorThrown.toString() + ").");
+				$(".alert").show();
+			};
+		}
+		$.ajax({
+	        url: apiUrl + url,
+	        type: 'get',
+	        async: async,
+	        data: jsonify(data),
+	        complete: complete,
+	        error: error
 	    });
 	};
 	
-	function do_get(url, data, complete_fun)
-	{
-		if (! complete_fun)
-			complete_fun = function(res){};
-		$.ajax({
-	        url: api_url + url,
-	        type: "GET",
-	        async: false,
-	        data: jsonify(data),
-	        complete: complete_fun
-	    });
-	};
-	
-	function misclassification_cost(labels, label)
-	//returns {'a': 1.0, 'b': 1.0, 'c': 0, 'd': 1.0} for labels=[a, b, c, d], label=c
-	{
-		var ret = {};
-		var avg = 1.0/(labels.length-1.0);
-		_.each(labels, function(l){
+	function misclassificationCost(labels, label) {
+	//returns {'a': 0.33, 'b': 0.33, 'c': 0, 'd': 0.33} for labels=[a, b, c, d], label=c
+		var result = {};
+		var avg = 1.0 / (labels.length - 1.0);
+		_.each(labels, function(l) {
 			if (l !== label)
-				ret[l] = avg;
+				result[l] = avg;
 		});
-		ret[label] = 0;
-		return ret;
+		result[label] = 0;
+		return result;
 	};
 	
 	function categories(labels){
-		var ret = [];
-		_.each(labels, function(l){
-			ret.push({
+		var result = [];
+		_.each(labels, function(l) {
+			result.push({
 				'prior': 1.0,
 				'name': l,
-				'misclassification_cost': misclassification_cost(labels, l)
+				'misclassificationCost': misclassificationCost(labels, l)
 			});
 		});
-		return ret;
+		return result;
 	};
-	
-	function parse_worker_assigned_labels()
-	{
+
+    /** Parses labels input. */
+	function parseWorkerAssignedLabels() {
 		var data = [];
-		old_category_list = category_list;
-		category_list = [];
-		data_error = false;
-		_.each($("#id_data").val().split(/\n/), function(line){
-			var parsed_line = _.compact(line.split(/[\t ]/));
-			if (parsed_line.length !== 3)
-			{
+		oldCategoryList = categoryList;
+		categoryList = [];
+		var dataError = false;
+		_.each($("#id_data").val().split(/\n/), function(line, ind){
+			var parsedLine = _.compact(line.split(/[\t ]/));
+			if (parsedLine.length !== 3) {
 				$('#data .control-group').addClass('error');
-				$('#data span').text('Only 3 words per line.');
-				data_error = true;
+				$('#data span').text('Only 3 words per line allowed. Check your ' + (ind+1).toString() + ' line.');
+				dataError = true;
 			}
 			data.push({
-				'workerName': parsed_line[0],
-				'objectName': parsed_line[1],
-				'categoryName': parsed_line[2]
+				'workerName': parsedLine[0],
+				'objectName': parsedLine[1],
+				'categoryName': parsedLine[2]
 			});
-			if (parsed_line[2])
-				category_list.push(parsed_line[2]);
+			if (parsedLine[2]) {
+				categoryList.push(parsedLine[2]);
+            }
 		});
-		if (!data_error)
-		{
+		if (dataError) {
+			hasErrors = true;
+			$('#myTab li:nth-child(1) a').tab('show');
+		} else {
 			$('#data .control-group').removeClass('error');
 			$('#data span').text('');
 		}
-		
-		category_list = _.uniq(category_list);
-		
+        categoryList = _.uniq(categoryList);
 		return data;
 	};
-	
-	function parse_gold_labels()
-	{
+
+    /** Parses gold labels input. */
+	function parseGoldLabels() {
 		var data = [];
-		gold_error = false;
-		if ($("#id_gold_data").val())
-		{
-			_.each($("#id_gold_data").val().split(/\n/), function(line){
-				var parsed_line = _.compact(line.split(/[\t ]/));
-				if (parsed_line.length !== 2)
-				{
+		var dataError = false;
+		if ($("#id_gold_labels").val()) {
+			_.each($("#id_gold_labels").val().split(/\n/), function(line, ind){
+				var parsedLine = _.compact(line.split(/[\t ]/));
+				if (parsedLine.length !== 2) {
 					$('#gold .control-group').addClass('error');
-					$('#gold span').text('Only 2 words per line.');
-					gold_error = true;
+					$('#gold span').text('Only 2 words per line allowed. Check your ' + (ind+1).toString() + ' line.');
+					dataError = true;
 				}
 				data.push({
-					'objectName': parsed_line[0],
-					'correctCategory': parsed_line[1]
+					'objectName': parsedLine[0],
+					'correctCategory': parsedLine[1]
 				});
 			});
-			if (!gold_error)
-			{
+            if (dataError) {
+            	hasErrors = true;
+                $('#myTab li:nth-child(2) a').tab('show');
+                data = undefined;
+            } else {
 				$('#gold .control-group').removeClass('error');
 				$('#gold span').text('');
 			}
@@ -213,120 +267,194 @@ function initialize() {
 		return data;
 	};
 	
-	function parse_cost_matrix(labels)
-	{
-		var ret = [];
+    /** Parses cost matrix input. */
+	function parseCostMatrix(labels) {
+		var data = [];
 		var k = 0;
 		var l = labels.length;
-		_.each($('#mytable input'), function(i){
-			if (k%l == 0){
+		_.each($('#cost_matrix input'), function(i) {
+			if (k % l === 0){
 				d = {};
-				ret.push({
+				data.push({
 					'prior': 1.0,
-					'name': labels[k/l],
+					'name': labels[k / l],
 					'misclassification_cost': d
 				});
 			}
-			d[labels[k%l]] = parseFloat($(i).prop('value'));
+			d[labels[k % l]] = parseFloat($(i).prop('value'));
 			k += 1;
 		});
-		return ret;
+		return data;
+	};
+
+	function loadWorkerAssignedLabels(id, labels, success) {
+		postInAxisChunks('loadWorkerAssignedLabels', {
+            'id': id,
+            'labels': labels
+        }, "labels", true, 0, success);
 	};
 	
-//////////////post requests
-	function load_worker_assigned_labels(data)
-	{
-		do_post('loadWorkerAssignedLabels',{
-			'id': id,
-            'labels': data
-		});
-	};
-	
-	function load_gold_labels()
-	{
-		var data = parse_gold_labels()
-		if (data.length)
-			do_post('loadGoldLabels', {
+	function loadGoldLabels(id, labels, success) {
+		if (labels)
+			postInAxisChunks('loadGoldLabels', {
 				'id': id,
-                'labels': data
-			});
+                'labels': labels
+			}, "labels", true, 0, success);
 	};
 	
-	function load_cost_matrix()
-	{
-		
-		do_post('loadCategories', {
+	function loadCostMatrix(id, costMatrix, success) {
+		post('loadCategories', {
 			'id': id,
-			'categories': parse_cost_matrix(category_list)
-		});
+			'categories': costMatrix
+		}, true, success);
 	};
 	
-	function compute(it, fun)
-	{
-		do_get('computeBlocking', {
+	function compute(id, numIterations, func) {
+		get('computeNotBlocking', {
 			'id': id,
-			'iterations': it
-		}, fun);
-	}
-	
-	function majority_votes()
-	{
-		var res;
-		do_get('majorityVotes', {
-			'id': id
-		}, function(response){
-            json = $.parseJSON(response.responseText);
-            res = json.result;
-		});
-		return res;
-	}
-	
-	function worker_summary()
-	{
-		var res;
-		do_get('printWorkerSummary', {
-			'id': id,
-			'verbose': false
-		}, function(response){
-            json = $.parseJSON(response.responseText);
-            res = json.result;
-		});
-		return res;
-	}
-	
-	function reset()
-	{
-		do_get('reset', {
-			'id': id
-		});
-	}
-///////////////end of post requests
-	
-	function create_classes_table(data) {
-		return _.template($("#classes_template").html(), {data: data});
-	};
-	
-	function create_workers_table(data) {
-		var regex = /Worker: ([0-9a-zA-Z]+)\nError Rate: (\d+.\d*%)\nQuality \(Expected\): (---|\d+.\d*%)\nQuality \(Optimized\): (\-\-\-|\d+.\d*%)\nNumber of Annotations: (\d+)\nNumber of Gold Tests: (\d+)\nConfusion Matrix: \n(^(.)+\n)*/mg;
-		var regexc = /Worker: ([0-9a-zA-Z]+)\nError Rate: (\d+.\d*%)\nQuality \(Expected\): (---|\d+.\d*%)\nQuality \(Optimized\): (\-\-\-|\d+.\d*%)\nNumber of Annotations: (\d+)\nNumber of Gold Tests: (\d+)\nConfusion Matrix: \n((.|\n)*)/m;
-		var ret = []
-		_.each(data.match(regex), function(m){
-			ret.push(regexc.exec(m));
-		});		
-		return _.template($("#workers_template").html(), {data: ret} );
+			'iterations': numIterations
+		}, true, func);
 	}
 
-	function create_table(labels) {
-		$('#mytable').empty();
-		row=new Array();
-		cell=new Array();
-		cat = categories(labels);
+	function isComputed(id, func) {
+		get('isComputed', {
+			'id': id
+		}, true, func);
+	}
 	
-		row_num=labels.length;
-		cell_num=labels.length;
+	function exists(id) {
+		ret = false;
+		get('exists', {
+			'id': id
+		}, false, function (res){
+			json = $.parseJSON(res.responseText);
+            ret = json.result;
+		});
+		return ret;
+	}
+	
+	function ping() {
+		ret = false;
+		get('ping', {}, false, function() {
+			ret = true;
+		}, function(jqXHR, textStatus, errorThrown) {
+			ret = false;
+			$(".alert p").text("Troia server error (" + errorThrown.toString() + ").");
+			$(".alert").show();
+		});
+		return ret;
+	}
+	
+	function majorityVotes(id) {
+		get('majorityVotes', {
+			'id': id
+		}, true, function(response){
+            json = $.parseJSON(response.responseText);
+            $('#classes').html(createClassesTable(json.result));
+		});
+	}
+	
+	function workerSummary(id)
+	{
+		get('printWorkerSummary', {
+            'id': id,
+            'verbose': false
+        }, true, function(response) {
+            json = $.parseJSON(response.responseText);
+    	    $('#workers').html(createWorkersTable(json.result));
+        });
+	}
+	
+	function reset(id)
+	{
+		get('reset', {
+            'id': id
+        });
+	}
+	
+	function createClassesTable(classes) {
+		return _.template($("#classes_template").html(), {
+            classes: classes 
+        });
+	};
+	
+	function createWorkersTable(data) {
+		var regex = /Worker: ([0-9a-zA-Z]+)\nError Rate: (\d+.\d*%)\nQuality \(Expected\): (---|\d+.\d*%)\nQuality \(Optimized\): (\-\-\-|\d+.\d*%)\nNumber of Annotations: (\d+)\nNumber of Gold Tests: (\d+)\nConfusion Matrix: \n(^(.)+\n)*/mg;
+		var regexc = /Worker: ([0-9a-zA-Z]+)\nError Rate: (\d+.\d*%)\nQuality \(Expected\): (---|\d+.\d*%)\nQuality \(Optimized\): (\-\-\-|\d+.\d*%)\nNumber of Annotations: (\d+)\nNumber of Gold Tests: (\d+)\nConfusion Matrix: \n((.|\n)*)/m;
+		var result = [];
+		var matrix_regex = /P\[([0-9a-zA-Z]+)\->([0-9a-zA-Z]+)\]=(\d+.\d*%)/mg;
+		var matrix_regexc = /P\[([0-9a-zA-Z]+)\->([0-9a-zA-Z]+)\]=(\d+.\d*%)/m;
+		_.each(data.match(regex), function(m) {
+			res = regexc.exec(m);
+			matrix_res = [];
+			_.each(res[7].match(matrix_regex), function(m) {
+				matrix_res.push(matrix_regexc.exec(m));
+			});
+			res[7] = createConfusionMatrix(categoryList, matrix_res);
+			result.push(res);
+		});		
+		return _.template($("#workers_template").html(), {workers: result} );
+	}
+	
+	function createConfusionMatrix(labels, matrix_res) {
+		row = new Array();
+		cell = new Array();
+		row_num = labels.length;
+		cell_num = labels.length;
 		
 		tab=document.createElement('table');
-		tab.setAttribute('id','newtable');
+		tbo=document.createElement('tbody');
+		
+		//header
+		row = document.createElement('tr');
+		row.appendChild(document.createElement('td'))
+		for(k=0;k<cell_num;k++) {
+			cell=document.createElement('td');
+			cont = document.createTextNode(labels[k])
+			cell.appendChild(cont);
+			row.appendChild(cell);
+		}
+		tbo.appendChild(row);
+		 
+		//body
+		for(c=0;c<row_num;c++){
+			row[c]=document.createElement('tr');
+			cell=document.createElement('td');
+			cont = document.createTextNode(labels[c]);
+			cell.appendChild(cont);
+			row[c].appendChild(cell);
+		 
+			for(k=0;k<cell_num;k++) {
+				cell[k]=document.createElement('td');
+//				var val = 0;
+//				for (x=0; x<cell_num*cell_num; x++)
+//					if (matrix_res[x][1] === labels[c] && matrix_res[x][2] === labels[k])
+//					{
+//						val = matrix_res[x][3];
+//						break;
+//					}
+				cont=document.createTextNode(matrix_res[c*cell_num + k][3]);
+				cell[k].appendChild(cont);
+				row[c].appendChild(cell[k]);
+			}
+			tbo.appendChild(row[c]);
+		}
+		tab.appendChild(tbo);
+		
+		var tmp = document.createElement("div");
+		tmp.appendChild(tab);
+		return tmp.innerHTML;
+	};	
+
+	function createCostMatrix(labels) {
+		$('#cost_matrix').empty();
+		row = new Array();
+		cell = new Array();
+		cat= categories(labels);
+		row_num = labels.length;
+		cell_num = labels.length;
+		
+		tab=document.createElement('table');
 		tbo=document.createElement('tbody');
 		
 		//header
@@ -356,15 +484,15 @@ function initialize() {
 				cell[k]=document.createElement('td');
 				cont=document.createElement('input');
 				$(cont).css('width', 'auto');
-				$(cont).prop('value', category['misclassification_cost'][labels[k]]);
+				$(cont).prop('value', category['misclassificationCost'][labels[k]]);
 				cell[k].appendChild(cont);
 				row[c].appendChild(cell[k]);
 			}
 			tbo.appendChild(row[c]);
 		}
 		tab.appendChild(tbo);
-		$('#mytable')[0].appendChild(tab);
-	};	
+		$('#cost_matrix')[0].appendChild(tab);
+	}
 }
 
 $(document).ready(function() {

@@ -3,21 +3,21 @@
 
     <div class="true_footer">
         <a href="/" class="logo"></a>
-        <div class="footer_menu3">
-            <h4>Source Code</h4>
-            <a href="https://github.com/ipeirotis/Troia-Java-Client">Java Client</a>
-            <a href="https://github.com/ipeirotis/Troia-Server">TROIA Server</a>
-            <a href="https://github.com/ipeirotis/Troia-Tester">Test Data Generator</a>
-        </div>        
-        {% for item in menu|sort(reverse=false) %}
+        {% for item in menu %}
             <div class="footer_menu{{ loop.index }}">
                 <h4>{{ item.name }}</h4>
                 {% for res in site.content.node_from_relative_path(item.url).walk_resources()|sort(reverse=true) %}
-                <a href="{{ res.full_url }}"class="node{{ loop.index }}" {% if resource.url == res.url %}class="active node{{ loop.index }}"{% endif %}>{{ res.meta.title }}</a>
+                <a href="{{ res.full_url }}" {% if resource.url == res.url %}class="active"{% endif %}>{{ res.meta.title }}</a>
                 {% endfor %}
             </div>
         {% endfor %}    
-
+        <div>
+            <h4>Source Code</h4>
+            <a href="https://github.com/ipeirotis/Troia-Server">Server</a>
+            <a href="https://github.com/ipeirotis/Troia-Java-Client">Java Client</a>
+            <a href="https://github.com/ipeirotis/Troia-Tester">Test data generator</a>
+            <a href="https://github.com/ipeirotis/Troia-Web">Website</a>
+        </div>
                 
     </div>
 
