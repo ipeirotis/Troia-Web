@@ -5,6 +5,7 @@ function initialize() {
 	var categoryList = [];
 	var oldCategoryList = [];
     var chunkSize = 500;
+    var numIterations = 10;
     var hasErrors = false;
     var loading = false;
 
@@ -21,6 +22,8 @@ function initialize() {
     	majorityVotes(id);
     }
     else {
+    	//disable results tab
+    	$("#menuTab li:nth-child(2) a").attr("data-toggle", "").css("cursor",  "not-allowed");
     	//when we provide id but it doesnt exist - show error
     	if (id) {
     		$(".alert p").text("Sorry, id=" + id + " hasn't been found.");
@@ -62,27 +65,8 @@ function initialize() {
     						$('#classes').text("");
     						$('#workers').text("");
     						$('#response').show();
-    						var i = 1;
-    				        var numIterations = 1;
-    						
     						timeoutFunc = function()
     						{
-    							$(that).text('Iteration ' + i + '..');
-    							if (!loading) {
-    								$("#overlay").fadeIn();
-    								loading = true;
-    							}
-    							$t = $("#response");
-    				    	    $("#overlay").css({
-    				    	  	  opacity : 0.5,
-    				    	  	  top     : $t.offset().top,
-    				    	  	  width   : $t.outerWidth(),
-    				    	  	  height  : $t.outerHeight()
-    				    	    });
-    				    		$("#img-load").css({
-    				    		  top  : ($t.height() / 2),
-    				    		  left : ($t.width() / 2)
-    				    		});
     							isComputed(id, function(res2){
     								json = $.parseJSON(res2.responseText);
     								if(!json.result)
@@ -91,32 +75,18 @@ function initialize() {
     								{
     							    	workerSummary(id);
     							    	majorityVotes(id);
-    							    	if (i < $('#id_num_iterations').val())
-    							    	{
-    							    		setTimeout(function() {
-    							    			compute(id, numIterations, function() {
-    							    				setTimeout(timeoutFunc, 500);
-    							    			});
-    							    		}, 1500);
-    							    	}
-    							    	else
-    							    	{
-    										$(that).removeClass('disabled');
-    										$(that).text(buttonText);
-    										$("#overlay").fadeOut();
-    										$("#url").fadeIn();
-    										$("#url pre").text(document.URL + "?id=" + id);
-    							    	}
-    							    	i++;
+										$(that).removeClass('disabled');
+										$(that).text(buttonText);
+										$("#overlay").fadeOut();
+										$("#url").fadeIn();
+										$("#url pre").text(document.URL + "?id=" + id);
     								}
     							})
     						};
     						
     						setTimeout(function() {
-    							$('#menuTab li:nth-child(2) a').tab('show');
-    							compute(id, numIterations, function() {
-    								setTimeout(timeoutFunc, 500);
-    							});
+    							$('#menuTab li:nth-child(2) a').attr("data-toggle", "tab").tab('show');
+    							compute(id, numIterations, timeoutFunc);
     						}, 4000);
     					});
     				});
@@ -134,7 +104,6 @@ function initialize() {
     		parseWorkerAssignedLabels();
     		if (!_.isEqual(oldCategoryList, categoryList))
     			createCostMatrix(categoryList);
-    		$('#cost_matrix input').numeric({ negative : false });
     	}
     });
     
@@ -157,26 +126,31 @@ function initialize() {
     }
     
     function loadTestData(type) {
+    	invalidateCostMatrix = function() {
+    	  	parseWorkerAssignedLabels();
+    		createCostMatrix(categoryList);
+    	}
     	if (type)
     	{
     		$.ajax({
 	  			  url: "/media/txt/data" + type,
 	  		}).done(function(data) { 
 	  			$('#id_data').val(data);
+	  			invalidateCostMatrix();
 	  		});
     		$.ajax({
 	  			  url: "/media/txt/gold" + type,
 	  		}).done(function(data) { 
 	  			$('#id_gold_labels').val(data);
+	  			invalidateCostMatrix();
 	  		});
     	}
     	else
     	{
     		$('#id_data').val("worker1 http://sunnyfun.com    porn\nworker1 http://sex-mission.com porn\nworker1 http://google.com      porn\nworker1 http://youporn.com     porn\nworker1 http://yahoo.com       porn\nworker2 http://sunnyfun.com    notporn\nworker2 http://sex-mission.com porn\nworker2 http://google.com      notporn\nworker2 http://youporn.com     porn\nworker2 http://yahoo.com       porn\nworker3 http://sunnyfun.com    notporn\nworker3 http://sex-mission.com porn\nworker3 http://google.com      notporn\nworker3 http://youporn.com     porn\nworker3 http://yahoo.com       notporn\nworker4 http://sunnyfun.com    notporn\nworker4 http://sex-mission.com porn\nworker4 http://google.com      notporn\nworker4 http://youporn.com     porn\nworker4 http://yahoo.com       notporn\nworker5 http://sunnyfun.com    porn\nworker5 http://sex-mission.com notporn\nworker5 http://google.com      porn\nworker5 http://youporn.com     notporn	\nworker5 http://yahoo.com       porn");
     		$('#id_gold_labels').val("http://google.com      notporn");
+    		invalidateCostMatrix();
     	}
-    	parseWorkerAssignedLabels();
-		createCostMatrix(categoryList);
     };
     
     function jsonify(data) {
@@ -563,6 +537,7 @@ function initialize() {
 		}
 		tab.appendChild(tbo);
 		$('#cost_matrix')[0].appendChild(tab);
+		$('#cost_matrix input').numeric({ negative : false });
 	}
 }
 
