@@ -20,7 +20,6 @@ function initialize() {
     	//print results
     	workerSummary(id);
     	majorityVotes(id);
-    	$("#overlay").fadeOut();
     }
     else {
     	//disable results tab
@@ -73,7 +72,6 @@ function initialize() {
     									setTimeout(timeoutFunc, 500);
     								else
     								{
-    									$('#response').show();
     							    	workerSummary(id);
     							    	majorityVotes(id);
 										$(that).removeClass('disabled').text(buttonText);
@@ -107,7 +105,7 @@ function initialize() {
     });
     
     function getURLParameter(name) {
-        return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+        return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
     }
     
     function setTextareaMaxrows(maxRows) {
@@ -401,7 +399,9 @@ function initialize() {
             json = $.parseJSON(response.responseText);
             $("#img-load-workers").fadeOut();
     	    $('#workers').html(createWorkersTable(json.result));
-    	    $(".btn-small").popover({html: true, title: "Confusion matrix", placement: "left"});
+    	    $("a[rel=popover]").popover({html: true, title: "Confusion matrix", placement: "left"}).click(function(e) {
+    	        e.preventDefault();
+    	    });
         });
 	}
 	
