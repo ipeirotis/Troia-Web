@@ -1,6 +1,6 @@
 function initialize() {
 
-	var apiUrl = '/api/';
+	var apiUrl = 'http://localhost:8080/GetAnotherLabel/rest/';
 	var id = getURLParameter("id");
 	var categoryList = [];
 	var oldCategoryList = [];
@@ -20,6 +20,7 @@ function initialize() {
     	//print results
     	workerSummary(id);
     	majorityVotes(id);
+    	$("#overlay").fadeOut();
     }
     else {
     	//disable results tab
@@ -400,6 +401,7 @@ function initialize() {
         }, true, function(response) {
             json = $.parseJSON(response.responseText);
     	    $('#workers').html(createWorkersTable(json.result));
+    	    $(".btn").popover({html: true, title: "Confusion matrix", placement: "left"});
         });
 	}
 	
@@ -488,7 +490,7 @@ function initialize() {
 		
 		var tmp = document.createElement("div");
 		tmp.appendChild(tab);
-		return tmp.innerHTML;
+		return _.template($("#popover_template").html(), {content: tmp.innerHTML});
 	};	
 
 	function createCostMatrix(labels) {

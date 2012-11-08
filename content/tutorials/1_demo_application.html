@@ -30,7 +30,7 @@ title: Demo application
 		    			Data set:
 		    			<select id="id_data_choose" style="width: 300px;" class="select_down">
 		    				<option value="1">Small pack - 25 worker assigns, 2 gold items</option>
-							<option value="2">Big pack - 500 worker assigns, 30 gold items</option>
+							<option value="2">Big pack - 5000 worker assigns, 30 gold items</option>
 						</select>
 		    		</p>
 		    	</div>
@@ -106,13 +106,13 @@ title: Demo application
 	    		<div id="overlay">
 					<img src="/media/img/bigrotation.gif" id="img-load" />
 				</div>
-	    		<div id="response" style="height:600px">
+	    		<div id="response">
 					<div class='span4'>
-						<h3>Classes:</h3>
+						<h3>Predicted labels:</h3>
 						<div id="classes"></div>
 					</div>
 					<div class='span8'>
-						<h3>Workers:</h3>
+						<h3>Workers estimated statistics:</h3>
 						<div id="workers"></div>
 					</div>
 					<div id="url">
@@ -166,6 +166,9 @@ title: Demo application
 			<% }; %>
 			</table>
 			</div>
+		</script>
+		<script type="text/template" id="popover_template">
+			<a href="#" class="btn" data-content="<%= content %>" rel="popover"><i class="icon-search"></i></a>
 		</script>
     </div>
 </div>
