@@ -1,6 +1,6 @@
 function initialize() {
 
-	var apiUrl = 'http://localhost:8080/GetAnotherLabel/rest/';
+	var apiUrl = '/api/';
 	var id = getURLParameter("id");
 	var categoryList = [];
 	var oldCategoryList = [];
@@ -401,7 +401,7 @@ function initialize() {
         }, true, function(response) {
             json = $.parseJSON(response.responseText);
     	    $('#workers').html(createWorkersTable(json.result));
-    	    $(".btn").popover({html: true, title: "Confusion matrix", placement: "left"});
+    	    $(".btn-small").popover({html: true, title: "Confusion matrix", placement: "left"});
         });
 	}
 	
