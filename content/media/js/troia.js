@@ -1,6 +1,6 @@
 function initialize() {
 
-	var apiUrl = '/api/';
+	var apiUrl = 'http://localhost:8080/GetAnotherLabel/rest/';
 	var id = getURLParameter("id");
 	var categoryList = [];
 	var oldCategoryList = [];
@@ -30,7 +30,6 @@ function initialize() {
     		$(".alert p").text("Sorry, id=" + id + " hasn't been found.");
 			$(".alert").show();
     	}
-    	$('#response').hide();
     	loadTestData();
     	setTextareaMaxrows(20000);
     	
@@ -53,19 +52,19 @@ function initialize() {
     	        if(exists(id))
     	        	reset(id);
     			// Change button.
-    			$(this).addClass('disabled');
-    			var buttonText = $(this).text();
-    			$(this).text('Sending data..');
-    			
+    	        var buttonText = $(this).text();
+    			$(this).addClass('disabled').text('Sending data..');
+
     			var that = this;
     	        // Upload data.
     			loadCostMatrix(id, costMatrix, function() {
     				loadWorkerAssignedLabels(id, workerLabels, function() {
     					loadGoldLabels(id, goldLabels, function() {
     						// Compute and get answer.
+    						$("#img-load-workers").show();
+    		    			$("#img-load-labels").show();
     						$('#classes').text("");
     						$('#workers').text("");
-    						$('#response').show();
     						timeoutFunc = function()
     						{
     							isComputed(id, function(res2){
@@ -74,17 +73,16 @@ function initialize() {
     									setTimeout(timeoutFunc, 500);
     								else
     								{
+    									$('#response').show();
     							    	workerSummary(id);
     							    	majorityVotes(id);
-										$(that).removeClass('disabled');
-										$(that).text(buttonText);
-										$("#overlay").fadeOut();
+										$(that).removeClass('disabled').text(buttonText);
 										$("#url").fadeIn();
 										$("#url pre").text(document.URL + "?id=" + id);
     								}
     							})
     						};
-    						
+    						$(that).text('Computing..');
     						setTimeout(function() {
     							$('#menuTab li:nth-child(2) a').attr("data-toggle", "tab").tab('show');
     							compute(id, numIterations, timeoutFunc);
@@ -389,6 +387,7 @@ function initialize() {
 			'id': id
 		}, true, function(response){
             json = $.parseJSON(response.responseText);
+            $("#img-load-labels").fadeOut();
             $('#classes').html(createClassesTable(json.result));
 		});
 	}
@@ -400,6 +399,7 @@ function initialize() {
             'verbose': false
         }, true, function(response) {
             json = $.parseJSON(response.responseText);
+            $("#img-load-workers").fadeOut();
     	    $('#workers').html(createWorkersTable(json.result));
     	    $(".btn-small").popover({html: true, title: "Confusion matrix", placement: "left"});
         });
