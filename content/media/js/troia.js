@@ -92,7 +92,10 @@ function initialize() {
     	});
     }
     
-
+    $(document).keydown(function(e){
+    	if (e.keyCode === 27)
+    		$("a[rel=popover]").popover('hide');
+    });
 	
     $('a[data-toggle="tab"]').on('shown', function (e) {
     	$(".alert").hide();
