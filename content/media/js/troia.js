@@ -18,8 +18,7 @@ function initialize() {
     	//disable inputs tab
     	$("#menuTab li:nth-child(1) a").attr("data-toggle", "").css("cursor",  "not-allowed");
     	//print results
-    	workerSummary(id);
-    	majorityVotes(id);
+    	majorityVotes(id); //calls workerSummary
     }
     else {
     	//disable results tab
@@ -60,10 +59,8 @@ function initialize() {
     				loadWorkerAssignedLabels(id, workerLabels, function() {
     					loadGoldLabels(id, goldLabels, function() {
     						// Compute and get answer.
-    						$("#img-load-workers").show();
-    		    			$("#img-load-labels").show();
-    						$('#classes').text("");
-    						$('#workers').text("");
+    						$("#img-load").show();
+    						$("#response").hide();
     						timeoutFunc = function()
     						{
     							isComputed(id, function(res2){
@@ -72,7 +69,6 @@ function initialize() {
     									setTimeout(timeoutFunc, 500);
     								else
     								{
-    							    	workerSummary(id);
     							    	majorityVotes(id);
 										$(that).removeClass('disabled').text(buttonText);
 										$("#url").fadeIn();
@@ -388,8 +384,8 @@ function initialize() {
 			'id': id
 		}, true, function(response){
             json = $.parseJSON(response.responseText);
-            $("#img-load-labels").fadeOut();
             $('#classes').html(createClassesTable(json.result));
+            workerSummary(id);
 		});
 	}
 	
@@ -400,11 +396,12 @@ function initialize() {
             'verbose': false
         }, true, function(response) {
             json = $.parseJSON(response.responseText);
-            $("#img-load-workers").fadeOut();
+            $("#img-load").fadeOut();
     	    $('#workers').html(createWorkersTable(json.result));
     	    $("a[rel=popover]").popover({html: true, title: "Confusion matrix", placement: "left"}).click(function(e) {
     	        e.preventDefault();
     	    });
+    	    $("#response").show();
         });
 	}
 	
