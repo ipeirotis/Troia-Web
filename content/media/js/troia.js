@@ -93,7 +93,7 @@ function initialize() {
     	if (e.keyCode === 27)
     		$("a[rel=popover]").popover('hide');
     });
-	
+
     $('a[data-toggle="tab"]').on('shown', function (e) {
     	$(".alert").hide();
     	if (e.target.getAttribute('href') === '#matrix')
@@ -400,6 +400,7 @@ function initialize() {
             $("#img-load").fadeOut(200, function() {
                 $('#workers').html(createWorkersTable(json.result));
                 $("a[rel=popover]").popover({html: true, title: "Confusion matrix", placement: "left"}).click(function(e) {
+                    $("a[rel=popover]").not(this).popover('hide');
                     e.preventDefault();
                 });
                 $("#response").fadeIn(200);
