@@ -1,6 +1,6 @@
 function initialize() {
 
-	var apiUrl = 'http://217.113.235.108:8080/GetAnotherLabel/rest/';
+	var apiUrl = 'http://localhost:8080/GetAnotherLabel/rest/';
 	var id = getURLParameter("id");
 	var categoryList = [];
 	var oldCategoryList = [];
@@ -18,8 +18,7 @@ function initialize() {
     	//disable inputs tab
     	$("#menuTab li:nth-child(1) a").attr("data-toggle", "").css("cursor",  "not-allowed");
     	//print results
-    	workerSummary(id);
-    	majorityVotes(id);
+    	majorityVotes(id); //calls workerSummary
     }
     else {
     	//disable results tab
@@ -29,7 +28,6 @@ function initialize() {
     		$(".alert p").text("Sorry, id=" + id + " hasn't been found.");
 			$(".alert").show();
     	}
-    	$('#response').hide();
     	loadTestData();
     	setTextareaMaxrows(20000);
     	
@@ -52,19 +50,17 @@ function initialize() {
     	        if(exists(id))
     	        	reset(id);
     			// Change button.
-    			$(this).addClass('disabled');
-    			var buttonText = $(this).text();
-    			$(this).text('Sending data..');
-    			
+    	        var buttonText = $(this).text();
+    			$(this).addClass('disabled').text('Sending data..');
+
     			var that = this;
     	        // Upload data.
     			loadCostMatrix(id, costMatrix, function() {
     				loadWorkerAssignedLabels(id, workerLabels, function() {
     					loadGoldLabels(id, goldLabels, function() {
     						// Compute and get answer.
-    						$('#classes').text("");
-    						$('#workers').text("");
-    						$('#response').show();
+    						$("#img-load").show();
+    						$("#response").hide();
     						timeoutFunc = function()
     						{
     							isComputed(id, function(res2){
@@ -73,17 +69,14 @@ function initialize() {
     									setTimeout(timeoutFunc, 500);
     								else
     								{
-    							    	workerSummary(id);
     							    	majorityVotes(id);
-										$(that).removeClass('disabled');
-										$(that).text(buttonText);
-										$("#overlay").fadeOut();
+										$(that).removeClass('disabled').text(buttonText);
 										$("#url").fadeIn();
 										$("#url pre").text(document.URL + "?id=" + id);
     								}
     							})
     						};
-    						
+    						$(that).text('Computing..');
     						setTimeout(function() {
     							$('#menuTab li:nth-child(2) a').attr("data-toggle", "tab").tab('show');
     							compute(id, numIterations, timeoutFunc);
@@ -95,7 +88,10 @@ function initialize() {
     	});
     }
     
-
+    $(document).keydown(function(e){
+    	if (e.keyCode === 27)
+    		$("a[rel=popover]").popover('hide');
+    });
 	
     $('a[data-toggle="tab"]').on('shown', function (e) {
     	$(".alert").hide();
@@ -108,7 +104,7 @@ function initialize() {
     });
     
     function getURLParameter(name) {
-        return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+        return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
     }
     
     function setTextareaMaxrows(maxRows) {
@@ -389,6 +385,7 @@ function initialize() {
 		}, true, function(response){
             json = $.parseJSON(response.responseText);
             $('#classes').html(createClassesTable(json.result));
+            workerSummary(id);
 		});
 	}
 	
@@ -399,7 +396,12 @@ function initialize() {
             'verbose': false
         }, true, function(response) {
             json = $.parseJSON(response.responseText);
+            $("#img-load").fadeOut();
     	    $('#workers').html(createWorkersTable(json.result));
+    	    $("a[rel=popover]").popover({html: true, title: "Confusion matrix", placement: "left"}).click(function(e) {
+    	        e.preventDefault();
+    	    });
+    	    $("#response").show();
         });
 	}
 	
@@ -488,7 +490,7 @@ function initialize() {
 		
 		var tmp = document.createElement("div");
 		tmp.appendChild(tab);
-		return tmp.innerHTML;
+		return _.template($("#popover_template").html(), {content: tmp.innerHTML});
 	};	
 
 	function createCostMatrix(labels) {
