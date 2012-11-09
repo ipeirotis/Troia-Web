@@ -1,6 +1,7 @@
 function initialize() {
 
-	var apiUrl = 'http://localhost:8080/GetAnotherLabel/rest/';
+
+	var apiUrl = 'http://217.113.235.108:8080/GetAnotherLabel/rest/';
 	var id = getURLParameter("id");
 	var categoryList = [];
 	var oldCategoryList = [];
@@ -543,6 +544,40 @@ function initialize() {
 	}
 }
 
+(function ($) {
+  $.fn.rotateTableCellContent = function (options) {
+
+        var cssClass = ((options) ? options.className : false) || "vertical";
+ 
+        var cellsToRotate = $('.' + cssClass, this);
+ 
+        var betterCells = [];
+        cellsToRotate.each(function () {
+            var cell = $(this)
+          , newText = cell.text()
+          , height = cell.height()
+          , width = cell.width()
+          , newDiv = $('<div>', { height: width, width: height }), newInnerDiv = $('<div>', { text: newText, 'class': 'rotated' });
+ 
+            newDiv.append(newInnerDiv);
+ 
+            betterCells.push(newDiv);
+        });
+ 
+        cellsToRotate.each(function (i) {
+            $(this).html(betterCells[i]);
+        });
+    };
+})(jQuery);
+
 $(document).ready(function() {
 	initialize();
+	//$("#workers .table th").each(function(){$(this).height($(this).width())});
+//Basic usage
+$('#workers .table').rotateTableCellContent();
+ 
+//specify class name of cell you want to rotate
+$('#workers .table')
+ .rotateTableCellContent({className: 'whatever'});
+	
 });
