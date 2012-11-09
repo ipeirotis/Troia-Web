@@ -397,12 +397,13 @@ function initialize() {
             'verbose': false
         }, true, function(response) {
             json = $.parseJSON(response.responseText);
-            $("#img-load").fadeOut();
-    	    $('#workers').html(createWorkersTable(json.result));
-    	    $("a[rel=popover]").popover({html: true, title: "Confusion matrix", placement: "left"}).click(function(e) {
-    	        e.preventDefault();
-    	    });
-    	    $("#response").show();
+            $("#img-load").fadeOut(200, function() {
+                $('#workers').html(createWorkersTable(json.result));
+                $("a[rel=popover]").popover({html: true, title: "Confusion matrix", placement: "left"}).click(function(e) {
+                    e.preventDefault();
+                });
+                $("#response").fadeIn(200);
+            });
         });
 	}
 	
