@@ -1,7 +1,7 @@
 function initialize() {
 
 
-	var apiUrl = 'http://217.113.235.108:8080/GetAnotherLabel/rest/';
+	var apiUrl = '/api/';
 	var id = getURLParameter("id");
 	var categoryList = [];
 	var oldCategoryList = [];
