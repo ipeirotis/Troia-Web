@@ -403,6 +403,9 @@ function initialize() {
                     e.preventDefault();
                 });
                 $("#response").fadeIn(200);
+                if (!$("#url pre").text()) {
+				    $("#url pre").text(document.URL);
+                }
                 $("#url").fadeIn(200);
             });
         });
