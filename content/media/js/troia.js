@@ -72,7 +72,6 @@ function initialize() {
     								{
     							    	majorityVotes(id);
 										$(that).removeClass('disabled').text(buttonText);
-										$("#url").fadeIn();
 										$("#url pre").text(document.URL + "?id=" + id);
     								}
     							})
@@ -404,6 +403,7 @@ function initialize() {
                     e.preventDefault();
                 });
                 $("#response").fadeIn(200);
+                $("#url").fadeIn(200);
             });
         });
 	}
