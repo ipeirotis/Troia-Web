@@ -579,5 +579,10 @@ $('#workers .table').rotateTableCellContent();
 //specify class name of cell you want to rotate
 $('#workers .table')
  .rotateTableCellContent({className: 'whatever'});
+ 
+$("#workers .table").createScrollableTable({
+	width: '586px',
+	height: '600px'
+});
 	
 });

@@ -65,6 +65,7 @@
 !!python/unicode 'media/js/less.js': []
 !!python/unicode 'media/js/mwheelIntent.js': []
 !!python/unicode 'media/js/plugin.scrollbar-min.js': []
+!!python/unicode 'media/js/scrolltable.js': []
 !!python/unicode 'media/js/troia.js': []
 !!python/unicode 'media/js/ui.core-1.7.2.js': []
 !!python/unicode 'media/js/underscore.js': []
