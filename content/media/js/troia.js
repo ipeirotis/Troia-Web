@@ -1,7 +1,7 @@
 function initialize() {
 
 
-	var apiUrl = 'http://217.113.235.108:8080/GetAnotherLabel/rest/';
+	var apiUrl = '/api/';
 	var id = getURLParameter("id");
 	var categoryList = [];
 	var oldCategoryList = [];
@@ -72,7 +72,6 @@ function initialize() {
     								{
     							    	majorityVotes(id);
 										$(that).removeClass('disabled').text(buttonText);
-										$("#url").fadeIn();
 										$("#url pre").text(document.URL + "?id=" + id);
     								}
     							})
@@ -93,7 +92,7 @@ function initialize() {
     	if (e.keyCode === 27)
     		$("a[rel=popover]").popover('hide');
     });
-	
+
     $('a[data-toggle="tab"]').on('shown', function (e) {
     	$(".alert").hide();
     	if (e.target.getAttribute('href') === '#matrix')
@@ -397,12 +396,15 @@ function initialize() {
             'verbose': false
         }, true, function(response) {
             json = $.parseJSON(response.responseText);
-            $("#img-load").fadeOut();
-    	    $('#workers').html(createWorkersTable(json.result));
-    	    $("a[rel=popover]").popover({html: true, title: "Confusion matrix", placement: "left"}).click(function(e) {
-    	        e.preventDefault();
-    	    });
-    	    $("#response").show();
+            $("#img-load").fadeOut(200, function() {
+                $('#workers').html(createWorkersTable(json.result));
+                $("a[rel=popover]").popover({html: true, title: "Confusion matrix", placement: "left"}).click(function(e) {
+                    $("a[rel=popover]").not(this).popover('hide');
+                    e.preventDefault();
+                });
+                $("#response").fadeIn(200);
+                $("#url").fadeIn(200);
+            });
         });
 	}
 	

@@ -12,9 +12,6 @@ title: Demo application
 {% block content %}
 
 <div class="row-fluid">
-	<div class="alert alert-error">  
-	  <strong>Error!</strong><p>Troia server not responding.</p>  
-	</div> 
     <div class="span12 no-left-margin relative">
     	<ul class="nav nav-tabs smaller" id="menuTab">
 		    <li class="active"><a href="#input" data-toggle="tab">Input</a></li>
@@ -95,6 +92,9 @@ title: Demo application
 									</div>
 								</div>
 							</div>
+                            <div class="alert alert-error" style="display:none;">  
+                                <strong>Error!</strong><p>Troia server not responding.</p>  
+                            </div> 
 							<div class="form-actions">
 								<span type="button" class="btn btn-info" id="send_data">Process</span>
 							</div>
@@ -109,15 +109,14 @@ title: Demo application
 						<pre></pre>
 					</div>				
 	    		<div id="response">
-					<div class='span4'>
+					<div class="span4">
 						<h3>Predicted labels:</h3>
 						<div id="classes"></div>
 					</div>
-					<div class='span8'>
+					<div class="span8">
 						<h3>Workers estimated statistics:</h3>
 						<div id="workers"></div>
 					</div>
-
 		        </div>
 	    	</div>
 	    </div>
