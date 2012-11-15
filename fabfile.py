@@ -24,23 +24,23 @@ def message(msg, *args, **kwargs):
 def readconf(cpath):
     with open(DEFAULT_PATH, 'r') as cfile:
         conf = json.load(cfile)
-    with open(cpath, 'r') as cfile:
-        conf.update(json.load(cfile))
-        # For shorter notation.
-        cset = conf.setdefault
-        # Set some aux values.
-        cset('project_root', '{projects_root}/{project_name}'.format(**conf))
-        cset('source_root', '{project_root}/source'.format(**conf))
-        cset('static_root', '{project_root}/static'.format(**conf))
-        cset('services_root', '{project_root}/services'.format(**conf))
-        cset('virtualenv_root', '{project_root}/virtualenv'.format(**conf))
-        cset('scripts_root', '{project_root}/scripts'.format(**conf))
-        cset('sql_root', '{project_root}/sql'.format(**conf))
-        cset('tomcat_root', '{services_root}/tomcat'.format(**conf))
-        cset('maven_root', '{services_root}/maven'.format(**conf))
-        cset('hyde_root', '{static_root}/hyde'.format(**conf))
-        return conf
-    raise Exception('Could not read the configuration file')
+    if cpath is not None:
+        with open(cpath, 'r') as cfile:
+            conf.update(json.load(cfile))
+    # For shorter notation.
+    cset = conf.setdefault
+    # Set some aux values.
+    cset('project_root', '{projects_root}/{project_name}'.format(**conf))
+    cset('source_root', '{project_root}/source'.format(**conf))
+    cset('static_root', '{project_root}/static'.format(**conf))
+    cset('services_root', '{project_root}/services'.format(**conf))
+    cset('virtualenv_root', '{project_root}/virtualenv'.format(**conf))
+    cset('scripts_root', '{project_root}/scripts'.format(**conf))
+    cset('sql_root', '{project_root}/sql'.format(**conf))
+    cset('tomcat_root', '{services_root}/tomcat'.format(**conf))
+    cset('maven_root', '{services_root}/maven'.format(**conf))
+    cset('hyde_root', '{static_root}/hyde'.format(**conf))
+    return conf
 
 
 def setmode(path, recursive=False, perms=None, owner=None):
@@ -261,7 +261,7 @@ def deploy_troia_server(confpath=None):
 
 
 @task
-def update_troia_server(confpath=DEFAULT_PATH):
+def update_troia_server(confpath=None):
     conf = readconf(confpath)
     # Upload tomcat configuration file.
     upload_template(
@@ -291,7 +291,7 @@ def update_troia_server(confpath=DEFAULT_PATH):
 
 
 @task
-def generate_apidocs(confpath=DEFAULT_PATH):
+def generate_apidocs(confpath=None):
     conf = readconf(confpath)
     src_root = '{source_root}/Troia-Java-Client'.format(**conf)
     clone_or_update(src_root, conf['troia_client_repo'],
@@ -305,7 +305,7 @@ def generate_apidocs(confpath=DEFAULT_PATH):
 
 
 @task
-def deploy_web(update_env=False, confpath=DEFAULT_PATH):
+def deploy_web(update_env=False, confpath=None):
     ''' Synchronizes the website content with the repository.
         Optionally udates Python's virtual environment. '''
     conf = readconf(confpath)
