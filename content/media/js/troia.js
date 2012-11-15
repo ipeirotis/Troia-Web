@@ -36,8 +36,8 @@ function initialize() {
     	$('#id_data_choose').change(function(){
     		loadTestData($('#id_data_choose :selected').val());
     	});
-    	
-    	$('#send_data').click(function() {
+    
+        var clickHandler = function() {
     		$(".alert").hide();
     		hasErrors = false;
     		// Validate input.
@@ -53,7 +53,6 @@ function initialize() {
     			// Change button.
     	        var buttonText = $(this).text();
     			$(this).addClass('disabled').text('Sending data..');
-
     			var that = this;
     	        // Upload data.
     			loadCostMatrix(id, costMatrix, function() {
@@ -72,6 +71,7 @@ function initialize() {
     								{
     							    	majorityVotes(id);
 										$(that).removeClass('disabled').text(buttonText);
+                                        $(that).one('click', clickHandler);
 										$("#url pre").text(document.URL + "?id=" + id);
     								}
     							})
@@ -85,7 +85,8 @@ function initialize() {
     				});
     			});
     		}
-    	});
+        };
+    	$('#send_data').one('click', clickHandler);
     }
     
     $(document).keydown(function(e){
