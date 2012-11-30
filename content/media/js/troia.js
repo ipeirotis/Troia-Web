@@ -153,7 +153,10 @@ function initialize() {
     function jsonify(data) {
         var result = {};
         for (var key in data) {
-            result[key] = JSON.stringify(data[key]);
+        	if (key !== 'id')
+        		result[key] = JSON.stringify(data[key]);
+        	else
+        		result[key] = data[key];
         };
         return result;
     };
