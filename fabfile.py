@@ -227,10 +227,10 @@ def deploy_troia_server(confpath=None):
     conf = readconf(confpath)
     # Ensure all services are already installed.
     ensure_srv(conf)
-    src_root = '{source_root}/Troia-Server'.format(**conf)
+    src_root = '{source_root}/Troia-Server-{troia_server_repo_branch}'.format(**conf)
     # Update Troia-Server repo.
     clone_or_update(src_root, conf['troia_server_repo'],
-                    conf['troia_server_branch'])
+                    conf['troia_server_repo_branch'])
     maven_cmd = '{maven_root}/bin/mvn package -Dmaven.test.skip=true' \
                 .format(**conf)
 
@@ -243,20 +243,22 @@ def deploy_troia_server(confpath=None):
     maven_build()
     media_root = '{hyde_root}/media'.format(**conf)
     ensure_tree(media_root, ('downloads'))
-    target_path = '{}/target/GetAnotherLabel.war'.format(src_root)
+    
+    target_path = '{}/troia-server/target/{}.war'.format(src_root, conf['war_name'])
     # Copy this file to the downloads directory.
     run('cp {} {}/downloads'.format(target_path, media_root))
     # Replace the properties with custom file.
     upload_template(
         os.path.join(CONF_ROOT, 'troia-server', 'dawidskene.properties'),
-        '{}/src/main/resources/dawidskene.properties'.format(src_root),
+        '{}/troia-server/src/main/resources/dawidskene.properties'.format(src_root),
         context=conf)
     # Again build .war file with custom properties.
     maven_build()
     execute(stop_troia_server, confpath=confpath)
     # Clean and copy .war file to the tomcat's webapps directory.
-    run('rm -rf {tomcat_root}/webapps/GetAnotherLabel*'.format(**conf))
+    run('rm -rf {tomcat_root}/webapps/{final_name}*'.format(**conf))
     run('cp {} {tomcat_root}/webapps'.format(target_path, **conf))
+    run('mv {tomcat_root}/webapps/{war_name}.war {tomcat_root}/webapps/{final_name}.war'.format(**conf))
     execute(start_troia_server, confpath=confpath)
 
 
