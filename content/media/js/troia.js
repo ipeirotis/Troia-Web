@@ -43,7 +43,7 @@ function initialize() {
             // Validate input.
             var workerLabels = parseWorkerAssignedLabels();
             var goldLabels = parseGoldLabels();
-            var costMatrix = parseCostMatrix(categoryList);
+            var categories = parseCostMatrix(categoryList);
             if (!hasErrors && ping()) {
                 id = "troia-web-test-" + new Date().getTime().toString() + "-" + parseInt(Math.random()*1000000000000);
                 // If job exists, reset it.
@@ -55,30 +55,23 @@ function initialize() {
                 $(this).addClass('disabled').text('Sending data..');
                 var that = this;
                 // Upload data.
-                loadCostMatrix(id, costMatrix, function() {
-                    loadWorkerAssignedLabels(id, workerLabels, function() {
-                        loadGoldLabels(id, goldLabels, function() {
-                            // Compute and get answer.
-                            $("#img-load").show();
-                            $("#response").hide();
-                            timeoutFunc = function() {
-                                isComputed(id, function(res2) {
-                                    json = $.parseJSON(res2.responseText);
-                                    if(!json.result) {
-                                        setTimeout(timeoutFunc, 500);
-                                    } else {
-                                        majorityVotes(id);
-                                        $(that).removeClass('disabled').text(buttonText);
-                                        $(that).one('click', clickHandler);
-                                        $("#url pre").text(document.URL + "?id=" + id);
-                                    }
-                                })
-                            };
-                        $(that).text('Computing..');
-                        setTimeout(function() {
-                            $('#menuTab li:nth-child(2) a').attr("data-toggle", "tab").tab('show');
-                            compute(id, numIterations, timeoutFunc);
-                        }, 4000);
+                createJob(id, function(){
+                    loadCategories(id, categories, function() {
+                        loadWorkerAssignedLabels(id, workerLabels, function() {
+                            loadGoldLabels(id, goldLabels, function() {
+                                // Compute and get answer.
+                                $("#img-load").show();
+                                $("#response").hide();
+                                $(that).text('Computing..');
+                                $('#menuTab li:nth-child(2) a').attr("data-toggle", "tab").tab('show');
+
+                                compute(id,  numIterations, function() {
+                                    $(that).removeClass('disabled').text(buttonText);
+                                    $(that).one('click', clickHandler);
+                                    $("#url pre").text(document.URL + "?id=" + id);
+                                    majorityVotes(id);
+                                });
+                            });
                         });
                     });
                 });
@@ -91,17 +84,17 @@ function initialize() {
 
     $(document).keydown(function(e){
         if (e.keyCode === 27)
-        $("a[rel=popover]").popover('hide');
+            $("a[rel=popover]").popover('hide');
     });
 
     $('a[data-toggle="tab"]').on('shown', function (e) {
         $(".alert").hide();
         if (e.target.getAttribute('href') === '#matrix')
-    {
-        parseWorkerAssignedLabels();
-        if (!_.isEqual(oldCategoryList, categoryList))
-        createCostMatrix(categoryList);
-    }
+        {
+            parseWorkerAssignedLabels();
+            if (!_.isEqual(oldCategoryList, categoryList))
+            createCostMatrix(categoryList);
+        }
     });
 
     function getURLParameter(name) {
@@ -161,10 +154,15 @@ function initialize() {
         return result;
     };
 
+    function ajax_error(jqXHR, textStatus, errorThrown){
+        $(".alert p").text("Troia server error (" + errorThrown.toString() + ").");
+        $(".alert").show();
+    }
+
     /** Performs a POST request. */
-    function post(url, data, async, success) {
+    function post(url, data, async, success, redirect, id) {
         if (!success) {
-            success == function(data, textStatus, jqXHR) {
+            success = function(data, textStatus, jqXHR) {
                 console.debug('POST request complete');
             }
         }
@@ -173,17 +171,20 @@ function initialize() {
             type: 'post',
             async: async,
             data: jsonify(data),
-            complete: success,
-            error: function(jqXHR, textStatus, errorThrown) {
-                $(".alert p").text("Troia server error (" + errorThrown.toString() + ").");
-                $(".alert").show();
-            }
+            complete: function(res) {
+                if(redirect){
+                    redirect_func(id, res, success);
+                }
+                else
+                    success(res);
+            },
+            error: ajax_error
         });
     };
 
     /** Performs a POST request. Sends data in chunks but only along specified
      * axis (field). */
-    function postInAxisChunks(url, data, axis, async, offset, success) {
+    function postInAxisChunks(url, data, axis, async, offset, success, id) {
         var newData = jQuery.extend({}, data);
         var limit = Math.min(chunkSize, data[axis].length - offset);
         newData[axis] = newData[axis].slice(offset, offset + limit);
@@ -191,22 +192,16 @@ function initialize() {
             var p = Math.min(Math.floor(100*(offset+limit)/data[axis].length), 100);
             $('#send_data').text("Sending " + axis + " (" + p.toString() + "%)...");
             if (offset+limit < data[axis].length)
-            postInAxisChunks(url, data, axis, async, offset+limit, success);
+                postInAxisChunks(url, data, axis, async, offset+limit, success, id);
             else
-            success();
-        });
+                success();
+        }, true, id);
     }
 
-    function get(url, data, async, complete, error) {
+    function get(url, data, async, complete, error, redirect, id) {
         if (!complete) {
             complete = function(res){
                 console.debug('GET request complete');
-            };
-        }
-        if (!error) {
-            error = function(jqXHR, textStatus, errorThrown) {
-                $(".alert p").text("Troia server error (" + errorThrown.toString() + ").");
-                $(".alert").show();
             };
         }
         $.ajax({
@@ -214,9 +209,34 @@ function initialize() {
         type: 'get',
         async: async,
         data: jsonify(data),
-        complete: complete,
-        error: error
+        complete: function(res) {
+            if(redirect){
+                redirect_func(id, res, complete);
+            }
+            else
+                complete(res);
+        },
+        error: error ? error : ajax_error
         });
+    };
+
+    function redirect_func(id, res, success) {
+        timeoutf = function(){
+            json = $.parseJSON(res.responseText);
+            $.ajax({
+                url: apiUrl + 'jobs/' + id + "/status/" + json.redirect,
+                type: 'get',
+                complete: function(res) {
+                    if (res.statusText === "OK")
+                        success(res);
+                    else
+                        setTimeout(timeoutf, 500);
+
+                },
+                error: ajax_error
+            });
+        }
+        setTimeout(timeoutf, 500);
     };
 
     function misclassificationCost(labels, label) {
@@ -325,55 +345,52 @@ function initialize() {
         return data;
     };
 
+    function createJob(id, success) {
+        post('jobs', {
+            'id': id
+        }, true, success, false);
+    };
+
     function loadWorkerAssignedLabels(id, labels, success) {
-        postInAxisChunks('loadWorkerAssignedLabels', {
-            'id': id,
+        postInAxisChunks('jobs/' + id + '/assignedLabels', {
             'labels': labels
-        }, "labels", true, 0, success);
+        }, "labels", true, 0, success, id);
     };
 
     function loadGoldLabels(id, labels, success) {
         if (labels)
-            postInAxisChunks('loadGoldLabels', {
-                'id': id,
+            postInAxisChunks('jobs/' + id + "/goldData", {
                 'labels': labels
-            }, "labels", true, 0, success);
+            }, "labels", true, 0, success, id);
     };
 
-    function loadCostMatrix(id, costMatrix, success) {
-        post('loadCategories', {
-            'id': id,
-            'categories': costMatrix
-        }, true, success);
+    function loadCategories(id, categories, success) {
+        post('jobs/' + id + '/categories', {
+            'categories': categories
+        }, true, success, true, id);
     };
 
-    function compute(id, numIterations, func) {
-        get('computeNotBlocking', {
-            'id': id,
+    function compute(id, numIterations, success) {
+        post('jobs/' + id + '/compute', {
             'iterations': numIterations
-        }, true, func);
+        }, true, success, true, id);
     }
 
-    function isComputed(id, func) {
-        get('isComputed', {
-            'id': id
-        }, true, func);
-    }
-
+    //TODO:
     function exists(id) {
         ret = false;
-        get('exists', {
-            'id': id
-        }, false, function (res){
-            json = $.parseJSON(res.responseText);
-            ret = json.result;
-        });
+//        get('exists', {
+//            'id': id
+//        }, false, function (res){
+//            json = $.parseJSON(res.responseText);
+//            ret = json.result;
+//        });
         return ret;
     }
 
     function ping() {
         ret = null;
-        get('ping', {}, false, function() {
+        get('status/ping', {}, false, function() {
             if (ret === null) {
                 ret = true;
             }
@@ -381,26 +398,21 @@ function initialize() {
             ret = false;
             $(".alert p").text("Troia server error (" + errorThrown.toString() + ").");
             $(".alert").show();
-        });
+        }, false);
         return ret;
     }
 
     function majorityVotes(id) {
-        get('majorityVotes', {
-            'id': id
-        }, true, function(response){
+        get('jobs/' + id + '/prediction/MV/data', {}, true, function(response){
             json = $.parseJSON(response.responseText);
             $('#classes').html(createClassesTable(json.result));
             workerSummary(id);
-        });
+        }, ajax_error, true, id);
     }
 
     function workerSummary(id)
     {
-        get('printWorkerSummary', {
-            'id': id,
-        'verbose': false
-        }, true, function(response) {
+        get('jobs/' + id + '/prediction/workers', {}, true, function(response) {
             json = $.parseJSON(response.responseText);
             $("#img-load").fadeOut(200, function() {
                 $('#workers').html(createWorkersTable(json.result));
@@ -414,14 +426,15 @@ function initialize() {
                 }
                 $("#url").fadeIn(200);
             });
-        });
+        }, ajax_error, true, id);
     }
 
+    //TODO:
     function reset(id)
     {
-        get('reset', {
-            'id': id
-        });
+//        get('reset', {
+//            'id': id
+//        });
     }
 
     function createClassesTable(classes) {
@@ -431,79 +444,11 @@ function initialize() {
     };
 
     function createWorkersTable(data) {
-        var regex = /Worker: ([0-9a-zA-Z]+)\nError Rate: (\d+.\d*%)\nQuality \(Expected\): (---|\d+.\d*%)\nQuality \(Optimized\): (\-\-\-|\d+.\d*%)\nNumber of Annotations: (\d+)\nNumber of Gold Tests: (\d+)\nConfusion Matrix: \n(^(.)+\n)*/mg;
-        var regexc = /Worker: ([0-9a-zA-Z]+)\nError Rate: (\d+.\d*%)\nQuality \(Expected\): (---|\d+.\d*%)\nQuality \(Optimized\): (\-\-\-|\d+.\d*%)\nNumber of Annotations: (\d+)\nNumber of Gold Tests: (\d+)\nConfusion Matrix: \n((.|\n)*)/m;
-        var result = [];
-        var matrix_regex = /P\[([0-9a-zA-Z]+)\->([0-9a-zA-Z]+)\]=(\d+.\d*%)/mg;
-        var matrix_regexc = /P\[([0-9a-zA-Z]+)\->([0-9a-zA-Z]+)\]=(\d+.\d*%)/m;
-        var labels = [];
-        _.each(data.match(regex), function(m) {
-            res = regexc.exec(m);
-            matrix_res = [];
-            _.each(res[7].match(matrix_regex), function(m) {
-                matrix_res.push(matrix_regexc.exec(m));
-            });
-            if (!_.size(categoryList)) {
-                _.each(matrix_res, function (el){
-                    labels.push(el[1]);
-                });
-                categoryList = _.uniq(labels);
-            }
-            res[7] = createConfusionMatrix(categoryList, matrix_res);
-            result.push(res);
-        });		
-        return _.template($("#workers_template").html(), {workers: result} );
+        _.each(data, function(d){
+            d['cm'] = _.template($("#confusion_matrix_template").html(), {categories: categoryList, data: d['Confusion Matrix']} );
+        });
+        return _.template($("#workers_template").html(), {workers: data} );
     }
-
-    function createConfusionMatrix(labels, matrix_res) {
-        row = new Array();
-        cell = new Array();
-        row_num = labels.length;
-        cell_num = labels.length;
-
-        tab=document.createElement('table');
-        tbo=document.createElement('tbody');
-
-        //header
-        row = document.createElement('tr');
-        row.appendChild(document.createElement('td'))
-            for(k=0;k<cell_num;k++) {
-                cell=document.createElement('td');
-                cont = document.createTextNode(labels[k])
-                    cell.appendChild(cont);
-                row.appendChild(cell);
-            }
-        tbo.appendChild(row);
-
-        //body
-        for(c=0;c<row_num;c++){
-            row[c]=document.createElement('tr');
-            cell=document.createElement('td');
-            cont = document.createTextNode(labels[c]);
-            cell.appendChild(cont);
-            row[c].appendChild(cell);
-
-            for(k=0;k<cell_num;k++) {
-                cell[k]=document.createElement('td');
-                //				var val = 0;
-                //				for (x=0; x<cell_num*cell_num; x++)
-                //					if (matrix_res[x][1] === labels[c] && matrix_res[x][2] === labels[k])
-                //					{
-                //						val = matrix_res[x][3];
-                //						break;
-                //					}
-                cont=document.createTextNode(matrix_res[c*cell_num + k][3]);
-                cell[k].appendChild(cont);
-                row[c].appendChild(cell[k]);
-            }
-            tbo.appendChild(row[c]);
-        }
-        tab.appendChild(tbo);
-
-        var tmp = document.createElement("div");
-        tmp.appendChild(tab);
-        return _.template($("#popover_template").html(), {content: tmp.innerHTML});
-    };	
 
     function createCostMatrix(labels) {
         $('#cost_matrix').empty();

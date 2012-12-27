@@ -155,19 +155,42 @@ title: Demo application
 					<th class="small">Number of Gold Tests</th>
 					<th>Confusion Matrix</th>
 				</tr>
-			<% 	for (var i = 0; i < workers.length; i++) { %>
+			    <% 	for (var i = 0; i < workers.length; i++) { %>
 				<tr>
-				<% 	for (var j = 1; j < workers[i].length -1; j++) { %>
-					<td><%= workers[i][j] %></td>
-						<% }; %>
+                    <td><%= workers[i]['Worker'] %></td>
+                    <td><%= workers[i]['Error rate'] %></td>
+                    <td><%= workers[i]['Quality (Expected)'] %></td>
+                    <td><%= workers[i]['Quality (Optimized)'] %></td>
+                    <td><%= workers[i]['Number of Annotations'] %></td>
+                    <td><%= workers[i]['Number of Gold Tests'] %></td>
+                    <td>
+                        <a href="#" class="btn-small" data-content="<%= workers[i]['cm'] %>" rel="popover"><i class="icon-search"></i></a>
+                    </td>
 				</tr>
-			<% }; %>
+			    <% }; %>
 			</table>
 			</div>
 		</script>
-		<script type="text/template" id="popover_template">
-			<a href="#" class="btn-small" data-content="<%= content %>" rel="popover"><i class="icon-search"></i></a>
-		</script>
+        <script type="text/template" id="confusion_matrix_template">
+            <table>
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <% 	for (var i = 0; i < categories.length; i++) { %>
+                        <td><%= categories[i] %></td>
+                        <% } %>
+                    </tr>
+                    <% 	for (var i = 0; i < categories.length; i++) { %>
+                    <tr>
+                        <td><%= categories[i] %></td>
+                        <% 	for (var j = 0; j < categories.length; j++) { %>
+                        <td><%= data[i*categories.length + j]['value'] %>%</td>
+                        <% } %>
+                    </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </script>
     </div>
 </div>
 {% endblock %}
