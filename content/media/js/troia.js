@@ -46,10 +46,6 @@ function initialize() {
             var categories = parseCostMatrix(categoryList);
             if (!hasErrors && ping()) {
                 id = "troia-web-test-" + new Date().getTime().toString() + "-" + parseInt(Math.random()*1000000000000);
-                // If job exists, reset it.
-                if(exists(id)) {
-                    reset(id);
-                }
                 // Change button.
                 var buttonText = $(this).text();
                 $(this).addClass('disabled').text('Sending data..');
@@ -206,17 +202,17 @@ function initialize() {
         }
         $.ajax({
             url: apiUrl + url,
-        type: 'get',
-        async: async,
-        data: jsonify(data),
-        complete: function(res) {
-            if(redirect){
-                redirect_func(id, res, complete);
-            }
-            else
-                complete(res);
-        },
-        error: error ? error : ajax_error
+            type: 'get',
+            async: async,
+            data: jsonify(data),
+            complete: function(res) {
+                if(redirect){
+                    redirect_func(id, res, complete);
+                }
+                else
+                    complete(res);
+            },
+            error: error ? error : ajax_error
         });
     };
 
@@ -376,15 +372,18 @@ function initialize() {
         }, true, success, true, id);
     }
 
-    //TODO:
     function exists(id) {
-        ret = false;
-//        get('exists', {
-//            'id': id
-//        }, false, function (res){
-//            json = $.parseJSON(res.responseText);
-//            ret = json.result;
-//        });
+        $.ajax({
+            url: apiUrl + 'jobs/' + id,
+            type: 'get',
+            async: false,
+            complete: function (res){
+                ret = true;
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                ret = false;
+            }
+        });
         return ret;
     }
 
@@ -427,14 +426,6 @@ function initialize() {
                 $("#url").fadeIn(200);
             });
         }, ajax_error, true, id);
-    }
-
-    //TODO:
-    function reset(id)
-    {
-//        get('reset', {
-//            'id': id
-//        });
     }
 
     function createClassesTable(classes) {

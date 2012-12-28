@@ -12,7 +12,7 @@
     "python": "/usr/bin/python2.7",
     "tomcat_url": "http://ftp.ps.pl/pub/apache/tomcat/tomcat-7/v7.0.29/bin/apache-tomcat-7.0.29.tar.gz",
     "maven_url": "http://www.apache.org/dyn/closer.cgi?path=/maven/binaries/apache-maven-3.0.4-bin.tar.gz",
-    "tomcat_port": "8080"
+    "tomcat_port": "8080",
 
     "war_name": "troia-server-0.0.1",
     "final_name": "troia-dev"
