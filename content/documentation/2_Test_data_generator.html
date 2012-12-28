@@ -10,14 +10,14 @@ title: Test data generator
 {% restructuredtext %}
 
 What is topic of this tutorial
-______________________________
+==============================
 
 This tutorial is written to help you understand how
 to use test data generator to either generate test data 
 files or as a part of your program.
 
 Test data generator installation
-________________________________
+================================
 
 To install this software you will need following programs:
 
@@ -42,7 +42,7 @@ install it correctly you need to get also the sources of `Troia Java Client`__
 __ component_
 
 How to generate data files from command line
-____________________________________________
+********************************************
 
 To generate test data you must call executable jar from command line, so
 minimal command will look like this
@@ -75,7 +75,7 @@ After setting up all parameters generator will create four files.
 Where basename is string given with parameter -t 
 
 basename_aiworker.json
-**********************
+----------------------
 
 This file contains collection of workers with confusion matrices in
 JSON format. The structure of those classes is the following:
@@ -92,7 +92,7 @@ where ``AiWorker`` contains two fields:
 ``ConfusionMatrix`` is simply ``Map<String,Map<String,Double>>``
 
 basename_goldLabels.txt
-***********************
+-----------------------
 
 Contains gold labels in format 
 ::
@@ -100,7 +100,7 @@ Contains gold labels in format
   <object name><tabulation><category name>
 
 basename_labels.txt
-*******************
+-------------------
 
 Contains labels assigned to objects by artificial workers.
 This file is formatted as:
@@ -109,7 +109,7 @@ This file is formatted as:
   <worker name><tabulation><object name><tabulation><category name>
 
 basename_objects.txt
-********************
+--------------------
 
 Contains objects that are included in test, each of those objects
 have correct category assigned so it will be possible to compute
@@ -120,7 +120,7 @@ Format of this file is as follows:
   <object name><tabulation><category name>
 
 Configuration file
-__________________
+******************
 
 If you don't want to enter test parameters from console you can use
 configuration file. It is simple Java .properties file that contains
