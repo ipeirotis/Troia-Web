@@ -243,7 +243,6 @@ def deploy_troia_server(confpath=None):
     maven_build()
     media_root = '{hyde_root}/media'.format(**conf)
     ensure_tree(media_root, ('downloads'))
-    
     target_path = '{}/troia-server/target/{}.war'.format(src_root, conf['war_name'])
     # Copy this file to the downloads directory.
     run('cp {} {}/downloads'.format(target_path, media_root))
