@@ -402,7 +402,7 @@ function initialize() {
     }
 
     function majorityVotes(id) {
-        get('jobs/' + id + '/prediction/MV/data', {}, true, function(response){
+        get('jobs/' + id + '/prediction/data', {}, true, function(response){
             json = $.parseJSON(response.responseText);
             $('#classes').html(createClassesTable(json.result));
             workerSummary(id);
