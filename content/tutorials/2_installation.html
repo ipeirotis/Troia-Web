@@ -63,7 +63,7 @@ To check if everything is working correctly you can open service that will ping 
 
 ::
   
-    http://localhost:8080/GetAnotherLabel/rest/ping
+    http://localhost:8080/troia-server-0.0.1/status/ping
 
 Setting up a DB
 ---------------
@@ -84,7 +84,7 @@ You have to enter directory in with you want to have Troia sources downloaded to
 
 ::
  
-    git clone https://github.com/ipeirotis/Troia-Server
+    git clone git://github.com/ipeirotis/Troia-Server.git
 
 It will download all files from git repository into "Troia" directory so if command was issued from 
 */home/username/Documents* folder source files will end up with */home/username/Documents/Troia* as a 
@@ -105,7 +105,7 @@ simply run maven without tests by calling a command with addnotational parameter
 
     mvn package -Dmaven.test.skip=true 
 
-As a result *target* directory will appear, in it should be file called **GetAnotherLabel.war**.
+As a result *target* directory will appear, in it should be file called **troia-server-0.0.1.war**.
 
  
 
