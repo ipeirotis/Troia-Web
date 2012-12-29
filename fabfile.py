@@ -181,6 +181,7 @@ def generate(src, dst):
 @task
 def update_server(confpath=None):
     """Reloads web server configuration and restart the server."""
+    raise NotImplementedError("This command is temporary disabled.")
     conf = readconf(confpath)
     apath = '/etc/nginx/sites-available/troia'
     epath = '/etc/nginx/sites-enabled/troia'
