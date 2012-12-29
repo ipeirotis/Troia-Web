@@ -1,6 +1,6 @@
 ---
 extends: skeleton/_base.html
-title: Yet another tutorial
+title: Base tutorial
 ---
 
 {% block content %}
@@ -34,7 +34,8 @@ Load categories
 We send cost matrix that contains all labels/categories. We should do this after job creation but only ones (later calls will be omitted).
 ::
 
-    curl -X POST -H "Content-Type: application/json" -d 'categories=
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/troia_tutorial/categories"
+    -d 'categories=
     [{
         "prior":"1",
         "name":"porn",
@@ -51,7 +52,7 @@ We send cost matrix that contains all labels/categories. We should do this after
             "porn":"1",
             "notporn":"0"
         }
-    }]' "http://project-troia.com/api/jobs/troia_tutorial/categories"
+    }]'
 
 As a result we get JSON:
 ::
@@ -77,13 +78,15 @@ As a result we get another JSON:
         "status":"OK"
     }
 
+This way of getting command results concerns all of the following methods.
 
 Load assigned labels
 --------------------
 Send labels that worker assigned to objects.
 ::
 
-    curl -X POST -H "Content-Type: application/json" -d 'labels=
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/troia_tutorial/assignedLabels"
+    -d 'labels=
     [{
         "workerName":"worker1",
         "objectName":"http://sunnyfun.com",
@@ -208,7 +211,7 @@ Send labels that worker assigned to objects.
         "workerName":"worker5",
         "objectName":"http://yahoo.com",
         "categoryName":"porn"
-    }]' "http://project-troia.com/api/jobs/troia_tutorial/assignedLabels"
+    }]'
 
 
 Load gold labels
@@ -216,11 +219,12 @@ Load gold labels
 Send samples for which we know correct label
 ::
 
-    curl -X POST -H "Content-Type: application/json" -d 'labels=
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/troia_tutorial/goldData"
+    -d 'labels=
     [{
         "correctCategory": "notporn",
         "objectName": "http://google.com"
-    }]' "http://project-troia.com/api/jobs/troia_tutorial/goldData"
+    }]'
 
 Start compute
 -------------
