@@ -183,9 +183,17 @@ title: Demo application
                     <% 	for (var i = 0; i < categories.length; i++) { %>
                     <tr>
                         <td><%= categories[i] %></td>
-                        <% 	for (var j = 0; j < categories.length; j++) { %>
-                        <td><%= data[i*categories.length + j]['value'] %>%</td>
-                        <% } %>
+                        <% 	for (var j = 0; j < categories.length; j++) {
+                                for (var k = 0; k < data.length; k++) {
+                                    if (data[k]['from'] === categories[i] && data[k]['to'] === categories[j]) {
+                                        %>
+                                        <td><%= data[k]['value'] %>%</td>
+                                        <%
+                                        break;
+                                    }
+                                }
+                            }
+                        %>
                     </tr>
                     <% } %>
                 </tbody>

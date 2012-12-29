@@ -1,7 +1,7 @@
 function initialize() {
 
 
-    var apiUrl = '/api/';
+    var apiUrl = 'http://localhost:8080/troia-server-0.0.1/';
     var id = getURLParameter("id");
     var categoryList = [];
     var oldCategoryList = [];
@@ -435,6 +435,14 @@ function initialize() {
     };
 
     function createWorkersTable(data) {
+        if (categoryList.length === 0){
+            categories = [];
+            _.each(data[0]['Confusion Matrix'], function(el){
+                categories.push(el['from']);
+            });
+            categoryList = _.uniq(categories);
+        }
+        categoryList = _.sortBy(categoryList);
         _.each(data, function(d){
             d['cm'] = _.template($("#confusion_matrix_template").html(), {categories: categoryList, data: d['Confusion Matrix']} );
         });
