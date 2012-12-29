@@ -159,8 +159,9 @@ def compile(input_dir, output_dir, files=[]):
 
 def generate(src, dst):
     message(colors.blue('Generating static content'))
-    # Clear the static subdirectory.
-    run('rm -rf {}'.format(dst))
+    # Clear the static subdirectory (without downloads).
+    run('rm -rf {}/{{documentation,tutorials}}'.format(dst))
+    run('rm -rf {}/media/{{css,img,less,js,txt}}'.format(dst))
     run('mkdir -p {}'.format(dst))
     # Generate the static content.
     run('hyde -s \'{0}\' gen -d \'{1}\' -c \'{0}/production.yaml\''.format(src, dst))
