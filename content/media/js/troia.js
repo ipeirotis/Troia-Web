@@ -1,7 +1,7 @@
 function initialize() {
 
 
-    var apiUrl = 'http://localhost:8080/troia-server-0.0.1/';
+    var apiUrl = '/api/';
     var id = getURLParameter("id");
     var categoryList = [];
     var oldCategoryList = [];
