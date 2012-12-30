@@ -51,22 +51,20 @@ function initialize() {
                 $(this).addClass('disabled').text('Sending data..');
                 var that = this;
                 // Upload data.
-                createJob(id, function(){
-                    loadCategories(id, categories, function() {
-                        loadWorkerAssignedLabels(id, workerLabels, function() {
-                            loadGoldLabels(id, goldLabels, function() {
-                                // Compute and get answer.
-                                $("#img-load").show();
-                                $("#response").hide();
-                                $(that).text('Computing..');
-                                $('#menuTab li:nth-child(2) a').attr("data-toggle", "tab").tab('show');
+                createJob(id, categories, function(){
+                    loadWorkerAssignedLabels(id, workerLabels, function() {
+                        loadGoldLabels(id, goldLabels, function() {
+                            // Compute and get answer.
+                            $("#img-load").show();
+                            $("#response").hide();
+                            $(that).text('Computing..');
+                            $('#menuTab li:nth-child(2) a').attr("data-toggle", "tab").tab('show');
 
-                                compute(id,  numIterations, function() {
-                                    $(that).removeClass('disabled').text(buttonText);
-                                    $(that).one('click', clickHandler);
-                                    $("#url pre").text(document.URL + "?id=" + id);
-                                    majorityVotes(id);
-                                });
+                            compute(id,  numIterations, function() {
+                                $(that).removeClass('disabled').text(buttonText);
+                                $(that).one('click', clickHandler);
+                                $("#url pre").text(document.URL + "?id=" + id);
+                                majorityVotes(id);
                             });
                         });
                     });
@@ -341,9 +339,10 @@ function initialize() {
         return data;
     };
 
-    function createJob(id, success) {
+    function createJob(id, categories, success) {
         post('jobs', {
-            'id': id
+            'id': id,
+            'categories': categories
         }, true, success, false);
     };
 
@@ -358,12 +357,6 @@ function initialize() {
             postInAxisChunks('jobs/' + id + "/goldData", {
                 'labels': labels
             }, "labels", true, 0, success, id);
-    };
-
-    function loadCategories(id, categories, success) {
-        post('jobs/' + id + '/categories', {
-            'categories': categories
-        }, true, success, true, id);
     };
 
     function compute(id, numIterations, success) {
