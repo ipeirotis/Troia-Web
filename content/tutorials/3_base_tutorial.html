@@ -252,6 +252,14 @@ To collect workers results we call:
 Stats include workers error rate, quality (both optimized and exptected), number of annotations, number of gold tests and their confusion matrix.
 
 To see what are the most likely categories for data use:
+::
+
+    curl -X GET "http://project-troia.com/api/jobs/troia_tutorial/prediction/data?algorithm=DS&labelChoosing=MaxLikelihood"
+
+As you can see there are two parameters:
+
+- **algorithm**, which have two possible values: default *DS* (DawidSkene), *MV* (MajorityVote),
+- **labelChoosing**, which have two passible values: default *MaxLikelihood*, *MinCost*.
 
 {% endrestructuredtext %}
 
