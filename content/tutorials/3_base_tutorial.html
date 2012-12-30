@@ -16,26 +16,7 @@ Create job
 To create new job with **id** *troia_tutorial* simply enter:
 ::
 
-    curl -X POST -d "id=troia_tutorial&type=batch" "http://project-troia.com/api/jobs"
-
-As you can see there's another parameter **type**, which have two possible values: *batch, incremental* determinig type of DawidSkene.
-
-As a result we get JSON:
-::
-
-    {
-        "timestamp":"2012-12-29T12:27:28.926Z",
-        "result":"New job created with ID: troia_tutorial",
-        "status":"OK"
-    }
-
-Load categories
----------------
-We send cost matrix that contains all labels/categories. We should do this after job creation but only ones (later calls will be omitted).
-::
-
-    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/troia_tutorial/categories"
-    -d 'categories=
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs" -d 'id=troia_tutorial&type=batch&categories=
     [{
         "prior":"1",
         "name":"porn",
@@ -54,39 +35,25 @@ We send cost matrix that contains all labels/categories. We should do this after
         }
     }]'
 
+We need also send collection of **categories**, containing their names, priorities and misclassification costs matrix.
+As you can see there's another, optional parameter **type**, which have two possible values: *batch, incremental* determinig type of DawidSkene.
+
 As a result we get JSON:
 ::
 
     {
-        "timestamp":"2012-12-29T13:14:41.299Z",
-        "status":"OK",
-        "redirect":"1"
-    }
-
-That means we need to call:
-::
-
-    curl -X GET "http://project-troia.com/api/jobs/troia_tutorial/status/1"
-
-to see what is the status of calling load categories method.
-As a result we get another JSON:
-::
-
-    {
-        "timestamp":"2012-12-29T13:22:09.849Z",
-        "result":"Categories added",
+        "timestamp":"2012-12-29T12:27:28.926Z",
+        "result":"New job created with ID: troia_tutorial",
         "status":"OK"
     }
 
-This way of getting command results concerns all of the following methods.
 
 Load assigned labels
 --------------------
 Send labels that worker assigned to objects.
 ::
 
-    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/troia_tutorial/assignedLabels"
-    -d 'labels=
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/troia_tutorial/assignedLabels" -d 'labels=
     [{
         "workerName":"worker1",
         "objectName":"http://sunnyfun.com",
@@ -213,14 +180,38 @@ Send labels that worker assigned to objects.
         "categoryName":"porn"
     }]'
 
+As a result we get JSON:
+::
+
+    {
+        "timestamp":"2012-12-29T13:14:41.299Z",
+        "status":"OK",
+        "redirect":"1"
+    }
+
+That means we need to call:
+::
+
+    curl -X GET "http://project-troia.com/api/jobs/troia_tutorial/status/1"
+
+to see what is the status of calling load assigned labels method.
+As a result we get another JSON:
+::
+
+    {
+        "timestamp":"2012-12-29T13:22:09.849Z",
+        "result":"Assigns added",
+        "status":"OK"
+    }
+
+This way of getting command results concerns all of the following methods.
 
 Load gold labels
 ----------------
 Send samples for which we know correct label
 ::
 
-    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/troia_tutorial/goldData"
-    -d 'labels=
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/troia_tutorial/goldData" -d 'labels=
     [{
         "correctCategory": "notporn",
         "objectName": "http://google.com"
