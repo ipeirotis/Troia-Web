@@ -3,14 +3,22 @@ extends: skeleton/_base.html
 title: Release Notes 
 ---
 
+{% block header %}
+<div class="row btn-wrapper" style="margin-left: auto; margin-right: auto">
+    <a href="/media/downloads/troia-server-{{ app_version }}.war" class="btn btn-info" style="margin-top: 20px">Download Troia {{ app_version }}</a>
+</div>
+{% endblock %}
+
 {% block content %}
 
 <div class="row-fluid">
     <div class="span12">
-		{% restructuredtext %}
-        
-Troia 1.0.1
-===========
+
+        {% restructuredtext %}
+
+
+Troia {{ app_version }}
+=======================
 
 - new version of REST api
 - asynchonous endpoints
