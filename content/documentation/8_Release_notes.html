@@ -20,9 +20,53 @@ title: Release Notes
 Troia {{ app_version }}
 =======================
 
-- new version of REST api
-- asynchonous endpoints
-- concurrent performance
+This is the first release of Troia Quality Control API for crowdsourcing
+applications.
+
+Features included in this release.
+
+Data and Data Management
+------------------------
+
+- Ability to upload data that have no labels assigned.
+- Data persistence
+
+Labeling Quality Evaluation Algorithms
+--------------------------------------
+
+- Dawid Skene (Default)
+- Majority Voting
+
+The algorithms above provide probability distribution estimates over all labels for
+each object.
+
+Label Choosing Methods
+----------------------
+
+- **Minimum Cost**: A method that selects the label(s) that minimize the overall misclassification cost.
+- **Maximum Likelihood**: A method that selects label(s) with the highest probability as compared to the gold data.
+- **Default**: A method that uses the probability estimates by the labeling quality evaluation algorithms.
+
+*Both Minimum Cost and Maximum Likelihood methods return the same results
+when misclassification costs are equal.*
+
+Metrics
+-------
+
+- **Estimated**: Metrics related to the performance of the algorithm per se for the input data provided.
+- **Evaluated**: Metrics based on evaluation data that used as benchmark for the actual algorithmic output.
+
+Input Data Metrics
+------------------
+
+- **Data Cost**: The expected misclassification cost for any given data point.
+- **Data Quality**: A normalized version of the data cost.
+
+Worker Quality Metrics
+----------------------
+
+- **Worker Cost**: The expected misclassification cost of the worker for any given labeling task.
+- **Worker Quality**: A normalized version of the worker cost metric.
 
 		{% endrestructuredtext %}
     </div>
