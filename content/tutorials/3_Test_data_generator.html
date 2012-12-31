@@ -25,21 +25,22 @@ To install this software you will need following programs:
 - maven - http://maven.apache.org/
 
 After setting up environment you must get the repository from GitHub. It is
-stored at https://github.com/ipeirotis/Troia-Tester.
+stored in Troia Server repository at https://github.com/ipeirotis/Troia-Server.
 
 In order to download it, you must execute 
 ::
 
-  git clone git://github.com/ipeirotis/Troia-Tester.git 
+  git clone git://github.com/ipeirotis/Troia-Server.git
 
 command. 
 
-Troia Data Generator depends on another component_, so in order to be able to
-install it correctly you need to get also the sources of `Troia Java Client`__
+Now go to troia-data-generator folder and build jar file:
+::
 
-.. _component: https://github.com/ipeirotis/Troia-Java-Client
+    cd troia-data-generator
+    mvn package
 
-__ component_
+You can find troia-data-generator-0.5.jar file in target folder.
 
 How to generate data files from command line
 ********************************************
@@ -48,7 +49,7 @@ To generate test data you must call executable jar from command line, so
 minimal command will look like this
 ::
 
- java -jar target/TestDataGenerator-0.5.jar 
+ java -jar target/troia-data-generator-0.5.jar
 
 This will display help that lists available parameters with
 are:
