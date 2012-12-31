@@ -14,6 +14,6 @@
     "maven_url": "http://www.apache.org/dyn/closer.cgi?path=/maven/binaries/apache-maven-3.0.4-bin.tar.gz",
     "tomcat_port": "8080",
 
-    "war_name": "troia-server-0.0.1",
+    "war_name": "troia-server-0.8",
     "final_name": "troia-dev"
 }
