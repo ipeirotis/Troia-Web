@@ -84,8 +84,12 @@ def chown(path, own, recursive=False, conf=None):
         path.format(**conf)))
 
 
-def clone_or_update(path, repo, branch="master"):
-    ''' Updates a local repository or clones it. '''
+def lessc(less, css, conf):
+    run('{lessc} {} > {}'.format(less, css, **conf))
+
+
+def clone_or_update(path, repo, branch="master", commit=None):
+    '''Updates a local repository or clones it.'''
     message('Synchronizing with remote repository')
     refspec = 'origin/{}'.format(branch)
     if exists(path):
@@ -124,6 +128,7 @@ def make_hyde_tree(conf):
 
 def install_services(conf, force_update=False):
     '''Installs services.'''
+    message('Installing services')
     # Remove whole subdirectory.
     if force_update:
         rm('{services_root}', recursive=True, force=True, conf)
@@ -377,7 +382,6 @@ def deploy_web(update_env=False, confpath=None):
     rm('{hyde_root}', recursive=True, force=True, conf=conf)
     # Ensure hyde directory structure.
     make_hyde_tree(conf)
-
     source_root = '{source_root}/Troia-Web'.format(**conf)
     clone_or_update(source_root, conf)
     install_requirements(update=update_env, conf)
