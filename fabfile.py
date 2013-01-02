@@ -206,13 +206,15 @@ def start_troia_server(confpath=None):
 
 
 @task
-def stop_troia_server(confpath=None):
+def stop_troia_server(confpath=None, force=False):
     """Stops the troia server (tomcat)."""
     conf = readconf(confpath)
     with settings(warn_only=True):
-        run('CATALINA_PID={tomcat_root}/temp/catalina.pid '
-            '{tomcat_root}/bin/catalina.sh stop -force'.format(**conf),
-            pty=False)
+        cmd = ('CATALINA_PID={tomcat_root}/temp/catalina.pid '
+                '{tomcat_root}/bin/catalina.sh stop'.format(**conf))
+        if force:
+            cmd = '{} -force'.format(cmd)
+        run(cmd, pty=False)
 
 
 @task
