@@ -21,6 +21,10 @@ def message(msg, *args, **kwargs):
     print colors.cyan('==>', bold=True), msg.format(*args)
 
 
+def preformat(fmt, dct):
+    return fmt.format(**dct if dct is not None else {})
+
+
 def readconf(cpath):
     with open(DEFAULT_PATH, 'r') as cfile:
         conf = json.load(cfile)
@@ -51,10 +55,79 @@ def setmode(path, recursive=False, perms=None, owner=None):
         sudo('chown {} {} {}'.format(recursive, owner, path))
 
 
-def ensure_srv(conf):
-    ''' Ensures services (maven, tomcat) are installed correctly.
-        It takes care only about services that are under ``services``
-        directory. '''
+def cp(src, dst, recursive=False, conf=None):
+    run('cp {} {} {}'.format('-r' if recursive else '', preformat(src, conf),
+        preformat(dst, conf))
+
+
+def rm(path, recursive=False, force=False, conf=None):
+    run('rm {} {} {}'.format('-r' if recursive else ''. '-f' if force '',
+        preformat(path, conf)))
+
+
+def mv(src, dst, **conf):
+    run('mv {} {}'.format(src, dst))
+
+
+def mkdir(path, parent=False, conf=None):
+    path = path.format(**conf)
+    run('mkdir {} {}'.format('-p' if parent else '', path))
+
+
+def chmod(path, mod, recursive=False, conf=None):
+    run('chmod {} {} {}'.format('-R' if recursive else '', mod,
+        preformat(path, conf)))
+
+
+def chown(path, own, recursive=False, conf=None):
+    run('chown {} {} {}'.format('-R' if recursive else '', own,
+        path.format(**conf)))
+
+
+def clone_or_update(path, repo, branch="master"):
+    ''' Updates a local repository or clones it. '''
+    message('Synchronizing with remote repository')
+    refspec = 'origin/{}'.format(branch)
+    if exists(path):
+        with cd(path):
+            run("git fetch origin")
+            run("git clean -f")
+            run("git reset --hard {}".format(refspec))
+    else:
+        run('git clone {} {}'.format(repo, path))
+        with cd(path):
+            run("git reset --hard {}".format(refspec))
+
+
+def make_project_tree(conf):
+    with (sudo=True):
+        mkdir('{project_root}', conf=conf)
+        chown('{project_root}', USER)
+    mkdir('{project_root}/logs/nginx', conf=conf)
+    mkdir('{project_root}/logs/tomcat', conf=conf)
+    mkdir('{source_root}', conf=conf)
+    mkdir('{hyde_root}', conf=conf)
+    mkdir('{downloads_root}', conf=conf)
+    mkdir('{apidocs_root}', conf=conf)
+    mkdir('{virtualenv_root}', conf=conf)
+
+
+def make_hyde_tree(conf):
+    mkdir('{hyde_root}', conf=conf)
+    mkdir('{hyde_root}/media/css', conf=conf)
+    mkdir('{hyde_root}/media/downloads', conf=conf)
+    mkdif('{hyde_root}/media/img', conf=conf)
+    mkdir('{hyde_root}/media/js', conf=conf)
+    mkdir('{hyde_root}/media/less', conf=conf)
+    mkdir('{hyde_root}/media/txt', conf=conf)
+
+
+def install_services(conf, force_update=False):
+    '''Installs services.'''
+    # Remove whole subdirectory.
+    if force_update:
+        rm('{services_root}', recursive=True, force=True, conf)
+    # Check if services exist.
     if exists('{services_root}/tomcat/bin/catalina.sh'.format(**conf)) and \
             exists('{services_root}/maven/bin/mvn'.format(**conf)):
         message('Services already installed. Skipping')
@@ -84,52 +157,35 @@ def ensure_srv(conf):
         context=conf)
 
 
-def manage_srv(srv, cmd):
-    sudo("{}{} {}".format(SERVICE_PREFIX, srv, cmd))
-
-
-def pip_install(envpath, reqpath):
-    with prefix('source {}'.format(envpath)):
-        run('pip install -r {}'.format(reqpath))
-
-
-def clone_or_update(path, repo, branch="master"):
-    ''' Updates a local repository or clones it. '''
-    message('Synchronizing with remote repository')
-    refspec = 'origin/{}'.format(branch)
-    if exists(path):
-        with cd(path):
-            run("git fetch origin")
-            run("git clean -f")
-            run("git reset --hard {}".format(refspec))
-    else:
-        run('git clone {} {}'.format(repo, path))
-        with cd(path):
-            run("git reset --hard {}".format(refspec))
-
-
-def ensure_env(path, update=False, reqpath=None, py='/usr/bin/python2.7'):
-    ''' Ensures environment already exists (creates if missing). '''
-    message('Checking Python\'s virtual environment')
+def install_requirements(conf, force_update=False):
+    '''Makes virtual environment and installs requirements.'''
+    message('Installing Python\'s virtual environtment')
+    path = conf['virtualenv_root']
     splitted = path.rsplit('/', 1)
     if len(splitted) == 2:
         root = splitted[0]
         name = splitted[1]
     else:
         raise Exception('Invalid path for virtual environment {}'.format(path))
-    source_path = '{}/bin/activate'.format(path)
-    source_cmd = 'source {}'.format(source_path)
+    activate_path = '{}/bin/activate'.format(path)
+    activate_cmd = 'source {}'.format(activate_path)
+    requirements_path = ('{source_root}/Troia-Web/requirements.txt'
+        .format(**conf))
+    install_cmd = None
     if exists(path):
         message('Virtual environment exists. Trying to activate')
-        run(source_cmd)
-        if update:
-            pip_install(source_path, reqpath)
+        run(activate_cmd)
     else:
         message('Virtual environment does not exist. Creating a new one')
         with cd(root):
             run('virtualenv --python={} --no-site-packages {}'
-                .format(py, name))
-            pip_install(source_path, reqpath)
+                .format(conf['pyton'], name))
+        with prefix('source {}'.format(envpath)):
+            run('pip install -r {}'.format(reqpath))
+
+
+def manage_srv(srv, cmd):
+    sudo("{}{} {}".format(SERVICE_PREFIX, srv, cmd))
 
 
 def ensure_tree(root, subdirs, use_sudo=False):
@@ -158,7 +214,7 @@ def compile(input_dir, output_dir, files=[]):
 
 
 def generate(src, dst):
-    message(colors.blue('Generating static content'))
+    message('Generating static content')
     # Clear the static subdirectory (without downloads).
     run('rm -rf {}/{{documentation,tutorials}}'.format(dst))
     run('rm -rf {}/media/{{css,img,less,js,txt}}'.format(dst))
@@ -208,12 +264,11 @@ def start_troia_server(confpath=None):
 @task
 def stop_troia_server(confpath=None, force=False):
     """Stops the troia server (tomcat)."""
-    conf = readconf(confpath)
+    conf = readconf(confpath).copy()
+    conf['force'] = force
     with settings(warn_only=True):
         cmd = ('CATALINA_PID={tomcat_root}/temp/catalina.pid '
-                '{tomcat_root}/bin/catalina.sh stop'.format(**conf))
-        if force:
-            cmd = '{} -force'.format(cmd)
+                '{tomcat_root}/bin/catalina.sh stop {force}'.format(**conf))
         run(cmd, pty=False)
 
 
@@ -229,14 +284,16 @@ def deploy_troia_server(confpath=None):
     """Performs the Troia-Server deployment in the tomcat servlet
     container."""
     conf = readconf(confpath)
+    # Ensure project structure.
+    make_project_tree(conf=conf)
     # Ensure all services are already installed.
-    ensure_srv(conf)
-    src_root = '{source_root}/Troia-Server-{troia_server_repo_branch}'.format(**conf)
+    install_services(conf=conf)
+    source_root = '{source_root}/Troia-Server-{troia_server_repo_branch}'.format(**conf)
     # Update Troia-Server repo.
     clone_or_update(src_root, conf['troia_server_repo'],
                     conf['troia_server_repo_branch'])
-    maven_cmd = '{maven_root}/bin/mvn package -Dmaven.test.skip=true' \
-                .format(**conf)
+    maven_cmd = ('{maven_root}/bin/mvn package -Dmaven.test.skip=true'
+                    .format(**conf))
 
     def maven_build():
         '''Builds the Troia-Server's .war file.'''
@@ -249,7 +306,7 @@ def deploy_troia_server(confpath=None):
     ensure_tree(media_root, ('downloads'))
     target_path = '{}/troia-server/target/{}.war'.format(src_root, conf['war_name'])
     # Copy this file to the downloads directory.
-    run('cp {} {}/downloads'.format(target_path, media_root))
+    cp(target_path, media_root)
     # Replace the properties with custom file.
     upload_template(
         os.path.join(CONF_ROOT, 'troia-server', 'dawidskene.properties'),
@@ -314,18 +371,15 @@ def deploy_web(update_env=False, confpath=None):
     ''' Synchronizes the website content with the repository.
         Optionally udates Python's virtual environment. '''
     conf = readconf(confpath)
-    root = conf['project_root']
-    if not exists(root):
-        message(colors.yellow('Initializing project structure'))
-        ensure_tree(conf['projects_root'], root, use_sudo=True)
-        ensure_tree(root, ['source'], use_sudo=True)
-        setmode(root, recursive=True, owner=USER)
-    # Project root alredy exists. Current remote user is assummed to be an
-    # onwer of the directory.
-    src_root = '{source_root}/Troia-Web'.format(**conf)
-    clone_or_update(src_root, conf['troia_web_repo'],
-                    branch=conf['troia_web_repo_branch'])
-    ensure_env(update=update_env, path=conf['virtualenv_root'],
-               reqpath='{}/requirements.txt'.format(src_root))
+    # Ensure project directory structure.
+    make_project_tree(conf)
+    # Clear the hyde directory.
+    rm('{hyde_root}', recursive=True, force=True, conf=conf)
+    # Ensure hyde directory structure.
+    make_hyde_tree(conf)
+
+    source_root = '{source_root}/Troia-Web'.format(**conf)
+    clone_or_update(source_root, conf)
+    install_requirements(update=update_env, conf)
     with prefix('source {virtualenv_root}/bin/activate'.format(**conf)):
         generate(src_root, conf['hyde_root'])
