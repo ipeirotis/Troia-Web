@@ -16,6 +16,8 @@ USER = '{0}:{0}'.format(env.user)
 SERVICE_PREFIX = 'service '
 #SERVICE_PREFIX = '/etc/rc.d/'  # In case of BSD init convention.
 
+conf = env
+
 
 def message(msg, *args, **kwargs):
     print colors.cyan('==>', bold=True), msg.format(*args)
@@ -41,51 +43,57 @@ def readconf(cpath):
     cset('virtualenv_root', '{project_root}/virtualenv'.format(**conf))
     cset('scripts_root', '{project_root}/scripts'.format(**conf))
     cset('sql_root', '{project_root}/sql'.format(**conf))
+    # Sources roots.
+    cset('troia_web_root', '{source_root}/Troia-Web'.format(**conf))
+    cset('troia_server_root', '{source_root}/Troia-Server'.format(**conf))
+    cset('troia_java_client_root', '{source_root}/Troia-Java-Client'.format(**conf))
+    # Static roots.
+    cset('apidocs_root', '{static_root}/apidocs'.format(**conf))
+    cset('downloads_root', '{static_root}/downloads'.format(**conf))
+    cset('hyde_root', '{static_root}/hyde'.format(**conf))
+    # Services roots.
     cset('tomcat_root', '{services_root}/tomcat'.format(**conf))
     cset('maven_root', '{services_root}/maven'.format(**conf))
-    cset('hyde_root', '{static_root}/hyde'.format(**conf))
-    return conf
+    env.update(conf)
+    return env
 
 
-def setmode(path, recursive=False, perms=None, owner=None):
-    recursive = '--recursive' if recursive else ''
-    if perms:
-        sudo('chmod {} {} {}'.format(recursive, perms, path))
-    if owner:
-        sudo('chown {} {} {}'.format(recursive, owner, path))
+def cp(src, dst, recursive=False):
+    run('cp {} {} {}'.format('-r' if recursive else '', src.format(**conf),
+        dst.format(**conf)))
 
 
-def cp(src, dst, recursive=False, conf=None):
-    run('cp {} {} {}'.format('-r' if recursive else '', preformat(src, conf),
-        preformat(dst, conf))
+def mv(src, dst):
+    run('mv {} {}'.format(src.format(**conf), dst.format(**conf)))
 
 
-def rm(path, recursive=False, force=False, conf=None):
+def rm(path, recursive=False, force=False):
     run('rm {} {} {}'.format('-r' if recursive else ''. '-f' if force '',
-        preformat(path, conf)))
+        path.format(**conf)))
 
 
-def mv(src, dst, **conf):
-    run('mv {} {}'.format(src, dst))
+def mkdir(path, parent=True):
+    run('mkdir {} {}'.format('-p' if parent else '', path.format(**conf)))
 
 
-def mkdir(path, parent=False, conf=None):
-    path = path.format(**conf)
-    run('mkdir {} {}'.format('-p' if parent else '', path))
-
-
-def chmod(path, mod, recursive=False, conf=None):
+def chmod(path, mod, recursive=False):
     run('chmod {} {} {}'.format('-R' if recursive else '', mod,
-        preformat(path, conf)))
+        path.format(**conf)))
 
 
-def chown(path, own, recursive=False, conf=None):
+def chown(path, own, recursive=False):
     run('chown {} {} {}'.format('-R' if recursive else '', own,
         path.format(**conf)))
 
 
-def lessc(less, css, conf):
-    run('{lessc} {} > {}'.format(less, css, **conf))
+def lessc(less, css):
+    run('{lessc} {} > {}'.format(less.format(**conf), css.format(**conf),
+        **conf))
+
+
+def lessc_wrapper(name):
+    lessc('{troia_web_root}/content/media/less{}.less'.format(name, **conf),
+        '{hyde_root}/media/less/{}.css'.format(name, **conf))
 
 
 def clone_or_update(path, repo, branch="master", commit=None):
@@ -103,38 +111,38 @@ def clone_or_update(path, repo, branch="master", commit=None):
             run("git reset --hard {}".format(refspec))
 
 
-def make_project_tree(conf):
+def make_project_tree():
     with (sudo=True):
-        mkdir('{project_root}', conf=conf)
-        chown('{project_root}', USER)
-    mkdir('{project_root}/logs/nginx', conf=conf)
-    mkdir('{project_root}/logs/tomcat', conf=conf)
-    mkdir('{source_root}', conf=conf)
-    mkdir('{hyde_root}', conf=conf)
-    mkdir('{downloads_root}', conf=conf)
-    mkdir('{apidocs_root}', conf=conf)
-    mkdir('{virtualenv_root}', conf=conf)
+        mkdir('{project_root}')
+        chown('{project_root}', '{0}:{0}'.format(**conf))
+    mkdir('{project_root}/logs/nginx')
+    mkdir('{project_root}/logs/tomcat')
+    mkdir('{source_root}')
+    mkdir('{hyde_root}')
+    mkdir('{downloads_root}')
+    mkdir('{apidocs_root}')
+    mkdir('{virtualenv_root}')
 
 
-def make_hyde_tree(conf):
-    mkdir('{hyde_root}', conf=conf)
-    mkdir('{hyde_root}/media/css', conf=conf)
-    mkdir('{hyde_root}/media/downloads', conf=conf)
-    mkdif('{hyde_root}/media/img', conf=conf)
-    mkdir('{hyde_root}/media/js', conf=conf)
-    mkdir('{hyde_root}/media/less', conf=conf)
-    mkdir('{hyde_root}/media/txt', conf=conf)
+def make_hyde_tree():
+    mkdir('{hyde_root}')
+    mkdir('{hyde_root}/media/css')
+    mkdir('{hyde_root}/media/downloads')
+    mkdif('{hyde_root}/media/img')
+    mkdir('{hyde_root}/media/js')
+    mkdir('{hyde_root}/media/less')
+    mkdir('{hyde_root}/media/txt')
 
 
-def install_services(conf, force_update=False):
+def install_services(force_update=False):
     '''Installs services.'''
     message('Installing services')
     # Remove whole subdirectory.
     if force_update:
         rm('{services_root}', recursive=True, force=True, conf)
     # Check if services exist.
-    if exists('{services_root}/tomcat/bin/catalina.sh'.format(**conf)) and \
-            exists('{services_root}/maven/bin/mvn'.format(**conf)):
+    elif (exists('{services_root}/tomcat/bin/catalina.sh'.format(**conf)) and
+            exists('{services_root}/maven/bin/mvn'.format(**conf))):
         message('Services already installed. Skipping')
         return
     with cd('/tmp'):
@@ -162,7 +170,7 @@ def install_services(conf, force_update=False):
         context=conf)
 
 
-def install_requirements(conf, force_update=False):
+def install_requirements(force_update=False):
     '''Makes virtual environment and installs requirements.'''
     message('Installing Python\'s virtual environtment')
     path = conf['virtualenv_root']
@@ -174,7 +182,7 @@ def install_requirements(conf, force_update=False):
         raise Exception('Invalid path for virtual environment {}'.format(path))
     activate_path = '{}/bin/activate'.format(path)
     activate_cmd = 'source {}'.format(activate_path)
-    requirements_path = ('{source_root}/Troia-Web/requirements.txt'
+    requirements_path = ('{troia_web_root}/requirements.txt'
         .format(**conf))
     install_cmd = None
     if exists(path):
@@ -191,52 +199,6 @@ def install_requirements(conf, force_update=False):
 
 def manage_srv(srv, cmd):
     sudo("{}{} {}".format(SERVICE_PREFIX, srv, cmd))
-
-
-def ensure_tree(root, subdirs, use_sudo=False):
-    func = sudo if use_sudo else run
-    if not isinstance(subdirs, (list, tuple)):
-        subdirs = [subdirs]
-    message(colors.blue('Preparing directories structure'))
-    with cd(root):
-        for subdir in subdirs:
-            message('Making {}/{}'.format(root, subdir))
-            func('mkdir -p {}'.format(subdir))
-
-
-def compile(input_dir, output_dir, files=[]):
-    ''' Compiles less and moves resultant css to another directory for
-        further processing using hyde. '''
-    message(colors.blue('Compiling less from {} to {}'.format(input_dir,
-                        output_dir)))
-    message(colors.blue('Files to compile: {}'.format(', '.join(files))))
-    with cd(input_dir):
-        for file_name in files:
-            name, ext = file_name.rsplit('.', 1)
-            result_name = '{}.css'.format(name)
-            run('{} {} > {}'.format(LESSC, file_name,
-                                    os.path.join(output_dir, result_name)))
-
-
-def generate(src, dst):
-    message('Generating static content')
-    # Clear the static subdirectory (without downloads).
-    run('rm -rf {}/{{documentation,tutorials}}'.format(dst))
-    run('rm -rf {}/media/{{css,img,less,js,txt}}'.format(dst))
-    run('mkdir -p {}'.format(dst))
-    # Generate the static content.
-    run('hyde -s \'{0}\' gen -d \'{1}\' -c \'{0}/production.yaml\''.format(src, dst))
-    media_root = '{}/media'.format(dst)
-    less_root = '{}/less'.format(media_root)
-    css_root = '{}/css'.format(media_root)
-    message(colors.blue('Compiling less files'))
-    # Compile less files.
-    run('mkdir -p {}'.format(css_root))
-    run('{} {}/bootstrap.less > {}/bootstrap.css'.format(LESSC, less_root,
-        css_root))
-    run('{} {}/responsive.less > {}/responsive.css'.format(LESSC, less_root,
-        css_root))
-    run('{} {}/troia.less > {}/troia.css'.format(LESSC, less_root, css_root))
 
 
 @task
@@ -375,7 +337,7 @@ def generate_apidocs(confpath=None):
 def deploy_web(update_env=False, confpath=None):
     ''' Synchronizes the website content with the repository.
         Optionally udates Python's virtual environment. '''
-    conf = readconf(confpath)
+    readconf(confpath)
     # Ensure project directory structure.
     make_project_tree(conf)
     # Clear the hyde directory.
@@ -383,7 +345,14 @@ def deploy_web(update_env=False, confpath=None):
     # Ensure hyde directory structure.
     make_hyde_tree(conf)
     source_root = '{source_root}/Troia-Web'.format(**conf)
-    clone_or_update(source_root, conf)
-    install_requirements(update=update_env, conf)
+    clone_or_update(source_root, conf['troia-web-repo'],
+        branch=conf['troia-web-branch'])
+    message('Compiling less')
+    lessc_wrapper('bootstrap')
+    lessc_wrapper('responsive')
+    lessc_wrapper('troia')
+    install_requirements(force_update=update_env, conf)
     with prefix('source {virtualenv_root}/bin/activate'.format(**conf)):
-        generate(src_root, conf['hyde_root'])
+        message('Generating static content')
+        run('hyde -s \'{0}\' gen -d \'{1}\' -c \'{0}/production.yaml\''.format(src, dst))
+    cp('{static_root}/downloads', '{hyde_root}/media/', recursive=True)
