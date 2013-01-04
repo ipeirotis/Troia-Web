@@ -14,7 +14,7 @@ LESSC = 'lessc'
 USER = '{0}:{0}'.format(env.user)
 
 SERVICE_PREFIX = 'service '
-#SERVICE_PREFIX = '/etc/rc.d/'  # In case of BSD init convention.
+# SERVICE_PREFIX = '/etc/rc.d/'  # In case of BSD init convention.
 
 conf = env
 
@@ -40,9 +40,9 @@ def readconf(cpath):
     cset('source_root', '{project_root}/source'.format(**conf))
     cset('static_root', '{project_root}/static'.format(**conf))
     cset('services_root', '{project_root}/services'.format(**conf))
-    cset('virtualenv_root', '{project_root}/virtualenv'.format(**conf))
     cset('scripts_root', '{project_root}/scripts'.format(**conf))
     cset('sql_root', '{project_root}/sql'.format(**conf))
+    cset('virtualenv_root', '{project_root}/virtualenv'.format(**conf))
     # Sources roots.
     cset('troia_web_root', '{source_root}/Troia-Web'.format(**conf))
     cset('troia_server_root', '{source_root}/Troia-Server'.format(**conf))
@@ -54,35 +54,43 @@ def readconf(cpath):
     # Services roots.
     cset('tomcat_root', '{services_root}/tomcat'.format(**conf))
     cset('maven_root', '{services_root}/maven'.format(**conf))
+    cset('use_sudo', False)
+    cset('lessc', 'lessc')
     env.update(conf)
     return env
 
 
 def cp(src, dst, recursive=False):
-    run('cp {} {} {}'.format('-r' if recursive else '', src.format(**conf),
+    func = sudo if conf.use_sudo else run
+    func('cp {} {} {}'.format('-r' if recursive else '', src.format(**conf),
         dst.format(**conf)))
 
 
 def mv(src, dst):
-    run('mv {} {}'.format(src.format(**conf), dst.format(**conf)))
+    func = sudo if conf.use_sudo else run
+    func('mv {} {}'.format(src.format(**conf), dst.format(**conf)))
 
 
 def rm(path, recursive=False, force=False):
-    run('rm {} {} {}'.format('-r' if recursive else ''. '-f' if force '',
+    func = sudo if conf['use_sudo'] else run
+    func('rm {} {} {}'.format('-r' if recursive else '', '-f' if force else '',
         path.format(**conf)))
 
 
 def mkdir(path, parent=True):
-    run('mkdir {} {}'.format('-p' if parent else '', path.format(**conf)))
+    func = sudo if conf['use_sudo'] else run
+    func('mkdir {} {}'.format('-p' if parent else '', path.format(**conf)))
 
 
 def chmod(path, mod, recursive=False):
-    run('chmod {} {} {}'.format('-R' if recursive else '', mod,
+    func = sudo if conf['use_sudo'] else run
+    func('chmod {} {} {}'.format('-R' if recursive else '', mod,
         path.format(**conf)))
 
 
 def chown(path, own, recursive=False):
-    run('chown {} {} {}'.format('-R' if recursive else '', own,
+    func = sudo if conf['use_sudo'] else run
+    func('chown {} {} {}'.format('-R' if recursive else '', own,
         path.format(**conf)))
 
 
@@ -92,8 +100,8 @@ def lessc(less, css):
 
 
 def lessc_wrapper(name):
-    lessc('{troia_web_root}/content/media/less{}.less'.format(name, **conf),
-        '{hyde_root}/media/less/{}.css'.format(name, **conf))
+    lessc('{troia_web_root}/content/media/less/{}.less'.format(name, **conf),
+        '{hyde_root}/media/css/{}.css'.format(name, **conf))
 
 
 def clone_or_update(path, repo, branch="master", commit=None):
@@ -112,23 +120,22 @@ def clone_or_update(path, repo, branch="master", commit=None):
 
 
 def make_project_tree():
-    with (sudo=True):
+    with settings(use_sudo=True):
         mkdir('{project_root}')
-        chown('{project_root}', '{0}:{0}'.format(**conf))
+        chown('{project_root}', '{0}:{0}'.format(conf.user, **conf))
     mkdir('{project_root}/logs/nginx')
     mkdir('{project_root}/logs/tomcat')
     mkdir('{source_root}')
     mkdir('{hyde_root}')
     mkdir('{downloads_root}')
     mkdir('{apidocs_root}')
-    mkdir('{virtualenv_root}')
 
 
 def make_hyde_tree():
     mkdir('{hyde_root}')
     mkdir('{hyde_root}/media/css')
     mkdir('{hyde_root}/media/downloads')
-    mkdif('{hyde_root}/media/img')
+    mkdir('{hyde_root}/media/img')
     mkdir('{hyde_root}/media/js')
     mkdir('{hyde_root}/media/less')
     mkdir('{hyde_root}/media/txt')
@@ -139,7 +146,7 @@ def install_services(force_update=False):
     message('Installing services')
     # Remove whole subdirectory.
     if force_update:
-        rm('{services_root}', recursive=True, force=True, conf)
+        rm('{services_root}', recursive=True, force=True)
     # Check if services exist.
     elif (exists('{services_root}/tomcat/bin/catalina.sh'.format(**conf)) and
             exists('{services_root}/maven/bin/mvn'.format(**conf))):
@@ -173,28 +180,27 @@ def install_services(force_update=False):
 def install_requirements(force_update=False):
     '''Makes virtual environment and installs requirements.'''
     message('Installing Python\'s virtual environtment')
-    path = conf['virtualenv_root']
-    splitted = path.rsplit('/', 1)
-    if len(splitted) == 2:
-        root = splitted[0]
-        name = splitted[1]
-    else:
-        raise Exception('Invalid path for virtual environment {}'.format(path))
-    activate_path = '{}/bin/activate'.format(path)
+    if force_update:
+        rm('{virtualenv_root}', recursive=True, force=True)
+    activate_path = '{virtualenv_root}/bin/activate'.format(**conf)
     activate_cmd = 'source {}'.format(activate_path)
-    requirements_path = ('{troia_web_root}/requirements.txt'
-        .format(**conf))
     install_cmd = None
-    if exists(path):
-        message('Virtual environment exists. Trying to activate')
-        run(activate_cmd)
-    else:
-        message('Virtual environment does not exist. Creating a new one')
-        with cd(root):
-            run('virtualenv --python={} --no-site-packages {}'
-                .format(conf['pyton'], name))
-        with prefix('source {}'.format(envpath)):
-            run('pip install -r {}'.format(reqpath))
+    valid = True
+    with settings(warn_only=True):
+        if not exists(activate_path):
+            valid = False
+    if not valid:
+        message('Virtual environment does not exist or it is broken. '
+            'Reinstalling')
+        return
+        rm('{virtualenv_root}', recursive=True, force=True)
+        run('virtualenv --python={python} --no-site-packages '
+            '{virtualenv_root}'.format(**conf))
+        with prefix(activate_cmd):
+            run('pip install -r {troia_web_root}/requirements.txt'
+                .format(**conf))
+    message('Virtual environment exists. Trying to activate')
+    run(activate_cmd)
 
 
 def manage_srv(srv, cmd):
@@ -334,25 +340,26 @@ def generate_apidocs(confpath=None):
 
 
 @task
-def deploy_web(update_env=False, confpath=None):
-    ''' Synchronizes the website content with the repository.
-        Optionally udates Python's virtual environment. '''
+def deploy_web(confpath=None):
+    '''Synchronizes the website content with the repository.'''
     readconf(confpath)
-    # Ensure project directory structure.
-    make_project_tree(conf)
+    # Ensure project has valid directory structure.
+    make_project_tree()
     # Clear the hyde directory.
-    rm('{hyde_root}', recursive=True, force=True, conf=conf)
+    rm('{hyde_root}', recursive=True, force=True)
     # Ensure hyde directory structure.
-    make_hyde_tree(conf)
+    make_hyde_tree()
     source_root = '{source_root}/Troia-Web'.format(**conf)
-    clone_or_update(source_root, conf['troia-web-repo'],
-        branch=conf['troia-web-branch'])
+    clone_or_update(source_root, conf['troia_web_repo'],
+        branch=conf['troia_web_repo_branch'])
     message('Compiling less')
     lessc_wrapper('bootstrap')
     lessc_wrapper('responsive')
     lessc_wrapper('troia')
-    install_requirements(force_update=update_env, conf)
+    # Ensure python virtual environment is properly configured.
+    install_requirements(force_update=False)
     with prefix('source {virtualenv_root}/bin/activate'.format(**conf)):
         message('Generating static content')
-        run('hyde -s \'{0}\' gen -d \'{1}\' -c \'{0}/production.yaml\''.format(src, dst))
+        run('hyde -s \'{0}\' gen -d \'{1}\' -c \'{0}/production.yaml\''
+            .format(conf.troia_web_root, conf.hyde_root))
     cp('{static_root}/downloads', '{hyde_root}/media/', recursive=True)
