@@ -96,14 +96,9 @@ To build WAR file you should enter project main directory execute following comm
  
     mvn package
 
-Sometimes maven will inform about build failure due to failed test, in this case you should 
-simply run maven without tests by calling a command with addnotational parameter
 
-::
-
-    mvn package -Dmaven.test.skip=true 
-
-As a result *target* directory will appear, in it should be file called **troia-server-0.0.1.war**.
+As a result *target* directory will appear.
+It should contain file **troia-server-{version}.war** where {version} is current Troia version.
 
  
 
