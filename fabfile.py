@@ -23,10 +23,6 @@ def message(msg, *args, **kwargs):
     print colors.cyan('==>', bold=True), msg.format(*args)
 
 
-def preformat(fmt, dct):
-    return fmt.format(**dct if dct is not None else {})
-
-
 def readconf(cpath):
     with open(DEFAULT_PATH, 'r') as cfile:
         conf = json.load(cfile)
@@ -208,22 +204,23 @@ def manage_srv(srv, cmd):
 
 
 @task
-def update_server(confpath=None):
-    """Reloads web server configuration and restart the server."""
-    raise NotImplementedError("This command is temporary disabled.")
-    conf = readconf(confpath)
-    apath = '/etc/nginx/sites-available/troia'
-    epath = '/etc/nginx/sites-enabled/troia'
+def update_nginx_config(confpath=None):
+    """Updates nginx configuration and restarts the server."""
+    readconf(confpath)
+    name = '{project_name}'.format(**conf)
+    available_path = '/etc/nginx/sites-available/{}'.format(name)
+    enabled_path = '/etc/nginx/sites-enabled/{}'.format(name)
     upload_template(
-        os.path.join(CONF_ROOT, 'nginx', 'sites-available', 'troia'),
-        '/etc/nginx/sites-available/troia',
+        os.path.join(CONF_ROOT, 'nginx', 'sites-available', name),
+        '/etc/nginx/sites-available/{}'.format(name),
         use_sudo=True,
         context=conf)
-    sudo('ln -fs {} {}'.format(apath, epath))
-    setmode(apath, owner=USER)
-    setmode(epath, owner=USER)
-    ensure_tree(conf['project_root'], ('logs', 'logs/nginx'))
-    manage_srv('nginx', 'reload')
+    sudo('ln -fs {} {}'.format(available_path, enabled_path))
+    with settings(use_sudo=True):
+        chown(available_path, '{0}:{0}'.format(env.user))
+        chown(enabled_path, '{0}:{0}'.format(env.user))
+    make_project_tree()
+    manage_service('nginx', 'reload')
 
 
 @task
@@ -253,45 +250,49 @@ def restart_troia_server(confpath=None):
 
 
 @task
-def deploy_troia_server(confpath=None):
-    """Performs the Troia-Server deployment in the tomcat servlet
-    container."""
-    conf = readconf(confpath)
+def deploy_troia_server_download(confpath=None):
+    readconf(confpath)
     # Ensure project structure.
-    make_project_tree(conf=conf)
-    # Ensure all services are already installed.
-    install_services(conf=conf)
-    source_root = '{source_root}/Troia-Server-{troia_server_repo_branch}'.format(**conf)
-    # Update Troia-Server repo.
-    clone_or_update(src_root, conf['troia_server_repo'],
-                    conf['troia_server_repo_branch'])
-    maven_cmd = ('{maven_root}/bin/mvn package -Dmaven.test.skip=true'
-                    .format(**conf))
+    make_project_tree()
+    # Ensure all services are properly installed.
+    install_services()
+    source_root = '{source_root}/Troia-Server'.format(**conf)
+    clone_or_update(source_root, conf['troia_server_repo'],
+        branch=conf['troia_server_repo_branch'])
+    # Build Troia-Server.war file.
+    with cd(source_root):
+        run('{maven_root}/bin/mvn package -Dmaven.test.skip=true'.format(**conf))
+    cp('{troia_server_root}/target/{troia_server_war_name}.war',
+        '{hyde_root}/media/downloads/{final_name}.war')
 
-    def maven_build():
-        '''Builds the Troia-Server's .war file.'''
-        with cd(src_root):
-            run(maven_cmd)
 
-    # Build the .war file.
-    maven_build()
-    media_root = '{hyde_root}/media'.format(**conf)
-    ensure_tree(media_root, ('downloads'))
-    target_path = '{}/troia-server/target/{}.war'.format(src_root, conf['war_name'])
-    # Copy this file to the downloads directory.
-    cp(target_path, media_root)
+@task
+def deploy_troia_server(confpath=None):
+    """Performs the Troia-Server deployment to the tomcat."""
+    readconf(confpath)
+    # Ensure project structure.
+    make_project_tree()
+    # Ensure all services are properly installed.
+    install_services()
+    source_root = '{source_root}/Troia-Server'.format(**conf)
+    clone_or_update(source_root, conf['troia_server_repo'],
+        branch=conf['troia_server_repo_branch'])
     # Replace the properties with custom file.
     upload_template(
         os.path.join(CONF_ROOT, 'troia-server', 'dawidskene.properties'),
-        '{}/troia-server/src/main/resources/dawidskene.properties'.format(src_root),
+        '{troia_server_root}/troia-server/src/main/resources/'
+        'dawidskene.properties'.format(**conf)
         context=conf)
-    # Again build .war file with custom properties.
-    maven_build()
+    # Build Troia-Server.war file.
+    with cd(source_root):
+        run('{maven_root}/bin/mvn package -Dmaven.test.skip=true'.format(**conf))
+    # Deploy Troia-Server to the tomcat.
     execute(stop_troia_server, confpath=confpath)
-    # Clean and copy .war file to the tomcat's webapps directory.
-    run('rm -rf {tomcat_root}/webapps/{final_name}*'.format(**conf))
-    run('cp {} {tomcat_root}/webapps'.format(target_path, **conf))
-    run('mv {tomcat_root}/webapps/{war_name}.war {tomcat_root}/webapps/{final_name}.war'.format(**conf))
+    # Clean and copy .war file to the tomcat webapps directory.
+    rm('{tomcat_root}/webapps/{troia_server_final_name}*', recursive=True,
+        force=True)
+    cp('{troia_server_root}/target/{troia_server_war_name}.war',
+        '{tomcat_root}/webapps/{final_name}.war')
     execute(start_troia_server, confpath=confpath)
 
 
@@ -327,7 +328,7 @@ def update_troia_server(confpath=None):
 
 @task
 def generate_apidocs(confpath=None):
-    conf = readconf(confpath)
+    readconf(confpath)
     src_root = '{source_root}/Troia-Java-Client'.format(**conf)
     clone_or_update(src_root, conf['troia_client_repo'],
                     conf['troia_client_branch'])
@@ -340,7 +341,7 @@ def generate_apidocs(confpath=None):
 
 
 @task
-def deploy_web(confpath=None):
+def deploy_troia_web(confpath=None):
     '''Synchronizes the website content with the repository.'''
     readconf(confpath)
     # Ensure project has valid directory structure.
