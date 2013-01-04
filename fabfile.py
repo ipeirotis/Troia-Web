@@ -51,7 +51,6 @@ def readconf(cpath):
     cset('tomcat_root', '{services_root}/tomcat'.format(**conf))
     cset('maven_root', '{services_root}/maven'.format(**conf))
     cset('use_sudo', False)
-    cset('lessc', 'lessc')
     env.update(conf)
     return env
 
@@ -148,24 +147,24 @@ def install_services(force_update=False):
             exists('{services_root}/maven/bin/mvn'.format(**conf))):
         message('Services already installed. Skipping')
         return
+    # Create services root directory if does not exist.
+    mkdir('{services_root}')
     with cd('/tmp'):
-        ensure_tree('{project_root}'.format(**conf), 'services')
         if not exists("/tmp/tomcat.tgz"):
             message('Downloading apache tomcat')
             run('wget {tomcat_url} -O tomcat.tgz'.format(**conf))
         message('Installing apache tomcat')
         run('tar xzf tomcat.tgz')
-        run('rm -rf tomcat/')
-        run('mv apache-tomcat-* tomcat')
-        run('cp -rf tomcat {services_root}'.format(**conf))
+        rm('{services_root}/tomcat', recursive=True, force=True)
+        mv('apache-tomcat-*', '{services_root}/tomcat')
         if not exists("/tmp/maven.tgz"):
             message('Downloading apache maven')
             run('wget {maven_url} -O maven.tgz'.format(**conf))
         message('Installing apache maven')
         run('tar xzf maven.tgz')
+        rm('{services_root}/maven', recursive=True, force=True)
         run('rm -rf maven/')
-        run('mv apache-maven-* maven')
-        run('cp -rf maven {services_root}'.format(**conf))
+        mv('apache-maven-*', '{services_root}/maven')
     # Upload configuration file.
     upload_template(
         os.path.join(CONF_ROOT, 'tomcat', 'server.xml'),
@@ -281,7 +280,7 @@ def deploy_troia_server(confpath=None):
     upload_template(
         os.path.join(CONF_ROOT, 'troia-server', 'dawidskene.properties'),
         '{troia_server_root}/troia-server/src/main/resources/'
-        'dawidskene.properties'.format(**conf)
+        'dawidskene.properties'.format(**conf),
         context=conf)
     # Build Troia-Server.war file.
     with cd(source_root):
