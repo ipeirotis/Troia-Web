@@ -128,7 +128,7 @@ def manage_service(service, command):
         form = '{0} {1}'
     else:  # if SERVICE_PREFIX in ('systemctl', 'rc.d'):
         form = '{1} {0}'
-        if service in ('cron', 'myql', 'ssh'):
+        if service in ('cron', 'mysql', 'ssh'):
             service += 'd'
     sudo('{0} {1}'.format(conf.service, form.format(service, command)))
 
@@ -172,6 +172,18 @@ def update_tomcat(confpath=None):
 
 
 @task
+def start_mysql(confpath=None):
+    readconf(confpath)
+    manage_service("mysql", "start")
+
+
+@task
+def stop_mysql(confpath=None):
+    readconf(confpath)
+    manage_service("mysql", "stop")
+
+
+@task
 def restart_mysql(confpath=None):
     readconf(confpath)
     manage_service("mysql", "restart")
@@ -187,6 +199,18 @@ def update_mysql(confpath=None):
         use_sudo=True,
         context=conf)
     execute(restart_mysql)
+
+
+@task
+def start_nginx(confpath=None):
+    readconf(confpath)
+    manage_service('nginx', 'start')
+
+
+@task
+def stop_nginx(confpath=None):
+    readconf(confpath)
+    manage_service('nginx', 'stop')
 
 
 @task
@@ -287,6 +311,13 @@ def install_services(force_reinstall=False, confpath=None):
         rm('{services_root}/maven', recursive=True, force=True)
         run('rm -rf maven/')
         mv('apache-maven-*', '{services_root}/maven')
+        # Java Server Faces library.
+        if not exists('/tmp/javax.faces.jar'):
+            message('Downloading Java Server Faces library')
+            run('wget {faces_url} -O javax.faces.jar')
+        message('Installing Java Server Faces library')
+        # TODO not works.
+        # mv('javax.faces.jar', '{tomcat_root}/lib')
     # Update services configuration.
     execute('update_tomcat')
 
@@ -377,11 +408,11 @@ def deploy_troia_server(confpath=None):
     with cd('{troia_server_source}'.format(**conf)):
         mvn('package -Dmaven.test.skip=true')
     # Deploy the .war file.
-    execute(stop_tomcat)
+    # execute(stop_tomcat)
     rm('{tomcat_root}/webapps/{troia_server_name}.war', recursive=True, force=True)
     cp('{troia_server_source}/troia-server/target/{troia_server_war_name}.war',
         '{tomcat_root}/webapps/{troia_server_name}.war')
-    execute(start_tomcat)
+    # execute(start_tomcat)
 
 
 @task
@@ -391,13 +422,14 @@ def update_troia_server(confpath=None):
     execute(update_tomcat)
     execute(update_mysql)
 
+
 @task
 def deploy_troia_server_download(confpath=None):
     readconf(confpath)
     clone_or_update('{troia_server_source}', '{troia_server_repo}',
                     '{troia_server_branch}')
     # Build Troia-Server.war file.
-    with cd(source_root):
+    with cd('{troia_server_source}'):
         mvn('package -Dmaven.test.skip=true')
     cp('{troia_server_source}/target/{troia_server_war_name}.war',
         '{hyde_root}/media/downloads/{final_name}.war')
