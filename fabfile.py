@@ -2,7 +2,8 @@ import os
 import json
 
 from fabric import colors
-from fabric.api import cd, env, execute, prefix, run, settings, sudo, task
+from fabric.api import (cd, env, execute, prefix, run, settings, sudo,
+                        runs_once, task)
 from fabric.contrib.files import exists, upload_template
 
 
@@ -10,20 +11,22 @@ THIS_ROOT = os.path.dirname(os.path.abspath(__name__))
 CONF_ROOT = os.path.join(THIS_ROOT, "conf")
 DEFAULT_PATH = os.path.join(THIS_ROOT, 'default.json')
 
-LESSC = 'lessc'
-USER = '{0}:{0}'.format(env.user)
-
-SERVICE_PREFIX = 'service '
-# SERVICE_PREFIX = '/etc/rc.d/'  # In case of BSD init convention.
 
 conf = env
 
 
 def message(msg, *args, **kwargs):
-    print colors.cyan('==>', bold=True), msg.format(*args)
+    print colors.cyan('==>', bold=True), colors.yellow(msg.format(*args))
 
 
+@runs_once
 def readconf(cpath):
+    """Reads configuration from given location and sets some auxiliary values.
+    Moreover updates global fabric environment with read values."""
+    if cpath is None:
+        message('Configuration reading skipped')
+        return
+    message('Reading configuration file from {0}'.format(cpath))
     with open(DEFAULT_PATH, 'r') as cfile:
         conf = json.load(cfile)
     if cpath is not None:
@@ -33,6 +36,7 @@ def readconf(cpath):
     cset = conf.setdefault
     # Set some aux values.
     cset('project_root', '{projects_root}/{project_name}'.format(**conf))
+    cset('logs_root', '{project_root}/logs'.format(**conf))
     cset('source_root', '{project_root}/source'.format(**conf))
     cset('static_root', '{project_root}/static'.format(**conf))
     cset('services_root', '{project_root}/services'.format(**conf))
@@ -40,8 +44,8 @@ def readconf(cpath):
     cset('sql_root', '{project_root}/sql'.format(**conf))
     cset('virtualenv_root', '{project_root}/virtualenv'.format(**conf))
     # Sources roots.
-    cset('troia_web_root', '{source_root}/Troia-Web'.format(**conf))
-    cset('troia_server_root', '{source_root}/Troia-Server'.format(**conf))
+    cset('troia_web_source', '{source_root}/Troia-Web'.format(**conf))
+    cset('troia_server_source', '{source_root}/Troia-Server'.format(**conf))
     cset('troia_java_client_root', '{source_root}/Troia-Java-Client'.format(**conf))
     # Static roots.
     cset('apidocs_root', '{static_root}/apidocs'.format(**conf))
@@ -52,40 +56,42 @@ def readconf(cpath):
     cset('maven_root', '{services_root}/maven'.format(**conf))
     cset('use_sudo', False)
     env.update(conf)
-    return env
 
 
-def cp(src, dst, recursive=False):
-    func = sudo if conf.use_sudo else run
-    func('cp {} {} {}'.format('-r' if recursive else '', src.format(**conf),
+def cp(src, dst, recursive=False, force=False):
+    fun = sudo if conf.use_sudo else run
+    fun('cp {} {} {} {}'.format(
+        '-r' if recursive else '',
+        '-f' if force else '',
+        src.format(**conf),
         dst.format(**conf)))
 
 
 def mv(src, dst):
-    func = sudo if conf.use_sudo else run
-    func('mv {} {}'.format(src.format(**conf), dst.format(**conf)))
+    fun = sudo if conf.use_sudo else run
+    fun('mv {} {}'.format(src.format(**conf), dst.format(**conf)))
 
 
 def rm(path, recursive=False, force=False):
-    func = sudo if conf['use_sudo'] else run
-    func('rm {} {} {}'.format('-r' if recursive else '', '-f' if force else '',
+    fun = sudo if conf['use_sudo'] else run
+    fun('rm {} {} {}'.format('-r' if recursive else '', '-f' if force else '',
         path.format(**conf)))
 
 
 def mkdir(path, parent=True):
-    func = sudo if conf['use_sudo'] else run
-    func('mkdir {} {}'.format('-p' if parent else '', path.format(**conf)))
+    fun = sudo if conf['use_sudo'] else run
+    fun('mkdir {} {}'.format('-p' if parent else '', path.format(**conf)))
 
 
 def chmod(path, mod, recursive=False):
-    func = sudo if conf['use_sudo'] else run
-    func('chmod {} {} {}'.format('-R' if recursive else '', mod,
+    fun = sudo if conf['use_sudo'] else run
+    fun('chmod {} {} {}'.format('-R' if recursive else '', mod,
         path.format(**conf)))
 
 
 def chown(path, own, recursive=False):
-    func = sudo if conf['use_sudo'] else run
-    func('chown {} {} {}'.format('-R' if recursive else '', own,
+    fun = sudo if conf['use_sudo'] else run
+    fun('chown {} {} {}'.format('-R' if recursive else '', own,
         path.format(**conf)))
 
 
@@ -94,53 +100,166 @@ def lessc(less, css):
         **conf))
 
 
-def lessc_wrapper(name):
-    lessc('{troia_web_root}/content/media/less/{}.less'.format(name, **conf),
-        '{hyde_root}/media/css/{}.css'.format(name, **conf))
+def mvn(command):
+    run('{maven_root}/bin/mvn {0}'.format(command, **conf))
 
 
 def clone_or_update(path, repo, branch="master", commit=None):
-    '''Updates a local repository or clones it.'''
+    """Updates a local repository or clones it."""
     message('Synchronizing with remote repository')
-    refspec = 'origin/{}'.format(branch)
+    # Format arguments with global configuration.
+    path = path.format(**conf)
+    repo = repo.format(**conf)
+    branch = branch.format(**conf)
+    refspec = 'origin/{0}'.format(branch)
     if exists(path):
         with cd(path):
-            run("git fetch origin")
-            run("git clean -f")
-            run("git reset --hard {}".format(refspec))
+            run('git fetch origin')
+            run('git clean -f')
+            run('git reset --hard {0}'.format(refspec))
     else:
-        run('git clone {} {}'.format(repo, path))
+        run('git clone {0} {1}'.format(repo, path))
         with cd(path):
-            run("git reset --hard {}".format(refspec))
+            run('git reset --hard {0}'.format(refspec))
 
 
-def make_project_tree():
+def manage_service(service, command):
+    if conf.service == 'service':
+        form = '{0} {1}'
+    else:  # if SERVICE_PREFIX in ('systemctl', 'rc.d'):
+        form = '{1} {0}'
+        if service in ('cron', 'myql', 'ssh'):
+            service += 'd'
+    sudo('{0} {1}'.format(conf.service, form.format(service, command)))
+
+
+@task
+def start_tomcat(confpath=None):
+    """Starts the tomcat server."""
+    readconf(confpath)
+    run('CATALINA_PID={tomcat_root}/temp/catalina.pid '
+        '{tomcat_root}/bin/catalina.sh start'.format(**conf), pty=False)
+
+
+@task
+def stop_tomcat(force=False, confpath=None):
+    """Stops the tomcat server."""
+    readconf(confpath)
+    with settings(warn_only=True):
+        run('CATALINA_PID={tomcat_root}/temp/catalina.pid '
+            '{tomcat_root}/bin/catalina.sh stop {0}'
+            .format('force' if force else '', **conf), pty=False)
+
+
+@task
+def restart_tomcat(force_stop=False, confpath=None):
+    """Restarts the tomcat server."""
+    readconf(confpath)
+    execute(stop_tomcat, force=force_stop)
+    execute(start_tomcat)
+
+
+@task
+def update_tomcat(confpath=None):
+    """Updates tomcat configuration."""
+    readconf(confpath)
+    # Upload tomcat configuration file.
+    upload_template(
+        os.path.join(CONF_ROOT, 'tomcat', 'server.xml'),
+        '{services_root}/tomcat/conf'.format(**conf),
+        context=conf)
+    execute(restart_tomcat)
+
+
+@task
+def restart_mysql(confpath=None):
+    readconf(confpath)
+    manage_service("mysql", "restart")
+
+
+@task
+def update_mysql(confpath=None):
+    readconf(confpath)
+    # Upload mysql configuration file.
+    upload_template(
+        os.path.join(CONF_ROOT, 'mysql', 'my.cnf'),
+        '/etc/mysql',
+        use_sudo=True,
+        context=conf)
+    execute(restart_mysql)
+
+
+@task
+def restart_nginx(confpath=None):
+    readconf(confpath)
+    manage_service('nginx', 'restart')
+
+
+@task
+def reload_nginx(confpath=None):
+    readconf(confpath)
+    manage_service('nginx', 'reload')
+
+
+@task
+def update_nginx(confpath=None):
+    readconf(confpath)
+    remote_path = ('/etc/nginx/sites-available/{project_domain}'
+                   .format(**conf))
+    upload_template(
+        os.path.join(CONF_ROOT, 'nginx', 'sites-available', 'troia'),
+        remote_path,
+        use_sudo=True,
+        context=conf)
+    execute('enable_site', conf.project_domain)
+
+
+@task
+def enable_site(site_name, confpath=None):
+    readconf(confpath)
+    available_path = '/etc/nginx/sites-available/{0}'.format(site_name)
+    enabled_path = '/etc/nginx/sites-enabled/{0}'.format(site_name)
+    sudo('ln -fs {} {}'.format(available_path, enabled_path))
+    with settings(use_sudo=True):
+        chown(available_path, '{0}:{0}'.format(env.user))
+        chown(enabled_path, '{0}:{0}'.format(env.user))
+    execute(reload_nginx)
+
+
+@task
+def disable_site(site_name, confpath=None):
+    readconf(confpath)
+    with settings(use_sudo=True):
+        rm('/etc/nginx/sites-enabled/{0}'.format(site_name), force=True)
+    execute(reload_nginx)
+
+
+@task
+def initialize_project(reinstall_services=False, reinstall_requirements=False,
+                       confpath=None):
+    """Initializes the project directory structure and installs required
+    services and Python packages."""
+    readconf(confpath)
     with settings(use_sudo=True):
         mkdir('{project_root}')
-        chown('{project_root}', '{0}:{0}'.format(conf.user, **conf))
-    mkdir('{project_root}/logs/nginx')
-    mkdir('{project_root}/logs/tomcat')
+        chown('{project_root}', '{0}:{0}'.format(conf.user))
+    mkdir('{logs_root}/nginx')
+    mkdir('{logs_root}/tomcat')
+    mkdir('{scripts_root}')
     mkdir('{source_root}')
-    mkdir('{hyde_root}')
+    mkdir('{sql_root}')
+    mkdir('{static_root}')
     mkdir('{downloads_root}')
-    mkdir('{apidocs_root}')
+    execute('install_services', force_reinstall=reinstall_services)
+    execute('install_requirements', force_reinstall=reinstall_requirements)
 
 
-def make_hyde_tree():
-    mkdir('{hyde_root}')
-    mkdir('{hyde_root}/media/css')
-    mkdir('{hyde_root}/media/downloads')
-    mkdir('{hyde_root}/media/img')
-    mkdir('{hyde_root}/media/js')
-    mkdir('{hyde_root}/media/less')
-    mkdir('{hyde_root}/media/txt')
-
-
-def install_services(force_update=False):
-    '''Installs services.'''
+@task
+def install_services(force_reinstall=False, confpath=None):
+    """Installs services."""
     message('Installing services')
     # Remove whole subdirectory.
-    if force_update:
+    if force_reinstall:
         rm('{services_root}', recursive=True, force=True)
     # Check if services exist.
     elif (exists('{services_root}/tomcat/bin/catalina.sh'.format(**conf)) and
@@ -149,15 +268,18 @@ def install_services(force_update=False):
         return
     # Create services root directory if does not exist.
     mkdir('{services_root}')
+    # Download and install services.
     with cd('/tmp'):
-        if not exists("/tmp/tomcat.tgz"):
+        # Tomcat 7.
+        if not exists('/tmp/tomcat.tgz'):
             message('Downloading apache tomcat')
             run('wget {tomcat_url} -O tomcat.tgz'.format(**conf))
         message('Installing apache tomcat')
         run('tar xzf tomcat.tgz')
         rm('{services_root}/tomcat', recursive=True, force=True)
         mv('apache-tomcat-*', '{services_root}/tomcat')
-        if not exists("/tmp/maven.tgz"):
+        # Maven 3.
+        if not exists('/tmp/maven.tgz'):
             message('Downloading apache maven')
             run('wget {maven_url} -O maven.tgz'.format(**conf))
         message('Installing apache maven')
@@ -165,201 +287,117 @@ def install_services(force_update=False):
         rm('{services_root}/maven', recursive=True, force=True)
         run('rm -rf maven/')
         mv('apache-maven-*', '{services_root}/maven')
-    # Upload configuration file.
-    upload_template(
-        os.path.join(CONF_ROOT, 'tomcat', 'server.xml'),
-        '{services_root}/tomcat/conf'.format(**conf),
-        context=conf)
+    # Update services configuration.
+    execute('update_tomcat')
 
 
-def install_requirements(force_update=False):
-    '''Makes virtual environment and installs requirements.'''
+@task
+def install_requirements(force_reinstall=False, confpath=None):
+    """Creates virtual environment and installs requirements."""
     message('Installing Python\'s virtual environtment')
-    if force_update:
+    if force_reinstall:
         rm('{virtualenv_root}', recursive=True, force=True)
     activate_path = '{virtualenv_root}/bin/activate'.format(**conf)
-    activate_cmd = 'source {}'.format(activate_path)
-    install_cmd = None
+    activate_cmd = 'source {0}'.format(activate_path)
     valid = True
     with settings(warn_only=True):
         if not exists(activate_path):
             valid = False
     if not valid:
         message('Virtual environment does not exist or it is broken. '
-            'Reinstalling')
-        return
+                'Reinstalling')
         rm('{virtualenv_root}', recursive=True, force=True)
         run('virtualenv --python={python} --no-site-packages '
             '{virtualenv_root}'.format(**conf))
         with prefix(activate_cmd):
-            run('pip install -r {troia_web_root}/requirements.txt'
+            run('pip install -r {troia_web_source}/requirements.txt'
                 .format(**conf))
     message('Virtual environment exists. Trying to activate')
     run(activate_cmd)
 
 
-def manage_srv(srv, cmd):
-    sudo("{}{} {}".format(SERVICE_PREFIX, srv, cmd))
-
-
 @task
-def update_nginx_config(confpath=None):
-    """Updates nginx configuration and restarts the server."""
+def deploy_troia_web(confpath=None):
+    """Deploys the Troia-Web site (generic)."""
     readconf(confpath)
-    name = '{project_name}'.format(**conf)
-    available_path = '/etc/nginx/sites-available/{}'.format(name)
-    enabled_path = '/etc/nginx/sites-enabled/{}'.format(name)
-    upload_template(
-        os.path.join(CONF_ROOT, 'nginx', 'sites-available', name),
-        '/etc/nginx/sites-available/{}'.format(name),
-        use_sudo=True,
-        context=conf)
-    sudo('ln -fs {} {}'.format(available_path, enabled_path))
-    with settings(use_sudo=True):
-        chown(available_path, '{0}:{0}'.format(env.user))
-        chown(enabled_path, '{0}:{0}'.format(env.user))
-    make_project_tree()
-    manage_service('nginx', 'reload')
+    # Clear destination directory.
+    rm('{static_root}/{troia_web_name}', recursive=True, force=True)
+    # Create hyde project structure.
+    mkdir('{static_root}/{troia_web_name}')
+    clone_or_update('{troia_web_source}', '{troia_web_repo}',
+                    '{troia_web_branch}')
+    message('Compiling less')
+    with cd('{troia_web_source}/content/media/less'.format(**conf)):
+        mkdir('../css')
+        lessc('bootstrap.less', '../css/bootstrap.css')
+        lessc('responsive.less', '../css/responsive.css')
+        lessc('troia.less', '../css/troia.css')
+    message('Generating static content')
+    with prefix('source {virtualenv_root}/bin/activate'.format(**conf)):
+        run('hyde -s \'{troia_web_source}\' gen'
+            '     -d \'{static_root}/{troia_web_name}\' '
+            '     -c \'{troia_web_source}/production.yaml\''
+            .format(**conf))
+    cp('{downloads_root}', '{static_root}/{troia_web_name}/media/',
+        recursive=True, force=True)
 
 
 @task
-def start_troia_server(confpath=None):
-    """Starts the troia server (tomcat)."""
-    conf = readconf(confpath)
-    run('CATALINA_PID={tomcat_root}/temp/catalina.pid '
-        '{tomcat_root}/bin/catalina.sh start'.format(**conf), pty=False)
-
-
-@task
-def stop_troia_server(confpath=None, force=False):
-    """Stops the troia server (tomcat)."""
-    conf = readconf(confpath).copy()
-    conf['force'] = force
-    with settings(warn_only=True):
-        cmd = ('CATALINA_PID={tomcat_root}/temp/catalina.pid '
-                '{tomcat_root}/bin/catalina.sh stop {force}'.format(**conf))
-        run(cmd, pty=False)
-
-
-@task
-def restart_troia_server(confpath=None):
-    """Stops and starts the troia server (tomcat)."""
-    execute(stop_troia_server, confpath=confpath)
-    execute(start_troia_server, confpath=confpath)
-
-
-@task
-def deploy_troia_server_download(confpath=None):
+def enable_troia_web(confpath=None):
     readconf(confpath)
-    # Ensure project structure.
-    make_project_tree()
-    # Ensure all services are properly installed.
-    install_services()
-    source_root = '{source_root}/Troia-Server'.format(**conf)
-    clone_or_update(source_root, conf['troia_server_repo'],
-        branch=conf['troia_server_repo_branch'])
-    # Build Troia-Server.war file.
-    with cd(source_root):
-        run('{maven_root}/bin/mvn package -Dmaven.test.skip=true'.format(**conf))
-    cp('{troia_server_root}/target/{troia_server_war_name}.war',
-        '{hyde_root}/media/downloads/{final_name}.war')
+    enable_site(conf.project_domain)
+
+
+@task
+def disable_troia_web(confpath=None):
+    readconf(confpath)
+    disable_site(conf.project_domain)
 
 
 @task
 def deploy_troia_server(confpath=None):
-    """Performs the Troia-Server deployment to the tomcat."""
     readconf(confpath)
-    # Ensure project structure.
-    make_project_tree()
-    # Ensure all services are properly installed.
-    install_services()
-    source_root = '{source_root}/Troia-Server'.format(**conf)
-    clone_or_update(source_root, conf['troia_server_repo'],
-        branch=conf['troia_server_repo_branch'])
+    """Deploys the Troia-Server project (generic)."""
+    clone_or_update('{troia_server_source}', '{troia_server_repo}',
+                    '{troia_server_branch}')
+    # Send files.
+    files = (('sql', 'db_clear.sql'), ('scripts', 'db_clear.sh'))
+    for file_tuple in files:
+        upload_template(
+            os.path.join(CONF_ROOT, *file_tuple),
+            '{project_root}/{0}/{1}'.format(*file_tuple, **conf),
+            context=conf)
     # Replace the properties with custom file.
     upload_template(
         os.path.join(CONF_ROOT, 'troia-server', 'dawidskene.properties'),
-        '{troia_server_root}/troia-server/src/main/resources/'
+        '{troia_server_source}/troia-server/src/main/resources/'
         'dawidskene.properties'.format(**conf),
         context=conf)
-    # Build Troia-Server.war file.
-    with cd(source_root):
-        run('{maven_root}/bin/mvn package -Dmaven.test.skip=true'.format(**conf))
-    # Deploy Troia-Server to the tomcat.
-    execute(stop_troia_server, confpath=confpath)
-    # Clean and copy .war file to the tomcat webapps directory.
-    rm('{tomcat_root}/webapps/{troia_server_final_name}*', recursive=True,
-        force=True)
-    cp('{troia_server_root}/target/{troia_server_war_name}.war',
-        '{tomcat_root}/webapps/{final_name}.war')
-    execute(start_troia_server, confpath=confpath)
+    # Build the .war file.
+    with cd('{troia_server_source}'.format(**conf)):
+        mvn('package -Dmaven.test.skip=true')
+    # Deploy the .war file.
+    execute(stop_tomcat)
+    rm('{tomcat_root}/webapps/{troia_server_name}.war', recursive=True, force=True)
+    cp('{troia_server_source}/troia-server/target/{troia_server_war_name}.war',
+        '{tomcat_root}/webapps/{troia_server_name}.war')
+    execute(start_tomcat)
 
 
 @task
 def update_troia_server(confpath=None):
-    conf = readconf(confpath)
-    # Upload tomcat configuration file.
-    upload_template(
-        os.path.join(CONF_ROOT, 'tomcat', 'server.xml'),
-        '{services_root}/tomcat/conf'.format(**conf),
-        context=conf)
-    # Upload mysql configuration file.
-    upload_template(
-        os.path.join(CONF_ROOT, 'mysql', 'my.cnf'),
-        '/etc/mysql',
-        use_sudo=True,
-        context=conf)
-    ensure_tree('{project_root}'.format(**conf), ('scripts', 'sql'))
-    # Upload scripts for cleaning database.
-    upload_template(
-        os.path.join(CONF_ROOT, 'db_clear.sh'),
-        '{project_root}/scripts'.format(**conf),
-        context=conf)
-    upload_template(
-        os.path.join(CONF_ROOT, 'db_clear.sql'),
-        '{sql_root}'.format(**conf),
-        context=conf)
-    # Restart mysql server.
-    sudo('service mysql restart')
-    # Restart troia server.
-    execute(restart_troia_server, confpath=confpath)
-
+    readconf(confpath)
+    """Updates the Troia-Server configuration (tomcat, mysql)."""
+    execute(update_tomcat)
+    execute(update_mysql)
 
 @task
-def generate_apidocs(confpath=None):
+def deploy_troia_server_download(confpath=None):
     readconf(confpath)
-    src_root = '{source_root}/Troia-Java-Client'.format(**conf)
-    clone_or_update(src_root, conf['troia_client_repo'],
-                    conf['troia_client_branch'])
-    target_path = '{}/target/site/apidocs'.format(src_root)
-    with cd(src_root):
-        run('{maven_root}/bin/mvn javadoc:javadoc'
-            .format(**conf))
-    run('rm -rf {static_root}/apidocs'.format(**conf))
-    run('cp -rf {} {static_root}'.format(target_path, **conf))
-
-
-@task
-def deploy_troia_web(confpath=None):
-    '''Synchronizes the website content with the repository.'''
-    readconf(confpath)
-    # Ensure project has valid directory structure.
-    make_project_tree()
-    # Clear the hyde directory.
-    rm('{hyde_root}', recursive=True, force=True)
-    # Ensure hyde directory structure.
-    make_hyde_tree()
-    source_root = '{source_root}/Troia-Web'.format(**conf)
-    clone_or_update(source_root, conf['troia_web_repo'],
-        branch=conf['troia_web_repo_branch'])
-    message('Compiling less')
-    lessc_wrapper('bootstrap')
-    lessc_wrapper('responsive')
-    lessc_wrapper('troia')
-    # Ensure python virtual environment is properly configured.
-    install_requirements(force_update=False)
-    with prefix('source {virtualenv_root}/bin/activate'.format(**conf)):
-        message('Generating static content')
-        run('hyde -s \'{0}\' gen -d \'{1}\' -c \'{0}/production.yaml\''
-            .format(conf.troia_web_root, conf.hyde_root))
-    cp('{static_root}/downloads', '{hyde_root}/media/', recursive=True)
+    clone_or_update('{troia_server_source}', '{troia_server_repo}',
+                    '{troia_server_branch}')
+    # Build Troia-Server.war file.
+    with cd(source_root):
+        mvn('package -Dmaven.test.skip=true')
+    cp('{troia_server_source}/target/{troia_server_war_name}.war',
+        '{hyde_root}/media/downloads/{final_name}.war')

@@ -1,30 +1,36 @@
 server {
     listen   80;
-	server_name troia troia.ipeirotis.com;
+	server_name 127.0.0.1 %(project_domain)s;
 
     access_log  %(project_root)s/logs/nginx/%(project_name)s.access.log;
     error_log   %(project_root)s/logs/nginx/%(project_name)s.error.log;
 
-	root %(project_root)s/static/hyde;
+    # Troia-Web.
+
+	root %(project_root)s/static/%(troia_web_name)s;
 	index index.html index.htm;
 
     location /media  {
         gzip on;
-        root %(project_root)s/static/hyde;
+        root %(project_root)s/static/%(troia_web_name)s;
         autoindex  off;
         expires 60d;
-    }
-
-    location /apidocs {
-        root %(project_root)s/static;
-        autoindex  off;
     }
 
     location /api {
         proxy_set_header   X-Real-IP        $remote_addr;
         proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
         proxy_set_header   Host             $host;
-        proxy_pass http://127.0.0.1:%(tomcat_port)s/GetAnotherLabel/rest;
+        proxy_pass http://127.0.0.1:%(tomcat_port)s/%(troia_server_name)s;
+    }
+
+    # Continous Integration.
+
+    location /ci/ {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_pass http://localhost:%(ci_port)s/ci/;
+        proxy_redirect off;
     }
 
     location / {
@@ -32,9 +38,10 @@ server {
     }
 
     location = /robots.txt {
-        root %(project_root)s/static/hyde;
+        root %(project_root)s/static/%(troia_web_name)s;
     }
 
     error_page  404  /404.html;
+    error_page  500  /500.html;
 }
 

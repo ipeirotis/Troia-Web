@@ -1,17 +1,30 @@
 {
     "project_name": "troia-staging",
+    "project_domain": "localhost",
     "projects_root": "/data/projects",
+
     "troia_web_repo": "git://github.com/ipeirotis/Troia-Web.git",
-    "troia_web_repo_branch": "master",
+    "troia_web_branch": "master",
+    "troia_web_name": "troia_web",
+
     "troia_server_repo": "git://github.com/ipeirotis/Troia-Server.git",
-    "troia_server_repo_branch": "master",
-    "troia_client_repo": "git://github.com/ipeirotis/Troia-Java-Client.git",
+    "troia_server_branch": "master",
+    "troia_server_name": "troia-server",
+    "troia_server_war_name": "troia-server-0.8",
+
+    "db_name": "db_name",
+    "db_user": "db_user",
+    "db_pass": "db_pass",
+    "db_host": "localhost",
+    "db_port": "1234",
+
     "python": "/usr/bin/python2.7",
     "lessc": "lessc",
-    "tomcat_url": "http://ftp.ps.pl/pub/apache/tomcat/tomcat-7/v7.0.29/bin/apache-tomcat-7.0.29.tar.gz",
-    "maven_url": "http://www.apache.org/dyn/closer.cgi?path=/maven/binaries/apache-maven-3.0.4-bin.tar.gz",
-    "tomcat_port": "8080",
+    "service": "service",
 
-    "war_name": "troia-server-0.8",
-    "final_name": "troia-dev"
+    "tomcat_url": "http://ftp.ps.pl/pub/apache/tomcat/tomcat-7/v7.0.34/bin/apache-tomcat-7.0.34.tar.gz",
+    "maven_url": "http://ftp.ps.pl/pub/apache/maven/maven-3/3.0.4/binaries/apache-maven-3.0.4-bin.tar.gz",
+
+    "tomcat_port": "8080",
+    "ci_port": "7070"
 }
