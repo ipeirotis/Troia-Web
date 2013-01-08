@@ -417,10 +417,16 @@ def deploy_troia_server(confpath=None):
 
 @task
 def update_troia_server(confpath=None):
-    readconf(confpath)
     """Updates the Troia-Server configuration (tomcat, mysql)."""
+    readconf(confpath)
     execute(update_tomcat)
     execute(update_mysql)
+
+
+@task
+def synchronize_downloads(confpath=None):
+    cp('{downloads_root}', '{static_root}/{troia_web_name}/media',
+        recursive=True, force=True)
 
 
 @task
@@ -428,8 +434,9 @@ def deploy_troia_server_download(confpath=None):
     readconf(confpath)
     clone_or_update('{troia_server_source}', '{troia_server_repo}',
                     '{troia_server_branch}')
-    # Build Troia-Server.war file.
-    with cd('{troia_server_source}'):
+    # Build the .war file.
+    with cd('{troia_server_source}/troia-server'.format(**conf)):
         mvn('package -Dmaven.test.skip=true')
-    cp('{troia_server_source}/target/{troia_server_war_name}.war',
-        '{hyde_root}/media/downloads/{final_name}.war')
+    cp('{troia_server_source}/troia-server/target/{troia_server_war_name}.war',
+        '{downloads_root}')
+    execute(synchronize_downloads)
