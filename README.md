@@ -36,35 +36,22 @@ Deployment
 It is convinient to add your ssh public key to ``authorized_keys`` on the
 destination host.
 
-You also have to prepare a configuration json file containing at least the 
-following settings:
-
-    {    
-        "db_user": "user",
-        "db_password": "password",
-        "db_name": "name",
-        "db_host": "host"
-    }
+You also have to prepare a configuration json based on the ``defaults.json``.
     
 The fabric script does all deployment work for you. It performs several
 different tasks.
+
+# Initialize project
+
+For the first time you have to initialize project structure. It can be done by running the following:
+
+    fab initialize_project:confpath=path/to/conf.json -H host -u username
 
 # Deployment of the Troia web site
 
 Just run the following:
 
-    fab deploy_web:confpath=path/to/conf.json -H host -u username
-    
-For an update of the Python's virtual environment use 
-``update_environment=True`` option:
-
-    fab deploy_web:update_environment=True,path/to/conf.json -H host -u username
-
-# Generation of the Troia-Java-Client API docs
-
-The following command generates and serves javadocs:
-
-    fab generate_apidocs:confpath=path/to/conf.json -H host -u username
+    fab deploy_troia_web:confpath=path/to/conf.json -H host -u username
 
 # Deployment of the Troia-Server
 
@@ -84,4 +71,4 @@ the following command:
 
 The Nginx configuration can be updated with:
 
-    fab update_server:confpath=path/to/conf.json -H host -u username
+    fab update_nginx:confpath=path/to/conf.json -H host -u username
