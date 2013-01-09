@@ -314,7 +314,7 @@ def install_services(force_reinstall=False, confpath=None):
         # Java Server Faces library.
         if not exists('/tmp/javax.faces.jar'):
             message('Downloading Java Server Faces library')
-            run('wget {faces_url} -O javax.faces.jar')
+            run('wget {faces_url} -O javax.faces.jar'.format(**conf))
         message('Installing Java Server Faces library')
         # TODO not works.
         # mv('javax.faces.jar', '{tomcat_root}/lib')
