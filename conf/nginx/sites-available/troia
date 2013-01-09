@@ -1,14 +1,20 @@
 server {
+    listen      80;
+    server_name www.%(project_domain)s;
+    rewrite     ^(.*)$ $scheme://%(project_domain)s$1 permanent;
+}
+
+server {
     listen   80;
-	server_name 127.0.0.1 %(project_domain)s;
+    server_name 127.0.0.1 %(project_domain)s;
 
     access_log  %(project_root)s/logs/nginx/%(project_name)s.access.log;
     error_log   %(project_root)s/logs/nginx/%(project_name)s.error.log;
 
-    # Troia-Web.
+# Troia-Web.
 
-	root %(project_root)s/static/%(troia_web_name)s;
-	index index.html index.htm;
+    root %(project_root)s/static/%(troia_web_name)s;
+    index index.html index.htm;
 
     location /media  {
         gzip on;
@@ -24,7 +30,7 @@ server {
         proxy_pass http://127.0.0.1:%(tomcat_port)s/%(troia_server_name)s;
     }
 
-    # Continous Integration.
+# Continous Integration.
 
     location /ci/ {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -44,4 +50,3 @@ server {
     error_page  404  /404.html;
     error_page  500  /500.html;
 }
-
