@@ -203,37 +203,21 @@ This works the same as presented in basic version of this tutorial:
         "categoryName":"porn"
     }]'
 
-    
+
 Load gold labels
-----------------
+++++++++++++++++
 This also works the same way as in batch version:
 ::
 
-    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/troia_tutorial/goldData" -d 'labels=
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/IncrementalDS/goldData" -d 'labels=
     [{
         "correctCategory": "notporn",
         "objectName": "http://google.com"
     }]'
 
 
-Start compute
--------------
-We start actual calculations
-::
-
-    curl -X POST -d "iterations=20" "http://project-troia.com/api/jobs/troia_tutorial/compute"
-
-As a result, as previously we get JSON containg redirect id:
-::
-
-    {
-        "timestamp":"2012-12-29T13:39:07.769Z",
-        "status":"OK",
-        "redirect":"5"
-    }
-
-Get results
------------
+Getting results
++++++++++++++++
 To collect workers results we call:
 ::
 
@@ -248,8 +232,22 @@ To see what are the most likely categories for data use:
 
 As you can see there are two parameters:
 
-- **algorithm**, which have two possible values: default *DS* (DawidSkene), *MV* (MajorityVote),
-- **labelChoosing**, which have two passible values: default *MaxLikelihood*, *MinCost*.
+- **algorithm**, which have two possible values: default *DS* (DawidSkene), *MV* (MajorityVote
+)- **labelChoosing**, which have two possible values: *MaxLikelihood* (default), *MinCost*.
+
+
+Computation
+-----------
+
+Basic calculations are done as we manipulate data.
+We can force more computations.
+More computations in some cases leads to better results.
+This is true mostly for some complicated and huge data.
+
+::
+
+    curl -X POST -d "iterations=20" "http://project-troia.com/api/jobs/IncrementalDS/compute"
+
 
 {% endrestructuredtext %}
 
