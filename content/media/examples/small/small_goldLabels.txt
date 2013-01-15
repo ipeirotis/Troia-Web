@@ -1,0 +1,10 @@
+Object-57	Category-1
+Object-58	Category-1
+Object-59	Category-1
+Object-79	Category-2
+Object-50	Category-1
+Object-74	Category-2
+Object-73	Category-2
+Object-52	Category-1
+Object-72	Category-2
+Object-51	Category-1

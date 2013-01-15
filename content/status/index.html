@@ -1,0 +1,66 @@
+---
+extends: skeleton/_base.html
+title: Troia metrics status
+---
+
+{% block extra_js %}
+	<script src="http://d3js.org/d3.v3.js"></script>
+	<script src="/media/js/jquery.js"></script>
+	<script src="/media/js/underscore.js"></script>
+	<script src="http://backbonejs.org/backbone-min.js"></script>
+	<script src="/media/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/media/js/chart.js" charset="utf-8"></script>
+{% endblock %}
+
+{% block content %}
+	<style>
+		body {
+			font: 10px sans-serif;
+		}
+		
+		.axis path,.axis line {
+			fill: none;
+			stroke: #000;
+			shape-rendering: crispEdges;
+		}
+		
+		.x.axis path {
+			display: none;
+		}
+		
+		.line {
+			fill: none;
+			stroke: orange;
+			stroke-width: 2.5px;
+		}
+		
+		.bar {
+			fill: darkblue;
+		}
+	</style>
+	<div class="container">
+		<div>
+			<h4>Used data sets from test generator (3 categories, max 30
+				iterations):</h4>
+			<ul>
+				<li>small: objects: 100, workers: 5, workers per objects: 3
+					(300 votes), gold ratio: 0.1, minimal worker quality: 0.6, maximal
+					worker quality: 1</li>
+				<li>medium: objects: 1000, workers: 20, workers per objects: 3
+					(3000 votes), gold ratio: 0.1, minimal worker quality: 0.6,
+					maximal worker quality: 1</li>
+				<li>big: objects: 10000, workers: 200, workers per objects: 3
+					(30000 votes), gold ratio: 0.005, minimal worker quality: 0.8,
+					maximal worker quality: 1</li>
+			</ul>
+			<div id="data_cost" class="row">
+				<h2>Data cost:</h2>
+			</div>
+			<div id="data_quality" class="row">
+				<h2>Data quality:</h2>
+			</div>
+			<div id="worker_quality" class="row">
+				<h2>Workers quality:</h2>
+			</div>
+	</div>
+{% endblock %}

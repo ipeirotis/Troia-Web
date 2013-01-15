@@ -56,15 +56,6 @@
 	<script src="/media/js/jquery.mCustomScrollbar.js"></script>
 	<script src="/media/js/jquery-linedtextarea.js"></script>
 
-		{% block extra_js %}
-	
-		{% endblock %}
-		<script type="text/javascript">
-		$(function() {
-			$('.dropdown-toggle').dropdown();
-			$("#iternumber").selectbox();
-		});
-		</script>
 		{% endblock %}        
 
 <link rel="icon" 
@@ -99,6 +90,15 @@
 
         </div>
         <!-- Michał's GA integration. -->
+        {% block extra_js %}
+	
+		{% endblock %}
+		<script type="text/javascript">
+			$(function() {
+				$('.dropdown-toggle').dropdown();
+				$("#iternumber").selectbox();
+			});
+		</script>
         <script type="text/javascript">
 
           var _gaq = _gaq || [];
@@ -118,7 +118,8 @@
         </script>
 		{% block footer %}
 			{% include "skeleton/_footer.html" %}
-		{% endblock %}		
+		{% endblock %}	
+			
 	</body>
 </html>
 {% endblock %}
