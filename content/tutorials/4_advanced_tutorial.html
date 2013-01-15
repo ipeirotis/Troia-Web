@@ -1,0 +1,257 @@
+---
+extends: skeleton/_base.html
+title: Advanced tutorial
+---
+
+{% block content %}
+
+{% restructuredtext %}
+
+What this tutorial is about?
+============================
+In this tutorial we will present more advanced features of Troia.
+We will cover topics like incremental version of algorithm, marking objects as gold or retreving more advanced statistics.
+
+As in base tutorial we will use `cURL <http://curl.haxx.se/>`_ to communicate with Troia Server API.
+
+
+Incremental Dawid-Skene
+-----------------------
+In Troia we have two versions of Dawid-Skene algorithm.
+Batch version requires user to inform Troia to preform some calculations explictly.
+Incremental version doesn't require this.
+It does some computations when you add some data to job or modify them.
+From user point of view main difference is that it doesn't require to call **calculate** go give some meaningfull results.
+
+Let see it in action.
+
+To focus on most important things we will skip description of status responsesn which requires user to go some other address.
+
+
+Job creation
+++++++++++++
+
+When you create job you can specify **type** parameter.
+Default value is *batch*.
+Other choice would be *incremental*.
+It will result in creating job which uses incremental version of *Get-Another-Label* algorithm.
+
+::
+
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs" -d 'id=IncrementalDS&type=incremental&categories=
+    [{
+        "prior":"1",
+        "name":"porn",
+        "misclassification_cost":
+        {
+            "porn":"0",
+            "notporn":"1"}
+        },
+    {
+        "prior":"1",
+        "name":"notporn",
+        "misclassification_cost":
+        {
+            "porn":"1",
+            "notporn":"0"
+        }
+    }]'
+
+Remember that we also need to send collection of **categories**, containing their names, priorities and misclassification costs matrix.
+
+As a result we get JSON:
+::
+
+    {
+        "timestamp":"2012-12-29T12:27:28.926Z",
+        "result":"New job created with ID: IncrementalDS",
+        "status":"OK"
+    }
+
+
+Load assigned labels
+++++++++++++++++++++
+
+This works the same as presented in basic version of this tutorial:
+
+::
+
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/IncrementalDS/assignedLabels" -d 'labels=
+    [{
+        "workerName":"worker1",
+        "objectName":"http://sunnyfun.com",
+        "categoryName":"porn"
+    },
+    {
+        "workerName":"worker1",
+        "objectName":"http://sex-mission.com",
+        "categoryName":"porn"
+    },
+    {
+        "workerName":"worker1",
+        "objectName":"http://google.com",
+        "categoryName":"porn"
+    },
+    {
+        "workerName":"worker1",
+        "objectName":"http://youporn.com",
+        "categoryName":"porn"
+    },
+    {
+        "workerName":"worker1",
+        "objectName":"http://yahoo.com",
+        "categoryName":"porn"
+    },
+    {
+        "workerName":"worker2",
+        "objectName":"http://sunnyfun.com",
+        "categoryName":"notporn"
+    },
+    {
+        "workerName":"worker2",
+        "objectName":"http://sex-mission.com",
+        "categoryName":"porn"
+    },
+    {
+        "workerName":"worker2",
+        "objectName":"http://google.com",
+        "categoryName":"notporn"
+    },
+    {
+        "workerName":"worker2",
+        "objectName":"http://youporn.com",
+        "categoryName":"porn"
+    },
+    {
+        "workerName":"worker2",
+        "objectName":"http://yahoo.com",
+        "categoryName":"porn"
+    },
+    {
+        "workerName":"worker3",
+        "objectName":"http://sunnyfun.com",
+        "categoryName":"notporn"
+    },
+    {
+        "workerName":"worker3",
+        "objectName":"http://sex-mission.com",
+        "categoryName":"porn"
+    },
+    {
+        "workerName":"worker3",
+        "objectName":"http://google.com",
+        "categoryName":"notporn"
+    },
+    {
+        "workerName":"worker3",
+        "objectName":"http://youporn.com",
+        "categoryName":"porn"
+    },
+    {
+        "workerName":"worker3",
+        "objectName":"http://yahoo.com",
+        "categoryName":"notporn"
+    },
+    {
+        "workerName":"worker4",
+        "objectName":"http://sunnyfun.com",
+        "categoryName":"notporn"
+    },
+    {
+        "workerName":"worker4",
+        "objectName":"http://sex-mission.com",
+        "categoryName":"porn"
+    },
+    {
+        "workerName":"worker4",
+        "objectName":"http://google.com",
+        "categoryName":"notporn"
+    },
+    {
+        "workerName":"worker4",
+        "objectName":"http://youporn.com",
+        "categoryName":"porn"
+    },
+    {
+        "workerName":"worker4",
+        "objectName":"http://yahoo.com",
+        "categoryName":"notporn"
+    },
+    {
+        "workerName":"worker5",
+        "objectName":"http://sunnyfun.com",
+        "categoryName":"porn"
+    },
+    {
+        "workerName":"worker5",
+        "objectName":"http://sex-mission.com",
+        "categoryName":"notporn"
+    },
+    {
+        "workerName":"worker5",
+        "objectName":"http://google.com",
+        "categoryName":"porn"
+    },
+    {
+        "workerName":"worker5",
+        "objectName":"http://youporn.com",
+        "categoryName":"notporn"
+    },
+    {
+        "workerName":"worker5",
+        "objectName":"http://yahoo.com",
+        "categoryName":"porn"
+    }]'
+
+    
+Load gold labels
+----------------
+This also works the same way as in batch version:
+::
+
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/troia_tutorial/goldData" -d 'labels=
+    [{
+        "correctCategory": "notporn",
+        "objectName": "http://google.com"
+    }]'
+
+
+Start compute
+-------------
+We start actual calculations
+::
+
+    curl -X POST -d "iterations=20" "http://project-troia.com/api/jobs/troia_tutorial/compute"
+
+As a result, as previously we get JSON containg redirect id:
+::
+
+    {
+        "timestamp":"2012-12-29T13:39:07.769Z",
+        "status":"OK",
+        "redirect":"5"
+    }
+
+Get results
+-----------
+To collect workers results we call:
+::
+
+    curl -X GET "http://project-troia.com/api/jobs/troia_tutorial/prediction/workers"
+
+Stats include workers error rate, quality (both optimized and exptected), number of annotations, number of gold tests and their confusion matrix.
+
+To see what are the most likely categories for data use:
+::
+
+    curl -X GET "http://project-troia.com/api/jobs/troia_tutorial/prediction/data?algorithm=DS&labelChoosing=MaxLikelihood"
+
+As you can see there are two parameters:
+
+- **algorithm**, which have two possible values: default *DS* (DawidSkene), *MV* (MajorityVote),
+- **labelChoosing**, which have two passible values: default *MaxLikelihood*, *MinCost*.
+
+{% endrestructuredtext %}
+
+{% endblock %}
+
