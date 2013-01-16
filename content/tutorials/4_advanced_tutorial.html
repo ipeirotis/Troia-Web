@@ -107,6 +107,28 @@ And after redirecting you should get:
     }
 
 
+Or we could ask for workers quality:
+
+::
+
+    "http://project-troia.com/api/jobs/IncrementalDS/prediction/workersQuality"
+
+And in result we should get:
+
+::
+
+    {
+        "result": {
+            "worker1": 0.8516375211366187,
+            "worker2": 0.9011184676007533,
+            "worker3": 0.9749015350602155,
+            "worker4": 0.9749015350602155,
+            "worker5": 0.8439714531050402
+        },
+        "status": "OK",
+        "timestamp": "2013-01-16T15:48:05.842+01:00"
+    }
+
 
 Computation
 +++++++++++
@@ -140,6 +162,65 @@ results with:
         "timestamp": "2013-01-15T16:00:24.162+01:00"
     }
 
+
+Marking object as gold
+----------------------
+
+Sometimes during collecting assigns we get to know true label for some sample.
+This is knowledge that we might use to increase accuracy of Troia.
+
+Lets initialize job with cost matrix and assigns from example.
+We will work on *incremental* version as it doesn't require forcing computations.
+
+We check workers qualities just after putting assigns:
+
+::
+
+    curl -X GET "http://project-troia.com/api/jobs/ADV_TUT/status/2"
+
+
+We should get something like this (after redirect):
+
+::
+
+    {
+        "result": {
+            "worker1": 0.8516375211366187,
+            "worker2": 0.9011184676007533,
+            "worker3": 0.9749015350602155,
+            "worker4": 0.9749015350602155,
+            "worker5": 0.8439714531050402
+        },
+        "status": "OK",
+        "timestamp": "2013-01-16T14:29:25.405+01:00"
+    }
+
+
+Now we mark object as gold:
+
+::
+
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/ADV_TUT/goldData" -d 'labels=
+    [{
+        "correctCategory": "porn",
+        "objectName": "http://sex-mission.com"
+    }]'
+
+And asking again for results we should get different results:
+
+::
+
+    {
+        "result": {
+            "worker1": 0.8924584748443827,
+            "worker2": 0.9283250665167726,
+            "worker3": 0.981807211504098,
+            "worker4": 0.981807211504098,
+            "worker5": 0.8869016746724077
+        },
+        "status": "OK",
+        "timestamp": "2013-01-16T15:53:29.578+01:00"
+    }
 
 
 {% endrestructuredtext %}
