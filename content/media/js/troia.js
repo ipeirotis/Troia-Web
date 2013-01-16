@@ -1,7 +1,7 @@
 function initialize() {
 
 
-    var apiUrl = '/api/';
+    var apiUrl = 'http://localhost:8080/troia-server-0.8/';
     var id = getURLParameter("id");
     var categoryList = [];
     var oldCategoryList = [];
@@ -382,7 +382,7 @@ function initialize() {
 
     function ping() {
         ret = null;
-        get('status/ping', {}, false, function() {
+        get('status', {}, false, function() {
             if (ret === null) {
                 ret = true;
             }
@@ -404,7 +404,7 @@ function initialize() {
 
     function workerSummary(id)
     {
-        get('jobs/' + id + '/prediction/workers', {}, true, function(response) {
+        get('jobs/' + id + '/prediction/workersScore', {}, true, function(response) {
             json = $.parseJSON(response.responseText);
             $("#img-load").fadeOut(200, function() {
                 $('#workers').html(createWorkersTable(json.result));
