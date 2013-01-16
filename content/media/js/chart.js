@@ -139,15 +139,23 @@ var add_multiline_chart = function(place, datafile, dataset_name, y_axis_txt, to
 var datasets =['small', 'medium', 'big']; 
 var chart_settings = {
 	"data_cost": {
-		"metrics" : ["Eval_DS_ExpectedCost", "Eval_DS_MinCost", "Eval_DS_MaxLikelihood", "Eval_MV_ExpectedCost", "Eval_MV_MinCost", "Eval_MV_MaxLikelihood", "Estm_DS_MaxLikelihood", "Estm_DS_MinCost", "Estm_MV_MaxLikelihood", "Estm_MV_MinCost"],
+		"metrics" : ["Estm_DS_ExpectedCost", "Estm_DS_MinCost", "Estm_DS_MaxLikelihood", 
+		             "Estm_MV_ExpectedCost", "Estm_MV_MinCost", "Estm_MV_MaxLikelihood", 
+		             "Estm_NoVote_ExpectedCost", "Estm_NoVote_MinCost", "Estm_NoVote_MaxLikelihood", 
+		             "Eval_DS_MaxLikelihood", "Eval_DS_MinCost", "Eval_DS_Soft", 
+		             "Eval_MV_MaxLikelihood", "Eval_MV_MinCost", "Eval_MV_Soft"],
 		"txt": "Average data cost"
 	}, 
 	"data_quality": {
-		"metrics" : ["Eval_DS_ExpectedCost", "Eval_DS_MinCost", "Eval_DS_MaxLikelihood", "Eval_MV_ExpectedCost", "Eval_MV_MinCost", "Eval_MV_MaxLikelihood", "Estm_DS_MaxLikelihood", "Estm_DS_MinCost", "Estm_MV_MaxLikelihood", "Estm_MV_MinCost"],
+		"metrics" : ["Estm_DS_ExpectedCost", "Estm_DS_MinCost", "Estm_DS_MaxLikelihood", 
+		             "Estm_MV_ExpectedCost", "Estm_MV_MinCost", "Estm_MV_MaxLikelihood", 
+		             "Eval_DS_MaxLikelihood", "Eval_DS_MinCost", "Eval_DS_Soft",
+		             "Eval_MV_MaxLikelihood", "Eval_MV_MinCost", "Eval_MV_Soft"],
 		"txt": "Average data quality"
 	},
 	"worker_quality": {
-		"metrics" : ["Eval_DS_ExpectedCost", "Eval_DS_MinCost", "Eval_DS_MaxLikelihood", "Estm_DS_ExpectedCost", "Estm_DS_MinCost", "Estm_DS_MaxLikelihood"],
+		"metrics" : ["Estm_DS_ExpectedCost", "Estm_DS_MinCost", "Estm_DS_MaxLikelihood",
+		             "Eval_DS_ExpectedCost", "Eval_DS_MinCost", "Eval_DS_MaxLikelihood"],
 		"txt": "Average workers quality"
 	}
 }
