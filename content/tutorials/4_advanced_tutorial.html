@@ -10,7 +10,7 @@ title: Advanced tutorial
 What this tutorial is about?
 ============================
 In this tutorial we will present more advanced features of Troia.
-We will cover topics like incremental version of algorithm, marking objects as gold or retrieving more advanced statistics.
+We will cover topics like incremental version of algorithm, marking objects as gold or checking which samples might require more assigns.
 
 As in base tutorial we will use `cURL <http://curl.haxx.se/>`_ to communicate with Troia Server API.
 Also we will use the same dataset in examples.
@@ -221,6 +221,44 @@ And asking again for results we should get different results:
         "status": "OK",
         "timestamp": "2013-01-16T16:52:31.560+01:00"
     }
+
+
+Checking whether samples require more assigns
+---------------------------------------------
+
+Troia can determine whether there are samples for which we should provide more assigns in order to acquire more accurate results.
+To do this we can use *data cost* functions.
+It is related to fact that we can assign to different errors different costs.
+For example predicting not porn site as porn is not as big problem as predicting porn site as not porn in case of program which should protect kids computer.
+
+For our purposes of determining samples which require more assigns we will use variation called *expectedCost*.
+This value for given object describes cost value that algorithm *expects* it will generate.
+Lower value means that algorithm is more sure of its prediction and that it less require more data.
+
+To acquire those estimated costs for all data:
+
+::
+
+    curl -X GET "http://project-troia.com/api/jobs/ADV_TUT/prediction/dataCost" -d "costAlgorithm=ExpectedCost"
+
+
+On our basic example (without marking gold object) response shows that we have enough labels:
+
+::
+
+    {
+        "result": {
+            "http://google.com": 0.0032148158,
+            "http://sex-mission.com": 0.0015388141999999997,
+            "http://sunnyfun.com": 0.00029995499999999997,
+            "http://yahoo.com": 0.00017998380000000002,
+            "http://youporn.com": 0.040255395
+        },
+        "status": "OK",
+        "timestamp": "2013-01-16T17:26:22.999+01:00"
+    }
+
+As we can see algorithm is less confident about last url than any other.
 
 
 {% endrestructuredtext %}
