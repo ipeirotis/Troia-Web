@@ -371,6 +371,8 @@ def deploy_troia_web(confpath=None):
             .format(**conf))
     cp('{downloads_root}', '{static_root}/{troia_web_name}/media/',
         recursive=True, force=True)
+    run('ln -fs {example_datasets_path} {static_root}/{troia_web_name}/media/examples'.format(**conf))
+    run('ln -fs {csv_path} {static_root}/{troia_web_name}/media/csv'.format(**conf))
 
 
 @task
