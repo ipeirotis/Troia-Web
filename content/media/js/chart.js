@@ -15,11 +15,9 @@ ValueTypeView = Backbone.View.extend({
 	change: function(){
 		this.model.set("checked", !this.model.get("checked"));
 	},
+	template: _.template($('#value_type_template').html().replace(/\\/g, "")),
 	render: function (eventName) {
-		if (this.model.get('checked'))
-			$(this.el).html("<input type='checkbox' value='" + this.model.get("name") + "' checked=''/>" + this.model.get("name"));
-		else
-			$(this.el).html("<input type='checkbox' value='" + this.model.get("name") + "'/>" + this.model.get("name"));
+	    $(this.el).html(this.template(this.model.toJSON()));
         return this;
     }
 });
@@ -46,12 +44,11 @@ ValueTypeListView = Backbone.View.extend({
     }
 });
 
+var color = d3.scale.category20();
 var add_multiline_chart = function(place, datafile, dataset_name, y_axis_txt, to_view){ 
-	var margin = {top: 5, right: 120, bottom: 100, left: 50};
+	var margin = {top: 5, right: 0, bottom: 100, left: 50};
 	var width = 700 - margin.left - margin.right;
 	var height = 400 - margin.top - margin.bottom;
-
-	var color = d3.scale.category10();
 
 	var x = d3.scale.ordinal()
     	.rangePoints([0, width], .1);
@@ -79,7 +76,8 @@ var add_multiline_chart = function(place, datafile, dataset_name, y_axis_txt, to
 	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 	d3.tsv(datafile, function(error, data) {
-		color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+	    data = data.slice(-10);
+	    color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
 		
 		var values = color.domain().map(function(name) {
 			return {
@@ -94,7 +92,8 @@ var add_multiline_chart = function(place, datafile, dataset_name, y_axis_txt, to
 		});
 		
 		x.domain(data.map(function(d) { return d.date; }));
-		y.domain([0, d3.max(values, function(c) { return d3.max(c.values, function(v) { return v.value; }); })]);
+		y.domain([d3.min(values, function(c) { return d3.min(c.values, function(v) { return v.value; }); }) - 0.05,
+		          d3.max(values, function(c) { return d3.max(c.values, function(v) { return v.value; }); }) + 0.05]);
 
 		svg.append("g")
 			.attr("class", "x axis")
@@ -118,21 +117,13 @@ var add_multiline_chart = function(place, datafile, dataset_name, y_axis_txt, to
 	   		.style("text-anchor", "end")
 	   		.text(y_axis_txt);
 
-		var value_type = svg.selectAll(".city")
+		var value_type = svg.selectAll(".metric")
 			.data(values)
 			.enter().append("g")
-			.attr("class", "city");
 		value_type.append("path")
 	      	.attr("class", "line")
 	      	.attr("d", function(d) { return line(d.values); })
 	      	.style("stroke", function(d) { return color(d.name); });
-	
-		value_type.append("text")
-	      	.datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
-	      	.attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.value) + ")"; })
-	      	.attr("x", 3)
-	      	.attr("dy", ".35em")
-	      	.text(function(d) { return d.name; });
 	});
 }
 
@@ -159,19 +150,22 @@ var chart_settings = {
 		"txt": "Average workers quality"
 	}
 }
-_.each(_.keys(chart_settings), function(chart_type){
-	for (var t in datasets){
-		var uberplace = "#" + chart_type;
+var chart_template = _.template($("#charts_template").html().replace(/\\/g, ""));
+
+for (var t in datasets){
+    _.each(_.keys(chart_settings), function(chart_type){
+		var uberplace = "#" + datasets[t];
 		var place_id = chart_type + "_" + datasets[t];
 		var place = "#" + place_id;
 		var cb_place_id = place_id + "_mode";
 		var cb_place = "#" + cb_place_id;
 		var datafile = "/media/csv/" + chart_type + "_"+datasets[t]+".csv";
-		var dataset_name = datasets[t];
 		var y_axis_txt = chart_settings[chart_type]["txt"];
 		
-		d3.select(uberplace).append("div").attr("id", place_id).attr("class", "span7");
-		d3.select(place).append("h4").text(datasets[t] + " data set");
+		d3.select(uberplace).append("div").html(chart_template({
+		    'chart_title': y_axis_txt, 
+		    "chart_div_id": place_id, 
+		    "checkboxes_div_id": cb_place_id}));
 		add_multiline_chart(
 			place, 
 			datafile,
@@ -179,19 +173,18 @@ _.each(_.keys(chart_settings), function(chart_type){
 			y_axis_txt, 
 			chart_settings[chart_type]["metrics"]
 		);
-		d3.select(uberplace).append("div").attr("id", cb_place_id).attr("class", "span3");
 		
 		var vts = new ValueTypes();
 		var vtsv = new ValueTypeListView({collection: vts});
-		vtsv.dataset_name = dataset_name;
+		vtsv.dataset_name = datasets[t];
 		vtsv.place = place;
 		vtsv.datafile = datafile;
 		vtsv.y_axis_txt = y_axis_txt;
 		values = [];
 		_.each(chart_settings[chart_type]["metrics"], function(v){
-			values.push({"name": v, "checked": true});
+			values.push({"name": v, "checked": true, "color": color(v)});
 		});
 		vts.add(values);
 		$(cb_place).html(vtsv.render().el);
-	}
-});
+	});
+}
