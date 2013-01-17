@@ -38,7 +38,7 @@ It will result in creating job which uses incremental version of *Get-Another-La
 
 ::
 
-    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs" -d 'id=IncrementalDS&type=incremental&categories=
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs" -d 'id=advanced_tutorial&type=incremental&categories=
     [{
         "prior":"1",
         "name":"porn",
@@ -68,7 +68,7 @@ After doing this we are ready to retrieve results.
 For example to get predicted labels for all objects just call
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/IncrementalDS/prediction/data"
+    curl -X GET "http://project-troia.com/api/jobs/advanced_tutorial/prediction/data"
 
 After going to redirect you should obtain:
 
@@ -91,7 +91,7 @@ To see label probability distribution for *http://yahoo.com*:
 
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/IncrementalDS/data/http://yahoo.com/categoryProbability
+    curl -X GET "http://project-troia.com/api/jobs/advanced_tutorial/data/http://yahoo.com/categoryProbability"
 
 And after redirecting you should get:
 
@@ -111,7 +111,7 @@ Or we could ask for workers quality:
 
 ::
 
-    "http://project-troia.com/api/jobs/IncrementalDS/prediction/workersQuality"
+    curl -X GET "http://project-troia.com/api/jobs/advanced_tutorial/prediction/workersQuality"
 
 And in result we should get:
 
@@ -140,14 +140,14 @@ This is true mostly for some complicated and huge data.
 
 ::
 
-    curl -X POST -d "iterations=20" "http://project-troia.com/api/jobs/IncrementalDS/compute"
+    curl -X POST -d "iterations=20" "http://project-troia.com/api/jobs/advanced_tutorial/compute"
 
 
 Doing this on our example data changes label probability distribution for *http://yahoo.com*:
 
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/IncrementalDS/data/http://yahoo.com/categoryProbability
+    curl -X GET "http://project-troia.com/api/jobs/advanced_tutorial/data/http://yahoo.com/categoryProbability
 
 results with:
 
@@ -176,7 +176,7 @@ We check workers qualities just after putting assigns:
 
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/ADV_TUT/status/2"
+    curl -X GET "http://project-troia.com/api/jobs/advanced_tutorial/status/2"
 
 
 We should get something like this (after redirect):
@@ -200,7 +200,7 @@ Now we mark object as gold:
 
 ::
 
-    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/ADV_TUT/goldData" -d 'labels=
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/advanced_tutorial/goldData" -d 'labels=
     [{
         "correctCategory": "porn",
         "objectName": "http://sex-mission.com"
@@ -239,7 +239,7 @@ To acquire those estimated costs for all data:
 
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/ADV_TUT/prediction/dataCost" -d "costAlgorithm=ExpectedCost"
+    curl -X GET "http://project-troia.com/api/jobs/advanced_tutorial/prediction/dataCost" -d "costAlgorithm=ExpectedCost"
 
 
 On our basic example (without marking gold object) response shows that we have enough labels:
