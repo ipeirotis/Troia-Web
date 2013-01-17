@@ -111,7 +111,7 @@ Or we could ask for workers quality:
 
 ::
 
-    "http://project-troia.com/api/jobs/<JOB_ID>/prediction/workersQuality"
+    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/prediction/workersQuality"
 
 And in result we should get:
 
@@ -176,7 +176,7 @@ We check workers qualities just after putting assigns:
 
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/ADV_TUT/status/2"
+    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/status/2"
 
 
 We should get something like this (after redirect):
@@ -200,7 +200,7 @@ Now we mark object as gold:
 
 ::
 
-    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/ADV_TUT/goldData" -d 'labels=
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/<JOB_ID>/goldData" -d 'labels=
     [{
         "correctCategory": "porn",
         "objectName": "http://sex-mission.com"
@@ -239,7 +239,7 @@ To acquire those estimated costs for all data:
 
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/ADV_TUT/prediction/dataCost" -d "costAlgorithm=ExpectedCost"
+    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/prediction/dataCost" -d "costAlgorithm=ExpectedCost"
 
 
 On our basic example (without marking gold object) response shows that we have enough labels:
