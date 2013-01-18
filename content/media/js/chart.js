@@ -127,7 +127,7 @@ var add_multiline_chart = function(place, datafile, dataset_name, y_axis_txt, to
 	});
 }
 
-var datasets =['small', 'medium', 'big']; 
+var datasets =['adult', 'barzan', 'small', 'medium', 'big']; 
 var chart_settings = {
 	"data_cost": {
 		"metrics" : ["Estm_DS_ExpectedCost", "Estm_DS_MinCost", "Estm_DS_MaxLikelihood", 
