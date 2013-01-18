@@ -1,7 +1,5 @@
 function initialize() {
-
-
-    var apiUrl = '/api/';
+    var apiUrl = 'http://localhost:8080/troia-server-0.8/';
     var id = getURLParameter("id");
     var categoryList = [];
     var oldCategoryList = [];
@@ -17,9 +15,10 @@ function initialize() {
         //switch to results tab
         $('#menuTab li:nth-child(2) a').tab('show');
         //disable inputs tab
-        $("#menuTab li:nth-child(1) a").attr("data-toggle", "").css("cursor",  "not-allowed");
+//        $("#menuTab li:nth-child(1) a").attr("data-toggle", "").css("cursor",  "not-allowed");
         //print results
         majorityVotes(id); //calls workerSummary
+        loadData(id);
     }
     else {
         //disable results tab
@@ -108,12 +107,13 @@ function initialize() {
         $('#id_data').keyup(handler);
         $('#id_gold_data').keyup(handler);
     }
+    
+    function invalidateCostMatrix(){
+        parseWorkerAssignedLabels();
+        createCostMatrix(categoryList);
+    };
 
     function loadTestData(type) {
-        invalidateCostMatrix = function() {
-            parseWorkerAssignedLabels();
-            createCostMatrix(categoryList);
-        }
         if (type)
         {
             $.ajax({
@@ -135,6 +135,22 @@ function initialize() {
             $('#id_gold_labels').val("http://google.com      notporn");
             invalidateCostMatrix();
         }
+    };
+    
+    function loadData(id) {
+        get('jobs/' + id + '/data', {}, true, function(response){
+            json = $.parseJSON(response.responseText);
+            var data_str = "";
+            _.each(json.result, function(data){
+                _.each(data.labels, function(al, i){
+                    data_str += al.workerName + "\t" + al.objectName + "\t" + al.categoryName + "\n";
+                });
+                if (data.isGold)
+                    $('#id_gold_labels').append(data.name + "\t" + data.correctCategory + "\n");
+            });
+        $('#id_data').append(data_str.substring(0, data_str.length-1));
+        invalidateCostMatrix();
+        }, ajax_error, true, id);
     };
 
     function jsonify(data) {
