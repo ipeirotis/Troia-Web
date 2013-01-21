@@ -1,5 +1,5 @@
 function initialize() {
-    var apiUrl = 'http://localhost:8080/troia-server-0.8/';
+    var apiUrl = '/api/';
     var id = getURLParameter("id");
     var categoryList = [];
     var oldCategoryList = [];
@@ -14,8 +14,6 @@ function initialize() {
     if (id && exists(id)) {
         //switch to results tab
         $('#menuTab li:nth-child(2) a').tab('show');
-        //disable inputs tab
-//        $("#menuTab li:nth-child(1) a").attr("data-toggle", "").css("cursor",  "not-allowed");
         //print results
         majorityVotes(id); //calls workerSummary
         loadData(id);
