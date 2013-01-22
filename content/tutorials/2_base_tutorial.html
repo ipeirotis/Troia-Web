@@ -18,7 +18,7 @@ To create new job with **id** equal to some *<JOB_ID>* simply enter:
 
     curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs" -d 'id=<JOB_ID>&type=batch&categories=
     [{
-        "prior":"1",
+        "prior":"0.5",
         "name":"porn",
         "misclassification_cost":
         {
@@ -27,7 +27,7 @@ To create new job with **id** equal to some *<JOB_ID>* simply enter:
         }
     },
     {
-        "prior":"1",
+        "prior":"0.5",
         "name":"notporn",
         "misclassification_cost":
         {
@@ -271,19 +271,19 @@ Below are the qualities of workers for provided data.
 	{
 	   "timestamp":"2013-01-16T14:44:33.625Z",
 	   "result":{
-	      "worker2":-0.11111111111111116,
+	      "worker2":0.72,
 	      "worker3":1.0,
 	      "worker4":1.0,
 	      "worker5":1.0,
-	      "worker1":-1.0
+	      "worker1":0.5
 	   },
 	   "status":"OK"
 	}
 
 Returned qualities coincide with our assumptions about the workers:
 
-- worker1 is lazy, and gives the answer porn all the time (quality = -1)
-- worker2 is ok but not great. For example, labeled object5 as porn even though it is notporn (quality = -0.(1)6)
+- worker1 is lazy, and gives the answer porn all the time (quality = 0.5)
+- worker2 is ok but not great. For example, labeled object5 as porn even though it is notporn (quality = 0.72)
 - worker3 and worker4 are high-quality workers (quality = 1)
 - worker5 is malicious, giving always the incorrect answer, trying to fool the system (quality = 1 but error rate which we can get from previuos call is 1)
 
