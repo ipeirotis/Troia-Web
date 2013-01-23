@@ -1,5 +1,5 @@
 function initialize() {
-    var apiUrl = '/api/';
+    var apiUrl = 'http://localhost:8080/troia-server-0.8/';
     var id = getURLParameter("id");
     var categoryList = [];
     var oldCategoryList = [];
@@ -83,8 +83,9 @@ function initialize() {
         if (e.target.getAttribute('href') === '#matrix')
         {
             parseWorkerAssignedLabels();
-            if (!_.isEqual(oldCategoryList, categoryList))
-            createCostMatrix(categoryList);
+            if (!_.isEqual(oldCategoryList.sort(), categoryList.sort())){
+                createCostMatrix(categoryList);
+            }
         }
     });
 
@@ -106,9 +107,9 @@ function initialize() {
         $('#id_gold_data').keyup(handler);
     }
     
-    function invalidateCostMatrix(){
+    function invalidateCostMatrix(categories){
         parseWorkerAssignedLabels();
-        createCostMatrix(categoryList);
+        createCostMatrix(categoryList, categories);
     };
 
     function loadTestData(type) {
@@ -146,8 +147,12 @@ function initialize() {
                 if (data.isGold)
                     $('#id_gold_labels').append(data.name + "\t" + data.correctCategory + "\n");
             });
-        $('#id_data').append(data_str.substring(0, data_str.length-1));
-        invalidateCostMatrix();
+            $('#id_data').append(data_str.substring(0, data_str.length-1));
+        }, ajax_error, true, id);
+        
+        get('jobs/' + id + '/costs', {}, true, function(response){
+            json = $.parseJSON(response.responseText);
+            invalidateCostMatrix(json.result);
         }, ajax_error, true, id);
     };
 
@@ -259,13 +264,12 @@ function initialize() {
         return result;
     };
 
-    function categories(labels){
+    function categories_from_labels(labels){
         var result = [];
         _.each(labels, function(l) {
             result.push({
-                'prior': 1.0,
                 'name': l,
-                'misclassificationCost': misclassificationCost(labels, l)
+                'misclassification_cost': misclassificationCost(labels, l)
             });
         });
         return result;
@@ -342,7 +346,7 @@ function initialize() {
             if (k % l === 0){
                 d = {};
                 data.push({
-                    'prior': 1.0,
+                    'prior': 1./l,
                     'name': labels[k / l],
                     'misclassification_cost': d
                 });
@@ -456,11 +460,16 @@ function initialize() {
         return _.template($("#workers_template").html(), {workers: data} );
     }
 
-    function createCostMatrix(labels) {
+    /*
+     * labels: just an array of categories names
+     * categories (not required): array of categories objects (their prior, missclasification matrices)
+     */
+    function createCostMatrix(labels, categories) {
         $('#cost_matrix').empty();
         row = new Array();
         cell = new Array();
-        cat= categories(labels);
+        if (categories === undefined)
+            categories = categories_from_labels(labels)
         row_num = labels.length;
         cell_num = labels.length;
 
@@ -486,7 +495,7 @@ function initialize() {
             cell.appendChild(cont);
             row[c].appendChild(cell);
 
-            var category = _.find(cat, function(ca){
+            var category = _.find(categories, function(ca){
                 return ca['name'] === labels[c];
             });
 
@@ -494,7 +503,7 @@ function initialize() {
                 cell[k]=document.createElement('td');
                 cont=document.createElement('input');
                 $(cont).css('width', 'auto');
-                $(cont).prop('value', category['misclassificationCost'][labels[k]]);
+                $(cont).prop('value', category['misclassification_cost'][labels[k]]);
                 cell[k].appendChild(cont);
                 row[c].appendChild(cell[k]);
             }
