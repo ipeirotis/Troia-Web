@@ -109,11 +109,11 @@ title: Demo application
 						<pre></pre>
 					</div>				
 	    		<div id="response">
-					<div class="span4">
+					<div class="span12">
 						<h3>Predicted labels:</h3>
 						<div id="classes"></div>
 					</div>
-					<div class="span8">
+					<div class="span12">
 						<h3>Workers estimated statistics:</h3>
 						<div id="workers"></div>
 					</div>
@@ -128,16 +128,22 @@ title: Demo application
         </script>
 
         <!-- Classes table template. -->
-		<script type="text/template" id="classes_template">
+		<script type="text/template" id="objects_template">
 			<div>
 			<table class='table table-striped'>
-				<tr><th>Object</th><th>Class</th></tr>
-                <% 	_.each(classes, function(c){ %>
-                    <tr>
-                        <td><%= c.objectName %></td>
-                        <td><%= c.categoryName %></td>
-                    </tr>
-                <% }); %>
+				<tr><th><%= objName %></th>
+				<% _.each(headers, function(h){  %>
+					<th><%= h %></th>
+				<% }); %>				
+				</tr>
+				<% _.each(objects, function(o){ %>
+					<tr>
+						<td><%= o.name %></td>
+						<% _.each(headers, function(h){ %>
+						<td><%= o[h] %></td>
+						<% }); %>
+					</tr>
+				<% }); %>
 			</table>
 			</div>
         </script>
