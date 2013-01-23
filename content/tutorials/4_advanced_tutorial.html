@@ -40,7 +40,7 @@ It will result in creating job which uses incremental version of *Get-Another-La
 
     curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs" -d 'id=<JOB_ID>&type=incremental&categories=
     [{
-        "prior":"1",
+        "prior":"0.5",
         "name":"porn",
         "misclassification_cost":
         {
@@ -49,7 +49,7 @@ It will result in creating job which uses incremental version of *Get-Another-La
         }
     },
     {
-        "prior":"1",
+        "prior":"0.5",
         "name":"notporn",
         "misclassification_cost":
         {
@@ -155,8 +155,8 @@ results with:
 
     {
         "result": {
-            "notporn": 0.98,
-            "porn": 0.02
+            "notporn": 0.97998,
+            "porn": 0.02002
         },
         "status": "OK",
         "timestamp": "2013-01-15T16:00:24.162+01:00"
