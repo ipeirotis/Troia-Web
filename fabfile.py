@@ -406,8 +406,9 @@ def deploy_troia_server(confpath=None):
         '{troia_server_source}/troia-server/src/main/resources/'
         'dawidskene.properties'.format(**conf),
         context=conf)
-    # Build the .war file.
+    # Clean and build the .war file.
     with cd('{troia_server_source}/troia-server'.format(**conf)):
+        mvn('clean')
         mvn('package -Dmaven.test.skip=true')
     # Deploy the .war file.
     # execute(stop_tomcat)
