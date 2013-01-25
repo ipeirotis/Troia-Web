@@ -2,9 +2,10 @@ import os
 import json
 
 from fabric import colors
-from fabric.api import (cd, env, execute, prefix, run, settings, sudo,
-                        runs_once, task)
+from fabric.api import (cd, env, execute, prefix, run, local, settings, sudo,
+                        runs_once)
 from fabric.contrib.files import exists, upload_template
+from fabric.tasks import WrappedCallableTask
 
 
 THIS_ROOT = os.path.dirname(os.path.abspath(__name__))
@@ -13,6 +14,18 @@ DEFAULT_PATH = os.path.join(THIS_ROOT, 'default.json')
 
 
 conf = env
+
+
+class Task(WrappedCallableTask):
+
+    def run(self, *args, **kwargs):
+        run('echo `date` {command} {local_user} >> '
+            '~/deployment.log'.format(**conf))
+        super(Task, self).run(*args, **kwargs)
+
+
+def task(func):
+    return Task(func)
 
 
 def message(msg, *args, **kwargs):
