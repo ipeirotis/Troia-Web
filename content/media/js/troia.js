@@ -148,11 +148,10 @@ function initialize() {
                     $('#id_gold_labels').append(data.name + "\t" + data.correctCategory + "\n");
             });
             $('#id_data').append(data_str.substring(0, data_str.length-1));
-        }, ajax_error, true, id);
-        
-        get('jobs/' + id + '/costs', {}, true, function(response){
-            json = $.parseJSON(response.responseText);
-            invalidateCostMatrix(json.result);
+            get('jobs/' + id + '/costs', {}, true, function(response){
+                json = $.parseJSON(response.responseText);
+                invalidateCostMatrix(json.result);
+            }, ajax_error, true, id);
         }, ajax_error, true, id);
     };
 
@@ -237,7 +236,7 @@ function initialize() {
         timeoutf = function(){
             json = $.parseJSON(res.responseText);
             $.ajax({
-                url: apiUrl + 'jobs/' + id + "/status/" + json.redirect,
+                url: apiUrl + "responses/" + json.redirect,
                 type: 'get',
                 complete: function(res) {
                     if (res.statusText === "OK")
