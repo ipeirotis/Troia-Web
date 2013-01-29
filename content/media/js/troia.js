@@ -236,7 +236,7 @@ function initialize() {
         timeoutf = function(){
             json = $.parseJSON(res.responseText);
             $.ajax({
-                url: apiUrl + "responses/" + json.redirect,
+                url: apiUrl + json.redirect,
                 type: 'get',
                 complete: function(res) {
                     if (res.statusText === "OK")
