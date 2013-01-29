@@ -187,13 +187,14 @@ As a result we get JSON:
     {
         "timestamp":"2012-12-29T13:14:41.299Z",
         "status":"OK",
-        "redirect":"1"
+        "redirect":"responses/<RESPONSE_ID>/jobs/<JOB_ID>/assignedLabels"
     }
 
+where <RESPONSE_ID> is some generated id.
 That means we need to call:
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/status/1"
+    curl -X GET "http://project-troia.com/api/responses/<RESPONSE_ID>/jobs/<JOB_ID>/assignedLabels
 
 to see what is the status of calling load assigned labels method.
 As a result we get another JSON:
@@ -218,26 +219,36 @@ Send samples for which we know correct label. That would allow algorithm to a be
         "objectName": "http://google.com"
     }]'
 
+Similarly as previously, as a result we get:
+::
+
+    
+    {
+        "timestamp":"2012-12-29T13:15:41.299Z",
+        "status":"OK",
+        "redirect":"responses/<RESPONSE_ID>/jobs/<JOB_ID>/goldData"
+    }
+
 Start compute
 -------------
-We start actual calculations
+We start actual calculations:
 ::
 
     curl -X POST -d "iterations=20" "http://project-troia.com/api/jobs/<JOB_ID>/compute"
 
-As a result, as previously we get JSON containg redirect id:
+As a result, as previously we get JSON containg redirect uri:
 ::
 
     {
         "timestamp":"2012-12-29T13:39:07.769Z",
         "status":"OK",
-        "redirect":"5"
+        "redirect":"responses/<RESPONSE_ID>/jobs/<JOB_ID>/compute"
     }
     
 We can check if computation has ended by checking its status:
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/status/5"
+    curl -X GET "http://project-troia.com/api/responses/<RESPONSE_ID>/jobs/<JOB_ID>/compute"
 
 If dataset is huge and we checked status just after start computation call we'll get:
 ::
@@ -258,7 +269,7 @@ To collect workers results we call:
 
     curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/prediction/workersScore"
 
-Stats include workers error rate, quality (both optimized and exptected), number of annotations, number of gold tests and their confusion matrix.
+and as previous we get JSON containing redirect uri. Following the link we get stats including workers error rate, quality (both optimized and exptected), number of annotations, number of gold tests and their confusion matrix.
 
 To see what are the workers qualities call:
 ::
@@ -300,7 +311,7 @@ As you can see there are two parameters:
 - **algorithm**, which have two possible values: default *DS* (DawidSkene), *MV* (MajorityVote),
 - **labelChoosing**, which have two passible values: default *MaxLikelihood*, *MinCost*.
 
-Results:
+As usual we get JSON containing redirect uri. Folowing the link we get result similar to:
 ::
 
 	{
@@ -321,13 +332,13 @@ Label probability distribution for single object
 We can also see what is the label probability distribution for objects by calling:
 ::
 
-	curl -X GET "http://project-troia.com/api/jobs/troia_tutorial/data/http://sunnyfun.com/categoryProbability"
-	
+    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/data/http://sunnyfun.com/categoryProbability"
+
 There is optional parameter:
 
 - **type**, which have two possible values: default *DS* (DawidSkene), *MV* (MajorityVote).
 
-Result:
+Following the returned redirect uri we get result:
 ::
 
 	{
