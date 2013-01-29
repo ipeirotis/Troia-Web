@@ -138,7 +138,7 @@ function initialize() {
     
     function loadData(id) {
         get('jobs/' + id + '/data', {}, true, function(response){
-            json = $.parseJSON(response.responseText);
+            var json = $.parseJSON(response.responseText);
             var data_str = "";
             _.each(json.result, function(data){
                 _.each(data.labels, function(al, i){
@@ -149,7 +149,7 @@ function initialize() {
             });
             $('#id_data').append(data_str.substring(0, data_str.length-1));
             get('jobs/' + id + '/costs', {}, true, function(response){
-                json = $.parseJSON(response.responseText);
+                var json = $.parseJSON(response.responseText);
                 invalidateCostMatrix(json.result);
             }, ajax_error, true, id);
         }, ajax_error, true, id);
@@ -234,7 +234,7 @@ function initialize() {
 
     function redirect_func(id, res, success) {
         timeoutf = function(){
-            json = $.parseJSON(res.responseText);
+            var json = $.parseJSON(res.responseText);
             $.ajax({
                 url: apiUrl + json.redirect,
                 type: 'get',
@@ -413,7 +413,7 @@ function initialize() {
 
     function majorityVotes(id) {
         get('jobs/' + id + '/prediction/data', {}, true, function(response){
-            json = $.parseJSON(response.responseText);
+            var json = $.parseJSON(response.responseText);
             $('#classes').html(createClassesTable(json.result));
             workerSummary(id);
         }, ajax_error, true, id);
@@ -422,7 +422,7 @@ function initialize() {
     function workerSummary(id)
     {
         get('jobs/' + id + '/prediction/workersScore', {}, true, function(response) {
-            json = $.parseJSON(response.responseText);
+            var json = $.parseJSON(response.responseText);
             $("#img-load").fadeOut(200, function() {
                 $('#workers').html(createWorkersTable(json.result));
                 $("a[rel=popover]").popover({html: true, title: "Confusion matrix", placement: "left"}).click(function(e) {
