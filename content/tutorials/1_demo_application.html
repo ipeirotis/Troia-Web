@@ -132,12 +132,12 @@ title: Demo application
 			<div>
 			<table class='table table-striped'>
 				<tr><th>Object</th><th>Class</th></tr>
-                <% 	for (var key in classes) { %>
+                <% 	_.each(classes, function(c){ %>
                     <tr>
-                        <td><%= key %></td>
-                        <td><%= classes[key] %></td>
+                        <td><%= c.objectName %></td>
+                        <td><%= c.categoryName %></td>
                     </tr>
-                <% }; %>
+                <% }); %>
 			</table>
 			</div>
         </script>

@@ -252,14 +252,16 @@ function initialize() {
     };
 
     function misclassificationCost(labels, label) {
-        //returns {'a': 0.33, 'b': 0.33, 'c': 0, 'd': 0.33} for labels=[a, b, c, d], label=c
-        var result = {};
+        //returns [{'categoryName': 'c', value:0}, {'categoryName': 'a', value:0.33}, {'categoryName': 'b', value:0.33},
+        //{'categoryName': 'd', value:0.33}] for labels=[a, b, c, d], label=c
+        var result = [];
         var avg = 1.0 / (labels.length - 1.0);
         _.each(labels, function(l) {
-            if (l !== label)
-            result[l] = avg;
+            result.push({
+                'categoryName': l,
+                'value': l !== label ? avg : 0
+            });
         });
-        result[label] = 0;
         return result;
     };
 
@@ -268,7 +270,7 @@ function initialize() {
         _.each(labels, function(l) {
             result.push({
                 'name': l,
-                'misclassification_cost': misclassificationCost(labels, l)
+                'misclassificationCost': misclassificationCost(labels, l)
             });
         });
         return result;
@@ -343,14 +345,15 @@ function initialize() {
         var l = labels.length;
         _.each($('#cost_matrix input'), function(i) {
             if (k % l === 0){
-                d = {};
+                d = [];
                 data.push({
                     'prior': 1./l,
                     'name': labels[k / l],
-                    'misclassification_cost': d
+                    'misclassificationCost': d
                 });
             }
-            d[labels[k % l]] = parseFloat($(i).prop('value'));
+            d.push({'categoryName': labels[k % l],
+                    'value': parseFloat($(i).prop('value'))});
             k += 1;
         });
         return data;
@@ -414,7 +417,7 @@ function initialize() {
     function majorityVotes(id) {
         get('jobs/' + id + '/prediction/data', {}, true, function(response){
             var json = $.parseJSON(response.responseText);
-            $('#classes').html(createClassesTable(json.result));
+            $('#classes').html(_.template($("#classes_template").html(), {classes: json.result}));
             workerSummary(id);
         }, ajax_error, true, id);
     }
@@ -437,12 +440,6 @@ function initialize() {
             });
         }, ajax_error, true, id);
     }
-
-    function createClassesTable(classes) {
-        return _.template($("#classes_template").html(), {
-            classes: classes 
-        });
-    };
 
     function createWorkersTable(data) {
         if (categoryList.length === 0){
@@ -502,7 +499,9 @@ function initialize() {
                 cell[k]=document.createElement('td');
                 cont=document.createElement('input');
                 $(cont).css('width', 'auto');
-                $(cont).prop('value', category['misclassification_cost'][labels[k]]);
+                $(cont).prop('value', _.find(category['misclassificationCost'], function(ca){
+                    return ca['categoryName'] === labels[k];
+                })['value']);
                 cell[k].appendChild(cont);
                 row[c].appendChild(cell[k]);
             }
