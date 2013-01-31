@@ -187,14 +187,14 @@ As a result we get JSON:
     {
         "timestamp":"2012-12-29T13:14:41.299Z",
         "status":"OK",
-        "redirect":"responses/<RESPONSE_ID>/jobs/<JOB_ID>/assignedLabels"
+        "redirect":"responses/<RESPONSE_ID>/jobs/<JOB_ID>/POST/assignedLabels"
     }
 
 where <RESPONSE_ID> is some generated id.
 That means we need to call:
 ::
 
-    curl -X GET "http://project-troia.com/api/responses/<RESPONSE_ID>/jobs/<JOB_ID>/assignedLabels
+    curl -X GET "http://project-troia.com/api/responses/<RESPONSE_ID>/jobs/<JOB_ID>/POST/assignedLabels
 
 to see what is the status of calling load assigned labels method.
 As a result we get another JSON:
@@ -226,7 +226,7 @@ Similarly as previously, as a result we get:
     {
         "timestamp":"2012-12-29T13:15:41.299Z",
         "status":"OK",
-        "redirect":"responses/<RESPONSE_ID>/jobs/<JOB_ID>/goldData"
+        "redirect":"responses/<RESPONSE_ID>/jobs/<JOB_ID>/POST/goldData"
     }
 
 Start compute
@@ -242,7 +242,7 @@ As a result, as previously we get JSON containg redirect uri:
     {
         "timestamp":"2012-12-29T13:39:07.769Z",
         "status":"OK",
-        "redirect":"responses/<RESPONSE_ID>/jobs/<JOB_ID>/compute"
+        "redirect":"responses/<RESPONSE_ID>/jobs/<JOB_ID>/POST/compute"
     }
     
 We can check if computation has ended by checking its status:
