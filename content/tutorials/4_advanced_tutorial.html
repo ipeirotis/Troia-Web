@@ -43,19 +43,19 @@ It will result in creating job which uses incremental version of *Get-Another-La
         "prior":"0.5",
         "name":"porn",
         "misclassification_cost":
-        {
-            "porn":"0",
-            "notporn":"1"
-        }
+        [
+            {"categoryName": "porn", "value": 0},
+            {"categoryName": "notporn", "value": 1}
+        ]
     },
     {
         "prior":"0.5",
         "name":"notporn",
         "misclassification_cost":
-        {
-            "porn":"1",
-            "notporn":"0"
-        }
+        [
+            {"categoryName": "porn", "value": 1},
+            {"categoryName": "notporn", "value": 0}
+        ]
     }]'
 
 Remember that we also need to send collection of **categories**, containing their names, priorities and misclassification costs matrix.
