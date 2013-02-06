@@ -75,13 +75,13 @@ After going to redirect you should obtain:
 ::
 
     {
-        "result": {
-            "http://google.com": "notporn",
-            "http://sex-mission.com": "porn",
-            "http://sunnyfun.com": "notporn",
-            "http://yahoo.com": "notporn",
-            "http://youporn.com": "porn"
-        },
+        "result": [
+            {"objectName":"http://google.com","categoryName":"notporn"},
+            {"objectName":"http://youporn.com","categoryName":"porn"},
+            {"objectName":"http://sunnyfun.com","categoryName":"notporn"},
+            {"objectName":"http://sex-mission.com","categoryName":"porn"},
+            {"objectName":"http://yahoo.com","categoryName":"notporn"}
+        ],
         "status": "OK",
         "timestamp": "2013-01-15T15:53:30.378+01:00"
     }
@@ -98,10 +98,10 @@ And after redirecting you should get:
 ::
 
     {
-        "result": {
-            "notporn": 0.97945,
-            "porn": 0.02055
-        },
+        "result": [
+            {"categoryName":"porn","value":0.02055},
+            {"categoryName":"notporn","value":0.97945}
+        ],
         "status": "OK",
         "timestamp": "2013-01-15T15:56:15.429+01:00"
     }
@@ -118,13 +118,13 @@ And in result we should get:
 ::
 
     {
-        "result": {
-            "worker1": 0.8516375211366187,
-            "worker2": 0.9011184676007533,
-            "worker3": 0.9749015350602155,
-            "worker4": 0.9749015350602155,
-            "worker5": 0.8439714531050402
-        },
+        "result": [
+            {"workerName":"worker1","value":0.8516375211366187},
+            {"workerName":"worker2","value":0.9011184676007533},
+            {"workerName":"worker3","value":0.9749015350602155},
+            {"workerName":"worker4","value":0.9749015350602155},
+            {"workerName":"worker5","value":0.8439714531050402}
+        ]
         "status": "OK",
         "timestamp": "2013-01-16T15:48:05.842+01:00"
     }
