@@ -1,5 +1,7 @@
 import os
 import json
+import requests
+import time
 
 from fabric import colors
 from fabric.api import (cd, env, execute, prefix, run, local, settings, sudo,
@@ -401,9 +403,9 @@ def disable_troia_web(confpath=None):
 
 
 @task
-def deploy_troia_server(confpath=None):
-    readconf(confpath)
+def deploy_troia_server(confpath=None, blocking=False):
     """Deploys the Troia-Server project (generic)."""
+    readconf(confpath)
     clone_or_update('{troia_server_source}', '{troia_server_repo}',
                     '{troia_server_branch}')
     # Send files.
@@ -423,12 +425,24 @@ def deploy_troia_server(confpath=None):
     with cd('{troia_server_source}/troia-server'.format(**conf)):
         mvn('clean')
         mvn('package -Dmaven.test.skip=true')
+    before = requests.get('http://{project_domain}/api/status'.format(**conf))
     # Deploy the .war file.
     # execute(stop_tomcat)
     rm('{tomcat_root}/webapps/{troia_server_name}.war', recursive=True, force=True)
     cp('{troia_server_source}/troia-server/target/{troia_server_war_name}.war',
         '{tomcat_root}/webapps/{troia_server_name}.war')
     # execute(start_tomcat)
+    while blocking:
+        after = requests.get('http://{project_domain}/api/status'.format(**conf))
+        print before.content
+        print after.content
+        if not before.ok and after.ok:
+            break
+        if (before.ok and after.ok and
+                before.json()['result']['deploy_time'] !=
+                after.json()['result']['deploy_time']):
+            break
+        time.sleep(5)
 
 
 @task
