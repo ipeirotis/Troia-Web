@@ -13,10 +13,10 @@ This tutorial would show you, step by step, how to play with Troia Server. We wi
 
 Create job
 ----------
-To create new job with **id** equal to some *<JOB_ID>* simply enter:
+To create new simply enter:
 ::
 
-    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs" -d 'id=<JOB_ID>&type=batch&categories=
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs" -d 'type=batch&categories=
     [{
         "prior":"0.5",
         "name":"porn",
@@ -47,6 +47,8 @@ As a result we get JSON:
         "result":"New job created with ID: <JOB_ID>",
         "status":"OK"
     }
+
+Note, that the response contains job ID. It is neccessary to pass the generated id to all other endpoints that operates on jobs.
 
 
 Load assigned labels
