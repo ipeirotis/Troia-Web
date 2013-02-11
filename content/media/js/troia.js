@@ -3,7 +3,7 @@ var labelChoosingFunctions = ["MaxLikelihood", "MinCost"];
 var costFunctions = ["ExpectedCost", "MaxLikelihood", "MinCost"];
 
 function initialize() {
-    var apiUrl = '/api/';
+    var apiUrl = 'http://localhost:8080/troia-server-0.8/';
     var id = getURLParameter("id");
     var categoryList = [];
     var oldCategoryList = [];
@@ -260,7 +260,6 @@ function initialize() {
                         success(res);
                     else
                         setTimeout(timeoutf, 500);
-
                 },
                 error: ajax_error
             });
@@ -433,9 +432,10 @@ function initialize() {
 
     function predictLabels(id, algorithm, labelChoosing) {
         get('jobs/' + id + '/prediction/data', {'algorithm': algorithm, 'labelChoosing': labelChoosing}, true, function(response){
-            json = $.parseJSON(response.responseText);
-            json.result['name'] = algorithm + " " + labelChoosing;
-            predictedLabels.push(json.result);
+            var json = $.parseJSON(response.responseText);
+            var result = objectArrayToDict(json.result, 'objectName', 'categoryName');
+            result['name'] = algorithm + " " + labelChoosing;
+            predictedLabels.push(result);
             if (predictedLabels.length === algorithms.length * labelChoosingFunctions.length) {
                 objects = transposeObjects(predictedLabels);
                 headers = getHeaders(objects);
@@ -451,23 +451,21 @@ function initialize() {
         }, ajax_error, true, id);
     }
     
-    function workersQuality(id, costFunc)
-    {
+    function workersQuality(id, costFunc) {
         get('jobs/' + id + '/prediction/workersQuality', {'costAlgorithm': costFunc}, true, function(response) {
-            json = $.parseJSON(response.responseText);
-            json.result['name'] = costFunc;
-            workerQualities.push(json.result);
+            var json = $.parseJSON(response.responseText);
+            var result = objectArrayToDict(json.result, 'workerName', 'value');
+            result['name'] = costFunc;
+            workerQualities.push(result);
             if (workerQualities.length === costFunctions.length) {
                 workers = transposeObjects(workerQualities);
                 get('jobs/' + id + '/workers', {}, true, function(response) {
-                    json = $.parseJSON(response.responseText);
-                    console.log(workers)
+                    var json = $.parseJSON(response.responseText);
                     _.each(workers, function(w){
                         _.each(_.keys(json.result[w.name]), function(attr){
                             w[attr] = json.result[w.name][attr]; 
                         });
                     });
-//                    console.log(workers);
                     headers = getHeaders(workers);
                     $('#workers').html(_.template($("#objects_template").html(), {
                         objects: workers,
@@ -478,18 +476,28 @@ function initialize() {
                     gettingWorkerQualities = false;
                     toggleTablesVisibility();
                 }, ajax_error, true, id);
-                
-                
             }
         }, ajax_error, true, id);
     };
     
     /*
+     * for input [{'key': aaa, 'value': 123}, {'key': bbb, 'value': 432}]
+     * returns {'aaa': 123, 'bbb': 432}  
+     */
+    function objectArrayToDict(arg, key, value){
+        var ret = {};
+        _.each(arg, function(a) {
+            ret[a[key]] = a[value];
+        });
+        return ret;
+    }
+
+    /*
      * for input: [{'google.com': 'notporn', 'youporn.com': 'porn', 'name': 'alg1'},{'google.com': 'notporn', 'youporn.com': 'notporn', 'name': 'alg2'}]
      * would return: [{'name': 'google.com', 'alg1': 'notporn', 'alg2': 'notporn'}, {'name': 'youporn.com', 'alg1': 'porn', 'alg2': 'notporn'}]
      */
     function transposeObjects(arg){
-        ret = [];
+        var ret = [];
         _.each(_.keys(arg[0]), function(obj){
             if (obj !== "name")
                 ret.push({'name': obj});
@@ -503,7 +511,7 @@ function initialize() {
     };
     
     function getHeaders(arg) {
-        ret = [];
+        var ret = [];
         _.each(_.keys(arg[0]), function(obj){
             if (obj !== "name")
                 ret.push(obj);
