@@ -1,0 +1,88 @@
+---
+extends: skeleton/_base.html
+title: GALC TEST
+---
+
+{% block extra_js %}
+    <script src="/media/js/galc.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="row-fluid">
+    <div class="span12 no-left-margin relative">
+        <ul class="nav nav-tabs smaller" id="menuTab">
+            <li class="active"><a href="#input" data-toggle="tab">Input</a></li>
+            <li><a href="#result" data-toggle="tab">Results</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active" id="input">
+                <div>
+                    <form id="data_form" class="form-horizontal" method="post">     
+                        <ul class="nav nav-tabs" id="dataTab">
+                            <li class="active"><a href="#data" data-toggle="tab">Data</a></li>
+                            <li><a href="#gold" data-toggle="tab">Gold data</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="data">
+                                <div class="span7 wrapper">
+                                    <div class="control-group content2">
+                                        <textarea id="id_data" class="field span12" rows="15" cols="40" placeholder="worker object class"></textarea>
+                                        <span class="help-inline"></span>
+                                        <h3>Line format:</h3>
+                                        <pre>workerid[tab]objectid[tab]assignedlabel</pre>
+                                    </div>
+                                </div>
+                                <div class="span5 well">
+                                    
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="gold">
+                                <div class="span7">
+                                    <div class="control-group">
+                                        <textarea id="id_gold_labels" class="field span12" rows="15" cols="40" placeholder="object class"></textarea>
+                                        <span class="help-inline"></span>
+                                        <h3>Line format:</h3>
+                                        <pre>objectid[tab]correctlabel</pre>
+                                    </div>
+                                </div>
+                                <div class="span5 well">
+            
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-error" style="display:none;">  
+                            <strong>Error!</strong><p>Troia server not responding.</p>  
+                        </div> 
+                        <div class="form-actions">
+                            <span type="button" class="btn btn-info" id="send_data">Process</span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="tab-pane" id="result">
+                <img src="/media/img/bigrotation.gif" id="img-load" />
+                    <div id="url">
+                        You can see later your results at:
+                        <pre></pre>
+                    </div>              
+                <div id="response">
+                    <ul class="nav nav-tabs" id="resultsTab">
+                        <li class="active"><a href="#labels" data-toggle="tab">Predicted labels</a></li>
+                        <li><a href="#workers" data-toggle="tab">Workers statistics</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="labels">
+                            <div id="classes"></div>
+                        </div>
+                        <div class="tab-pane" id="workers">
+                            <div id="workers"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

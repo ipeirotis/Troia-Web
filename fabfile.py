@@ -114,6 +114,8 @@ def lessc(less, css):
     run('{lessc} {} > {}'.format(less.format(**conf), css.format(**conf),
         **conf))
 
+def coffee(input, output):
+    run("coffee --compile --output {} {}".format(output, input))
 
 def mvn(command):
     run('{maven_root}/bin/mvn {0}'.format(command, **conf))
@@ -378,6 +380,11 @@ def deploy_troia_web(confpath=None):
         lessc('bootstrap.less', '../css/bootstrap.css')
         lessc('responsive.less', '../css/responsive.css')
         lessc('troia.less', '../css/troia.css')
+    
+    message("Compiling coffee")
+    with cd('{troia_web_source}/content/media/coffee'.format(**conf)):
+        coffee('.', '../js')
+    
     message('Generating static content')
     with prefix('source {virtualenv_root}/bin/activate'.format(**conf)):
         run('hyde -s \'{troia_web_source}\' gen'
