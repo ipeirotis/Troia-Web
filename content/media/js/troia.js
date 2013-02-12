@@ -3,7 +3,7 @@ var labelChoosingFunctions = ["MaxLikelihood", "MinCost"];
 var costFunctions = ["ExpectedCost", "MaxLikelihood", "MinCost"];
 
 function initialize() {
-    var apiUrl = 'http://localhost:8080/troia-server-0.8/';
+    var apiUrl = '/api/';
     var id = getURLParameter("id");
     var categoryList = [];
     var oldCategoryList = [];
@@ -22,8 +22,10 @@ function initialize() {
         //switch to results tab
         $('#menuTab li:nth-child(2) a').tab('show');
         //print results
-//        majorityVotes(id); //calls workerSummary
+        $("#img-load").show();
+        $("#response").hide();
         loadData(id);
+        getResults(id);
     }
     else {
         //disable results tab
@@ -71,14 +73,7 @@ function initialize() {
                                 $(that).removeClass('disabled').text(buttonText);
                                 $(that).one('click', clickHandler);
                                 $("#url pre").text(document.URL + "?id=" + id);
-                                _.each(algorithms, function(alg){
-                                    _.each(labelChoosingFunctions, function(labelChoosing){
-                                        predictLabels(id, alg, labelChoosing);
-                                    });
-                                });
-                                _.each(costFunctions, function(costFunc){
-                                    workersQuality(id, costFunc);
-                                });
+                                getResults(id);
                             });
                         });
                     });
@@ -171,6 +166,17 @@ function initialize() {
             }, ajax_error, true, id);
         }, ajax_error, true, id);
     };
+    
+    function getResults(id) {
+        _.each(algorithms, function(alg){
+            _.each(labelChoosingFunctions, function(labelChoosing){
+                predictLabels(id, alg, labelChoosing);
+            });
+        });
+        _.each(costFunctions, function(costFunc){
+            workersQuality(id, costFunc);
+        });
+    }; 
 
     function jsonify(data) {
         var result = {};
@@ -267,9 +273,11 @@ function initialize() {
         setTimeout(timeoutf, 500);
     };
 
+    /*
+     * for input: labels=[a, b, c, d], label=c
+     * returns [{'categoryName': 'c', value:0}, {'categoryName': 'a', value:0.33}, {'categoryName': 'b', value:0.33}, {'categoryName': 'd', value:0.33}]
+     */
     function misclassificationCost(labels, label) {
-        //returns [{'categoryName': 'c', value:0}, {'categoryName': 'a', value:0.33}, {'categoryName': 'b', value:0.33},
-        //{'categoryName': 'd', value:0.33}] for labels=[a, b, c, d], label=c
         var result = [];
         var avg = 1.0 / (labels.length - 1.0);
         _.each(labels, function(l) {
@@ -458,7 +466,7 @@ function initialize() {
             result['name'] = costFunc;
             workerQualities.push(result);
             if (workerQualities.length === costFunctions.length) {
-                workers = transposeObjects(workerQualities);
+                var workers = transposeObjects(workerQualities);
                 get('jobs/' + id + '/workers', {}, true, function(response) {
                     var json = $.parseJSON(response.responseText);
                     _.each(workers, function(w){
@@ -466,13 +474,9 @@ function initialize() {
                             w[attr] = json.result[w.name][attr]; 
                         });
                     });
-                    headers = getHeaders(workers);
-                    $('#workers').html(_.template($("#objects_template").html(), {
-                        objects: workers,
-                        headers: headers,
-                        objName: "Workers"
-                        })
-                    );
+                    
+                    $('#workers').html(createWorkersTable(workers));
+
                     gettingWorkerQualities = false;
                     toggleTablesVisibility();
                 }, ajax_error, true, id);
@@ -545,7 +549,7 @@ function initialize() {
         }
         categoryList = _.sortBy(categoryList);
         _.each(data, function(d){
-            d['cm'] = _.template($("#confusion_matrix_template").html(), {categories: categoryList, data: d['Confusion Matrix']} );
+            d['cm'] = _.template($("#confusion_matrix_template").html(), {categories: categoryList, data: d['Confusion matrix']} );
         });
         return _.template($("#workers_template").html(), {workers: data} );
     }
