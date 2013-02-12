@@ -1,12 +1,19 @@
+var algorithms = ["DS", "MV"];
+var labelChoosingFunctions = ["MaxLikelihood", "MinCost"];
+var costFunctions = ["ExpectedCost", "MaxLikelihood", "MinCost"];
+
 function initialize() {
     var apiUrl = '/api/';
     var id = getURLParameter("id");
     var categoryList = [];
     var oldCategoryList = [];
     var chunkSize = 500;
-    var numIterations = 10;
+    var numIterations = 20;
     var hasErrors = false;
-    var loading = false;
+    var predictedLabels = [];
+    var workerQualities = [];
+    var gettingPredictedLabels = true;
+    var gettingWorkerQualities = true;
 
     $('#url').hide();
     $(".alert").hide();
@@ -15,8 +22,10 @@ function initialize() {
         //switch to results tab
         $('#menuTab li:nth-child(2) a').tab('show');
         //print results
-        majorityVotes(id); //calls workerSummary
+        $("#img-load").show();
+        $("#response").hide();
         loadData(id);
+        getResults(id);
     }
     else {
         //disable results tab
@@ -37,6 +46,8 @@ function initialize() {
         var clickHandler = function() {
             $(".alert").hide();
             hasErrors = false;
+            predictedLabels = [];
+            workerQualities = [];
             // Validate input.
             var workerLabels = parseWorkerAssignedLabels();
             var goldLabels = parseGoldLabels();
@@ -54,6 +65,7 @@ function initialize() {
                             // Compute and get answer.
                             $("#img-load").show();
                             $("#response").hide();
+                            gettingPredictedLabels = gettingWorkerQualities = false;
                             $(that).text('Computing..');
                             $('#menuTab li:nth-child(2) a').attr("data-toggle", "tab").tab('show');
 
@@ -61,7 +73,7 @@ function initialize() {
                                 $(that).removeClass('disabled').text(buttonText);
                                 $(that).one('click', clickHandler);
                                 $("#url pre").text(document.URL + "?id=" + id);
-                                majorityVotes(id);
+                                getResults(id);
                             });
                         });
                     });
@@ -154,6 +166,17 @@ function initialize() {
             }, ajax_error, true, id);
         }, ajax_error, true, id);
     };
+    
+    function getResults(id) {
+        _.each(algorithms, function(alg){
+            _.each(labelChoosingFunctions, function(labelChoosing){
+                predictLabels(id, alg, labelChoosing);
+            });
+        });
+        _.each(costFunctions, function(costFunc){
+            workersQuality(id, costFunc);
+        });
+    }; 
 
     function jsonify(data) {
         var result = {};
@@ -220,7 +243,7 @@ function initialize() {
             url: apiUrl + url,
             type: 'get',
             async: async,
-            data: jsonify(data),
+            data: data,
             complete: function(res) {
                 if(redirect){
                     redirect_func(id, res, complete);
@@ -243,7 +266,6 @@ function initialize() {
                         success(res);
                     else
                         setTimeout(timeoutf, 500);
-
                 },
                 error: ajax_error
             });
@@ -251,9 +273,11 @@ function initialize() {
         setTimeout(timeoutf, 500);
     };
 
+    /*
+     * for input: labels=[a, b, c, d], label=c
+     * returns [{'categoryName': 'c', value:0}, {'categoryName': 'a', value:0.33}, {'categoryName': 'b', value:0.33}, {'categoryName': 'd', value:0.33}]
+     */
     function misclassificationCost(labels, label) {
-        //returns [{'categoryName': 'c', value:0}, {'categoryName': 'a', value:0.33}, {'categoryName': 'b', value:0.33},
-        //{'categoryName': 'd', value:0.33}] for labels=[a, b, c, d], label=c
         var result = [];
         var avg = 1.0 / (labels.length - 1.0);
         _.each(labels, function(l) {
@@ -390,7 +414,7 @@ function initialize() {
             url: apiUrl + 'jobs/' + id,
             type: 'get',
             async: false,
-            complete: function (res){
+            success: function (res){
                 ret = true;
             },
             error: function(jqXHR, textStatus, errorThrown) {
@@ -414,20 +438,94 @@ function initialize() {
         return ret;
     }
 
-    function majorityVotes(id) {
-        get('jobs/' + id + '/prediction/data', {}, true, function(response){
+    function predictLabels(id, algorithm, labelChoosing) {
+        get('jobs/' + id + '/prediction/data', {'algorithm': algorithm, 'labelChoosing': labelChoosing}, true, function(response){
             var json = $.parseJSON(response.responseText);
-            $('#classes').html(_.template($("#classes_template").html(), {classes: json.result}));
-            workerSummary(id);
+            var result = objectArrayToDict(json.result, 'objectName', 'categoryName');
+            result['name'] = algorithm + " " + labelChoosing;
+            predictedLabels.push(result);
+            if (predictedLabels.length === algorithms.length * labelChoosingFunctions.length) {
+                objects = transposeObjects(predictedLabels);
+                headers = getHeaders(objects);
+                $('#classes').html(_.template($("#objects_template").html(), {
+                    objects: objects,
+                    headers: headers,
+                    objName: "Objects"
+                    })
+                );
+                gettingPredictedLabels = false;
+                toggleTablesVisibility();
+            }
         }, ajax_error, true, id);
     }
-
-    function workerSummary(id)
-    {
-        get('jobs/' + id + '/prediction/workersScore', {}, true, function(response) {
+    
+    function workersQuality(id, costFunc) {
+        get('jobs/' + id + '/prediction/workersQuality', {'costAlgorithm': costFunc}, true, function(response) {
             var json = $.parseJSON(response.responseText);
+            var result = objectArrayToDict(json.result, 'workerName', 'value');
+            result['name'] = costFunc;
+            workerQualities.push(result);
+            if (workerQualities.length === costFunctions.length) {
+                var workers = transposeObjects(workerQualities);
+                get('jobs/' + id + '/workers', {}, true, function(response) {
+                    var json = $.parseJSON(response.responseText);
+                    _.each(workers, function(w){
+                        _.each(_.keys(json.result[w.name]), function(attr){
+                            w[attr] = json.result[w.name][attr]; 
+                        });
+                    });
+                    
+                    $('#workers').html(createWorkersTable(workers));
+
+                    gettingWorkerQualities = false;
+                    toggleTablesVisibility();
+                }, ajax_error, true, id);
+            }
+        }, ajax_error, true, id);
+    };
+    
+    /*
+     * for input [{'key': aaa, 'value': 123}, {'key': bbb, 'value': 432}]
+     * returns {'aaa': 123, 'bbb': 432}  
+     */
+    function objectArrayToDict(arg, key, value){
+        var ret = {};
+        _.each(arg, function(a) {
+            ret[a[key]] = a[value];
+        });
+        return ret;
+    }
+
+    /*
+     * for input: [{'google.com': 'notporn', 'youporn.com': 'porn', 'name': 'alg1'},{'google.com': 'notporn', 'youporn.com': 'notporn', 'name': 'alg2'}]
+     * would return: [{'name': 'google.com', 'alg1': 'notporn', 'alg2': 'notporn'}, {'name': 'youporn.com', 'alg1': 'porn', 'alg2': 'notporn'}]
+     */
+    function transposeObjects(arg){
+        var ret = [];
+        _.each(_.keys(arg[0]), function(obj){
+            if (obj !== "name")
+                ret.push({'name': obj});
+        });
+        _.each(arg, function(a){
+            _.each(ret, function(obj){
+                obj[a.name] = typeof a[obj.name] === "number" ? Math.round(a[obj.name]*100)/100 : a[obj.name];
+            });
+        });
+        return ret;
+    };
+    
+    function getHeaders(arg) {
+        var ret = [];
+        _.each(_.keys(arg[0]), function(obj){
+            if (obj !== "name")
+                ret.push(obj);
+        });
+        return ret;
+    };
+    
+    function toggleTablesVisibility(){
+        if (!gettingPredictedLabels && !gettingWorkerQualities){
             $("#img-load").fadeOut(200, function() {
-                $('#workers').html(createWorkersTable(json.result));
                 $("a[rel=popover]").popover({html: true, title: "Confusion matrix", placement: "left"}).click(function(e) {
                     $("a[rel=popover]").not(this).popover('hide');
                     e.preventDefault();
@@ -438,9 +536,9 @@ function initialize() {
                 }
                 $("#url").fadeIn(200);
             });
-        }, ajax_error, true, id);
-    }
-
+        }
+    };
+    
     function createWorkersTable(data) {
         if (categoryList.length === 0){
             categories = [];
@@ -451,7 +549,7 @@ function initialize() {
         }
         categoryList = _.sortBy(categoryList);
         _.each(data, function(d){
-            d['cm'] = _.template($("#confusion_matrix_template").html(), {categories: categoryList, data: d['Confusion Matrix']} );
+            d['cm'] = _.template($("#confusion_matrix_template").html(), {categories: categoryList, data: d['Confusion matrix']} );
         });
         return _.template($("#workers_template").html(), {workers: data} );
     }

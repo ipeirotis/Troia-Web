@@ -109,14 +109,18 @@ title: Demo application
 						<pre></pre>
 					</div>				
 	    		<div id="response">
-					<div class="span4">
-						<h3>Predicted labels:</h3>
-						<div id="classes"></div>
-					</div>
-					<div class="span8">
-						<h3>Workers estimated statistics:</h3>
-						<div id="workers"></div>
-					</div>
+                    <ul class="nav nav-tabs" id="resultsTab">
+                        <li class="active"><a href="#labels" data-toggle="tab">Predicted labels</a></li>
+                        <li><a href="#workers" data-toggle="tab">Workers statistics</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="labels">
+                            <div id="classes"></div>
+                        </div>
+                        <div class="tab-pane" id="workers">
+                            <div id="workers"></div>
+                        </div>
+                    </div>
 		        </div>
 	    	</div>
 	    </div>
@@ -128,16 +132,22 @@ title: Demo application
         </script>
 
         <!-- Classes table template. -->
-		<script type="text/template" id="classes_template">
+		<script type="text/template" id="objects_template">
 			<div>
 			<table class='table table-striped'>
-				<tr><th>Object</th><th>Class</th></tr>
-                <% 	_.each(classes, function(c){ %>
-                    <tr>
-                        <td><%= c.objectName %></td>
-                        <td><%= c.categoryName %></td>
-                    </tr>
-                <% }); %>
+				<tr><th><%= objName %></th>
+				<% _.each(headers, function(h){  %>
+					<th><%= h %></th>
+				<% }); %>				
+				</tr>
+				<% _.each(objects, function(o){ %>
+					<tr>
+						<td><%= o.name %></td>
+						<% _.each(headers, function(h){ %>
+						<td><%= o[h] %></td>
+						<% }); %>
+					</tr>
+				<% }); %>
 			</table>
 			</div>
         </script>
@@ -148,21 +158,21 @@ title: Demo application
 			<table class='table table-striped'>
 				<tr>
 					<th>Worker</th>
-					<th class="small">Error Rate</th>
-					<th class="small">Quality (Expected)</th>
-					<th class="small">Quality (Optimized)</th>
-					<th class="small">Number of Annotations</th>
-					<th class="small">Number of Gold Tests</th>
-					<th>Confusion Matrix</th>
+					<th class="small">ExpectedCost</th>
+					<th class="small">MaxLikelihood</th>
+					<th class="small">MinCost</th>
+					<th class="small">Number of annotations</th>
+					<th class="small">Number of gold tests</th>
+					<th class="small">Confusion Matrix</th>
 				</tr>
 			    <% 	for (var i = 0; i < workers.length; i++) { %>
 				<tr>
-                    <td><%= workers[i]['Worker'] %></td>
-                    <td><%= workers[i]['Error rate'] %></td>
-                    <td><%= workers[i]['Quality (Expected)'] %></td>
-                    <td><%= workers[i]['Quality (Optimized)'] %></td>
-                    <td><%= workers[i]['Number of Annotations'] %></td>
-                    <td><%= workers[i]['Number of Gold Tests'] %></td>
+                    <td><%= workers[i]['name'] %></td>
+                    <td><%= workers[i]['ExpectedCost'] %></td>
+                    <td><%= workers[i]['MaxLikelihood'] %></td>
+                    <td><%= workers[i]['MinCost'] %></td>
+                    <td><%= workers[i]['Number of annotations'] %></td>
+                    <td><%= workers[i]['Gold tests'] %></td>
                     <td>
                         <a href="#" class="btn-small" data-content="<%= workers[i]['cm'] %>" rel="popover"><i class="icon-search"></i></a>
                     </td>
