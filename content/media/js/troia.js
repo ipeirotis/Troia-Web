@@ -122,20 +122,20 @@ function initialize() {
     function invalidateCostMatrix(categories){
         parseWorkerAssignedLabels();
         createCostMatrix(categoryList, categories);
-    };
+    }
 
     function loadTestData(type) {
         if (type)
         {
             $.ajax({
-                url: "/media/txt/data" + type,
-            }).done(function(data) { 
+                url: "/media/txt/data" + type
+            }).done(function(data) {
                 $('#id_data').val(data);
                 invalidateCostMatrix();
             });
             $.ajax({
-                url: "/media/txt/gold" + type,
-            }).done(function(data) { 
+                url: "/media/txt/gold" + type
+            }).done(function(data) {
                 $('#id_gold_labels').val(data);
                 invalidateCostMatrix();
             });
@@ -146,7 +146,7 @@ function initialize() {
             $('#id_gold_labels').val("http://google.com      notporn");
             invalidateCostMatrix();
         }
-    };
+    }
     
     function loadData(id) {
         get('jobs/' + id + '/data', {}, true, function(response){
@@ -165,7 +165,7 @@ function initialize() {
                 invalidateCostMatrix(json.result);
             }, ajax_error, true, id);
         }, ajax_error, true, id);
-    };
+    }
     
     function getResults(id) {
         _.each(algorithms, function(alg){
@@ -176,18 +176,18 @@ function initialize() {
         _.each(costFunctions, function(costFunc){
             workersQuality(id, costFunc);
         });
-    }; 
+    }
 
     function jsonify(data) {
         var result = {};
         for (var key in data) {
-        	if (key !== 'id')
-        		result[key] = JSON.stringify(data[key]);
-        	else
-        		result[key] = data[key];
-        };
+            if (key !== 'id')
+                result[key] = JSON.stringify(data[key]);
+            else
+                result[key] = data[key];
+        }
         return result;
-    };
+    }
 
     function ajax_error(jqXHR, textStatus, errorThrown){
         $(".alert p").text("Troia server error (" + errorThrown.toString() + ").");
@@ -199,7 +199,7 @@ function initialize() {
         if (!success) {
             success = function(data, textStatus, jqXHR) {
                 console.debug('POST request complete');
-            }
+            };
         }
         $.ajax({
             url: apiUrl + url,
@@ -215,7 +215,7 @@ function initialize() {
             },
             error: ajax_error
         });
-    };
+    }
 
     /** Performs a POST request. Sends data in chunks but only along specified
      * axis (field). */
@@ -253,7 +253,7 @@ function initialize() {
             },
             error: error ? error : ajax_error
         });
-    };
+    }
 
     function redirect_func(id, res, success) {
         timeoutf = function(){
@@ -271,7 +271,7 @@ function initialize() {
             });
         }
         setTimeout(timeoutf, 500);
-    };
+    }
 
     /*
      * for input: labels=[a, b, c, d], label=c
@@ -287,7 +287,7 @@ function initialize() {
             });
         });
         return result;
-    };
+    }
 
     function categories_from_labels(labels){
         var result = [];
@@ -298,7 +298,7 @@ function initialize() {
             });
         });
         return result;
-    };
+    }
 
     /** Parses labels input. */
     function parseWorkerAssignedLabels() {
@@ -331,7 +331,7 @@ function initialize() {
         }
         categoryList = _.uniq(categoryList);
         return data;
-    };
+    }
 
     /** Parses gold labels input. */
     function parseGoldLabels() {
@@ -381,27 +381,27 @@ function initialize() {
             k += 1;
         });
         return data;
-    };
+    }
 
     function createJob(id, categories, success) {
         post('jobs', {
             'id': id,
             'categories': categories
         }, true, success, false);
-    };
+    }
 
     function loadWorkerAssignedLabels(id, labels, success) {
         postInAxisChunks('jobs/' + id + '/assignedLabels', {
             'labels': labels
         }, "labels", true, 0, success, id);
-    };
+    }
 
     function loadGoldLabels(id, labels, success) {
         if (labels)
             postInAxisChunks('jobs/' + id + "/goldData", {
                 'labels': labels
             }, "labels", true, 0, success, id);
-    };
+    }
 
     function compute(id, numIterations, success) {
         post('jobs/' + id + '/compute', {
@@ -521,7 +521,7 @@ function initialize() {
                 ret.push(obj);
         });
         return ret;
-    };
+    }
     
     function toggleTablesVisibility(){
         if (!gettingPredictedLabels && !gettingWorkerQualities){
@@ -537,7 +537,7 @@ function initialize() {
                 $("#url").fadeIn(200);
             });
         }
-    };
+    }
     
     function createWorkersTable(data) {
         if (categoryList.length === 0){
@@ -560,10 +560,10 @@ function initialize() {
      */
     function createCostMatrix(labels, categories) {
         $('#cost_matrix').empty();
-        row = new Array();
-        cell = new Array();
+        row = [];
+        cell = [];
         if (categories === undefined)
-            categories = categories_from_labels(labels)
+            categories = categories_from_labels(labels);
         row_num = labels.length;
         cell_num = labels.length;
 
@@ -572,13 +572,13 @@ function initialize() {
 
         //header
         row = document.createElement('tr');
-        row.appendChild(document.createElement('td'))
-            for(k=0;k<cell_num;k++) {
-                cell=document.createElement('td');
-                cont = document.createTextNode(labels[k])
-                    cell.appendChild(cont);
-                row.appendChild(cell);
-            }
+        row.appendChild(document.createElement('td'));
+        for(k=0;k<cell_num;k++) {
+            cell=document.createElement('td');
+            cont = document.createTextNode(labels[k]);
+            cell.appendChild(cont);
+            row.appendChild(cell);
+        }
         tbo.appendChild(row);
 
         //body
