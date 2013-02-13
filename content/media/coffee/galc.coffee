@@ -136,6 +136,8 @@ class ContinuousClient extends Client
     'assigns_cb': "/assigns"
     'compute_cb': "/compute"
     'gold_labels_cb': "/goldObjects"
+    'data_prediction_cb': "/prediction/objects/"
+    'worker_prediction_cb': "/prediction/workers/"
 
     create: (success) ->
         @_post(@jobs_cb, {'id': @id}, true, success, false)
@@ -161,6 +163,20 @@ class ContinuousClient extends Client
                 () -> console.log "todo"
                 , true)
         success()
+
+    collect_predicted_labels: (success) ->
+        @predicted_labels = []
+        @_get(@jobs_cb + @id + @data_prediction_cb, {}, true, 
+            (res) =>
+                @predicted_labels.push($parseJSON(res.responseText))
+            , null, true)
+
+    collect_workers_statistics: (success) ->
+        @worker_stats = []
+        @_get(@jobs_cb + @id + @worker_prediction_cb, {}, true,
+            (res) =>
+                @worker_stats.push($parseJSON(res.responseText))
+            , null, true)
 
 
 # nclient = new NominalClient("troia-web-test-1360763539397-760808356804")
