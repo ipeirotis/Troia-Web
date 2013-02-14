@@ -36,6 +36,8 @@ process_handler = () ->
                         $("#url pre").text(document.URL + "?id=" + cclient.id)
                         cclient.collect_predicted_labels(() ->
                             cclient.collect_workers_statistics(()->
+                                $("#img-load").hide()
+                                $("#objects").html(_.template($("#objects_template").html(), {objects: cclient.predicted_labels}))
                                 console.log cclient.predicted_labels
                                 console.log cclient.worker_stats
                             )

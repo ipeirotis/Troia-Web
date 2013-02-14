@@ -21,5 +21,5 @@ App.parse_input = (input_el, control_el, text_el, tab_el, condition, error_msg) 
             tab_el.tab('show')
             return false
         data.push(parsed_line)
-    
+
     return data
