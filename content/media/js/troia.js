@@ -3,7 +3,7 @@ var labelChoosingFunctions = ["MaxLikelihood", "MinCost"];
 var costFunctions = ["ExpectedCost", "MaxLikelihood", "MinCost"];
 
 function initialize() {
-    var apiUrl = '/api/';
+    var apiUrl = 'http://localhost:8080/troia-server-0.8/';
     var id = getURLParameter("id");
     var categoryList = [];
     var oldCategoryList = [];
@@ -128,13 +128,13 @@ function initialize() {
         if (type)
         {
             $.ajax({
-                url: "/media/txt/data" + type
+                url: "/media/txt/jobs_data/" + type
             }).done(function(data) {
                 $('#id_data').val(data);
                 invalidateCostMatrix();
             });
             $.ajax({
-                url: "/media/txt/gold" + type
+                url: "/media/txt/jobs_gold_data/" + type
             }).done(function(data) {
                 $('#id_gold_labels').val(data);
                 invalidateCostMatrix();
@@ -269,7 +269,7 @@ function initialize() {
                 },
                 error: ajax_error
             });
-        }
+        };
         setTimeout(timeoutf, 500);
     }
 
@@ -360,7 +360,7 @@ function initialize() {
             }
         }
         return data;
-    };
+    }
 
     /** Parses cost matrix input. */
     function parseCostMatrix(labels) {
@@ -371,7 +371,7 @@ function initialize() {
             if (k % l === 0){
                 d = [];
                 data.push({
-                    'prior': 1./l,
+                    'prior': 1.0/l,
                     'name': labels[k / l],
                     'misclassificationCost': d
                 });
@@ -471,7 +471,7 @@ function initialize() {
                     var json = $.parseJSON(response.responseText);
                     _.each(workers, function(w){
                         _.each(_.keys(json.result[w.name]), function(attr){
-                            w[attr] = json.result[w.name][attr]; 
+                            w[attr] = json.result[w.name][attr];
                         });
                     });
                     
@@ -482,11 +482,11 @@ function initialize() {
                 }, ajax_error, true, id);
             }
         }, ajax_error, true, id);
-    };
+    }
     
     /*
      * for input [{'key': aaa, 'value': 123}, {'key': bbb, 'value': 432}]
-     * returns {'aaa': 123, 'bbb': 432}  
+     * returns {'aaa': 123, 'bbb': 432}
      */
     function objectArrayToDict(arg, key, value){
         var ret = {};
@@ -512,7 +512,7 @@ function initialize() {
             });
         });
         return ret;
-    };
+    }
     
     function getHeaders(arg) {
         var ret = [];
