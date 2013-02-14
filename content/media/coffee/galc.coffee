@@ -34,7 +34,12 @@ process_handler = () ->
                     cclient.compute(() ->
                         $(that).removeClass('disabled').text(button_text)
                         $("#url pre").text(document.URL + "?id=" + cclient.id)
-                        #get results
+                        cclient.collect_predicted_labels(() ->
+                            cclient.collect_workers_statistics(()->
+                                console.log cclient.predicted_labels
+                                console.log cclient.worker_stats
+                            )
+                        )
                     )
                 )
             )

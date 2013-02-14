@@ -184,12 +184,14 @@ class App.ContinuousClient extends Client
         @predicted_labels = []
         @_get(@jobs_cb + @id + @data_prediction_cb, {}, true, 
             (res) =>
-                @predicted_labels.push($parseJSON(res.responseText))
+                @predicted_labels = $.parseJSON(res.responseText)['result']
+                success()
             , null, true)
 
     collect_workers_statistics: (success) ->
         @worker_stats = []
         @_get(@jobs_cb + @id + @worker_prediction_cb, {}, true,
             (res) =>
-                @worker_stats.push($parseJSON(res.responseText))
+                @worker_stats = $.parseJSON(res.responseText)['result']
+                success()
             , null, true)
