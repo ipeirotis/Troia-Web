@@ -1,13 +1,15 @@
 window.App = {}
 
 class Client
-    constructor: (@id = @generate_id(), @api_url = 'http://localhost:8080/troia-server-0.8/') ->
+    constructor: (
+        @id = @generate_id(), 
+        @api_url = 'http://localhost:8080/troia-server-0.8/') ->
         @chunk_size = 10
 
     set_id: (@id) ->
 
     generate_id: ->
-        "troia-web-test-" + new Date().getTime().toString() + "-" + parseInt(Math.random()*1000000000000)
+        @id = "troia-web-test-" + new Date().getTime().toString() + "-" + parseInt(Math.random()*1000000000000)
 
     exists: ->
         ret = false
@@ -33,12 +35,11 @@ class Client
         $.ajax(
             url: @data_folder + type)
             .done((data) ->
-                data_cb())
+                data_cb(data))
         $.ajax(
             url: @gold_data_folder + type)
             .done((data) ->
-                gold_data_cb())
-
+                gold_data_cb(data))
 
     _post_in_chunks: (url, data, axis, async, offset, success) ->
         limit = Math.min(@chunk_size, data[axis].length - offset)
@@ -164,7 +165,7 @@ class App.ContinuousClient extends Client
             @_post(@jobs_cb + @id + @assigns_cb, {
                 'object': assign[0],
                 'worker': assign[1],
-                'label': assign[2]}, 
+                'label': parseInt(assign[2])}, 
                 false, #in the future we will post in chunks and use async = true
                 () -> console.log "todo"
                 , true)
@@ -174,8 +175,8 @@ class App.ContinuousClient extends Client
         for label in labels
             @_post(@jobs_cb + @id + @gold_labels_cb, {
                 'objectId': label[0],
-                'label': label[1],
-                'zeta': label[2]}, 
+                'label': parseInt(label[1]),
+                'zeta': parseInt(label[2])}, 
                 false, #in the future we will post in chunks and use async = true
                 () -> console.log "todo"
                 , true)
