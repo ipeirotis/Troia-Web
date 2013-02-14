@@ -20,8 +20,8 @@ process_handler = () ->
         'Only 3 words per line allowed.')
 
     if assigns and gold_labels and cclient.ping
-        button_text = $(@).text();
-        $(@).addClass('disabled').text('Sending data..');
+        button_text = $(@).text()
+        $(@).addClass('disabled').text('Sending data..')
         that = this
         cclient.create(() ->
             cclient.post_assigns(assigns, () ->
@@ -54,7 +54,7 @@ cclient.ajax_error = (jqXHR, textStatus, errorThrown) ->
     $(".alert").show()
 
 #disable results tab
-$("#menuTab li:nth-child(2) a").attr("data-toggle", "").css("cursor",  "not-allowed");
+$("#menuTab li:nth-child(2) a").attr("data-toggle", "").css("cursor",  "not-allowed")
 
 cclient.get_test_data(1,
     (data) ->

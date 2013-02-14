@@ -116,7 +116,7 @@ class App.NominalClient extends Client
 
     post_gold_labels: (labels, success) ->
         if labels
-            @_post_in_chunks(@jobs_cb + @id + @gold_labels_cb, {'labels': 
+            @_post_in_chunks(@jobs_cb + @id + @gold_labels_cb, {'labels':
                 labels}, "labels", true, 0, success)
 
     collect_predicted_labels: (success) ->
@@ -126,7 +126,7 @@ class App.NominalClient extends Client
         for alg in algorithms
             for choose_func in label_choosing_functions
                 @get_predicted_labels(
-                    alg, 
+                    alg,
                     choose_func,
                     () =>
                         @predicted_labels.length == algorithms.length * label_choosing_functions.length
@@ -136,8 +136,8 @@ class App.NominalClient extends Client
         @_get(@jobs_cb + @id + @data_prediction_cb, {
             'algorithm': alg,
             'labelChoosing': label_choosing_func
-            }, true, 
-            (res) => 
+            }, true,
+            (res) =>
                 json = $.parseJSON(res.responseText)
                 @predicted_labels.push(json)
                 if success_cond()
@@ -163,7 +163,7 @@ class App.ContinuousClient extends Client
             @_post(@jobs_cb + @id + @assigns_cb, {
                 'object': assign[0],
                 'worker': assign[1],
-                'label': parseInt(assign[2])}, 
+                'label': parseInt(assign[2])},
                 false, #in the future we will post in chunks and use async = true
                 () -> console.log "todo"
                 , true)
@@ -174,7 +174,7 @@ class App.ContinuousClient extends Client
             @_post(@jobs_cb + @id + @gold_labels_cb, {
                 'objectId': label[0],
                 'label': parseInt(label[1]),
-                'zeta': parseInt(label[2])}, 
+                'zeta': parseInt(label[2])},
                 false, #in the future we will post in chunks and use async = true
                 () -> console.log "todo"
                 , true)
@@ -182,7 +182,7 @@ class App.ContinuousClient extends Client
 
     collect_predicted_labels: (success) ->
         @predicted_labels = []
-        @_get(@jobs_cb + @id + @data_prediction_cb, {}, true, 
+        @_get(@jobs_cb + @id + @data_prediction_cb, {}, true,
             (res) =>
                 @predicted_labels = $.parseJSON(res.responseText)['result']
                 success()
