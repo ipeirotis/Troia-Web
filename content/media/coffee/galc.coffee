@@ -22,15 +22,31 @@ process_handler = () ->
     if assigns and gold_labels and cclient.ping
         button_text = $(@).text();
         $(@).addClass('disabled').text('Sending data..');
+        that = this
         cclient.create(() ->
             cclient.post_assigns(assigns, () ->
                 cclient.post_gold_labels(gold_labels, () ->
-                    console.log 'data loaded')))
+                    $("#img-load").show()
+                    $("#response").hide()
+                    $(that).text('Computing..')
+                    $('#menuTab li:nth-child(2) a').attr("data-toggle", "tab").tab('show')
+
+                    cclient.compute(() ->
+                        $(that).removeClass('disabled').text(button_text)
+                        $("#url pre").text(document.URL + "?id=" + cclient.id)
+                        #get results
+                    )
+                )
+            )
+        )
     $(@).one('click', process_handler)
 
 
 
 cclient = new App.ContinuousClient()
+cclient.ajax_error = (jqXHR, textStatus, errorThrown) ->
+    $(".alert p").text("Troia server error (" + errorThrown.toString() + ").")
+    $(".alert").show()
 
 #disable results tab
 $("#menuTab li:nth-child(2) a").attr("data-toggle", "").css("cursor",  "not-allowed");

@@ -27,19 +27,17 @@ class Client
             false)
         return ret
 
-    compute: (iterations = 20) ->
+    compute: (success, iterations = 20) ->
         @_post(@jobs_cb + @id + @compute_cb, {'iterations': iterations}, 
             true, success, true)
 
     get_test_data: (type, data_cb, gold_data_cb) ->
         $.ajax(
             url: @data_folder + type)
-            .done((data) ->
-                data_cb(data))
+            .done(data_cb)
         $.ajax(
             url: @gold_data_folder + type)
-            .done((data) ->
-                gold_data_cb(data))
+            .done(gold_data_cb)
 
     _post_in_chunks: (url, data, axis, async, offset, success) ->
         limit = Math.min(@chunk_size, data[axis].length - offset)
@@ -57,12 +55,12 @@ class Client
             type: "post"
             async: async
             data: @_jsonify(data)
-            success: (response) ->
+            success: (response) =>
                 if redirect
                     @_redirect_func(response, success)
                 else
                     success(response)
-            error: @_ajax_error
+            error: @ajax_error
 
     _get: (url, data, async, success, error, redirect) ->
         $.ajax
@@ -75,7 +73,7 @@ class Client
                     @_redirect_func(response, success)
                 else
                     success(response)
-            error: if error then error else @_ajax_error
+            error: if error then error else @ajax_error
 
     _redirect_func: (response, success) ->
         timeout_func = () =>
