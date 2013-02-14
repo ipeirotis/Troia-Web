@@ -2,7 +2,7 @@ window.App = {}
 
 class Client
     constructor: (
-        @id = @generate_id(), 
+        @id = @generate_id(),
         @api_url = 'http://localhost:8080/troia-server-0.8/') ->
         @chunk_size = 10
 
@@ -21,14 +21,14 @@ class Client
 
     ping: ->
         ret = false
-        @_get('status', {}, false, 
-            () -> ret = true, 
+        @_get('status', {}, false,
+            () -> ret = true,
             () -> ret = false,
             false)
         return ret
 
     compute: (success, iterations = 20) ->
-        @_post(@jobs_cb + @id + @compute_cb, {'iterations': iterations}, 
+        @_post(@jobs_cb + @id + @compute_cb, {'iterations': iterations},
             true, success, true)
 
     get_test_data: (type, data_cb, gold_data_cb) ->
@@ -41,7 +41,7 @@ class Client
 
     _post_in_chunks: (url, data, axis, async, offset, success) ->
         limit = Math.min(@chunk_size, data[axis].length - offset)
-        @_post(url, data[axis][offset..offset+limit], async, 
+        @_post(url, data[axis][offset..offset+limit], async,
             (res) ->
                 if offset + limit < data[axis].length
                     @_post_in_chunks(url, data, axis, async, offset+limit, success, id)
