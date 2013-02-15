@@ -3,7 +3,7 @@ window.App = {}
 class Client
     constructor: (
         @id = @generate_id(),
-        @api_url = 'http://localhost:8080/troia-server-0.8/') ->
+        @api_url = 'api') ->
         @chunk_size = 10
 
     set_id: (@id) ->
@@ -28,7 +28,7 @@ class Client
         return ret
 
     compute: (success, iterations = 20) ->
-        @_post(@jobs_cb + @id + @compute_cb, {'iterations': iterations},
+        @_post("#{@jobs_cb}/#{@id}#{@compute_cb}", {'iterations': iterations},
             true, success, true)
 
     get_test_data: (type, data_cb, gold_data_cb) ->
@@ -78,7 +78,7 @@ class Client
     _redirect_func: (response, success) ->
         timeout_func = () =>
             $.ajax
-                url: @api_url + response.redirect
+                url: @api_url + "/" + response.redirect
                 type: "get"
                 complete: (res) ->
                     if res.statusText is "OK"
@@ -98,7 +98,7 @@ class Client
 
 
 class App.NominalClient extends Client
-    jobs_cb: "jobs/"
+    jobs_cb: "/jobs"
     assigns_cb: "/assignedLabels"
     compute_cb: "/compute"
     gold_labels_cb: "/goldData"
@@ -111,7 +111,7 @@ class App.NominalClient extends Client
             true, success, false)
 
     post_assigns: (assigns, success) ->
-        @_post_in_chunks(@jobs_cb + @id + @assigns_cb, {'labels': assigns},
+        @_post_in_chunks("#{@jobs_cb}/#{@id}/#{@assigns_cb}", {'labels': assigns},
             "labels", true, 0, success)
 
     post_gold_labels: (labels, success) ->
@@ -146,8 +146,8 @@ class App.NominalClient extends Client
 
 
 class App.ContinuousClient extends Client
-    jobs_cb: "cjobs/"
-    assign_cb: "/assign"
+    jobs_cb: "/cjobs"
+    assigns_cb: "/assigns"
     compute_cb: "/compute"
     gold_label_cb: "/goldObject"
     data_prediction_cb: "/prediction/objects/"
@@ -161,30 +161,55 @@ class App.ContinuousClient extends Client
             result[k] = v
         return result
 
+    _post_as_json: (url, data, async, success, redirect) ->
+        console.log @_jsonify data
+        $.ajax
+            url: @api_url + url
+            type: 'post'
+            dataType: 'json'
+            contentType: "application/json; charset=utf-8",
+            async: async
+            data: @_jsonify(data)
+            success: (response) =>
+                if redirect
+                    @_redirect_func(response, success)
+                else
+                    success(response)
+            error: @ajax_error
+
     create: (success) ->
         @_post(@jobs_cb, {'id': @id}, true, success, false)
 
     post_assigns: (assigns, success) ->
+        # for assign in assigns
+        ass = {'assigns': [{'worker': 'worker1', 'object': 'object1', 'label': 3.14}, {'worker': 'worker2', 'object': 'object2', 'label': 2.71}]}
+        @_post_as_json("#{@jobs_cb}/#{@id}#{@assigns_cb}", ass,
+            # 'worker': assign[0],
+            # 'object': assign[1],
+            # 'label': parseInt(assign[2])},
+            false, #in the future we will post in chunks and use async = true
+            () -> console.log "todo"
+            , true)
+        success()
+
+    post_assigns_batch: (assigns, success) ->
         for assign in assigns
-            console.log "assign" + assign
-            @_post(@jobs_cb + @id + @assign_cb, {
-                'worker': assign[0],
-                'object': assign[1],
-                'label': parseInt(assign[2])},
-                false, #in the future we will post in chunks and use async = true
-                () -> console.log "todo"
-                , true)
+            @_post_in_chunks(@jobs_cb + @id + @assign_cb,
+                {'assigns': assigns},
+                'assigns',
+                0,
+                () -> console.log 'todo')
         success()
 
     post_gold_labels: (labels, success) ->
-        for label in labels
-            @_post(@jobs_cb + @id + @gold_label_cb, {
-                'objectId': label[0],
-                'label': parseInt(label[1]),
-                'zeta': parseInt(label[2])},
-                false, #in the future we will post in chunks and use async = true
-                () -> console.log "todo"
-                , true)
+        # for label in labels
+        #     @_post(@jobs_cb + @id + @gold_label_cb, {
+        #         'objectId': label[0],
+        #         'label': parseInt(label[1]),
+        #         'zeta': parseInt(label[2])},
+        #         false, #in the future we will post in chunks and use async = true
+        #         () -> console.log "todo"
+        #         , true)
         success()
 
     collect_predicted_labels: (success) ->
