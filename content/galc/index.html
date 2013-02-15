@@ -100,16 +100,19 @@ title: GALC TEST
                 <% _.each(objects, function(o) { %>
                 <tr>
                     <% var object = o.object %>
-                    <% if (!_.isUndefined(object.goldLabel)) { %>
-                        <td><%= object.name %></td>
+                    <td><%= object.name %></td>
+                    <% if (_.isUndefined(object.goldLabel)) { %>
+                        <td>null</td>
+                        <td>null</td>
+                    <% } else { %>
                         <td><%= object.goldLabel.value.value %></td>
                         <td><%= object.goldLabel.value.zeta %></td>
-                        <td><%= o.est_zeta %></td>
                     <% } %>
+                    <td><%= o.est_zeta %></td>
                 </tr>
                 <% }); %>
             </table>
-        </script>
+        </script>
 
         <!-- Workers table template. -->
         <script type="text/template" id="objects_template">
@@ -123,12 +126,15 @@ title: GALC TEST
                 <% _.each(objects, function(o) { %>
                 <tr>
                     <% var object = o.object %>
+                    <td><%= object.name %></td>
                     <% if (!_.isUndefined(object.goldLabel)) { %>
-                        <td><%= object.name %></td>
+                        <td>null</td>
+                        <td>null</td>
+                    <% } else { %>
                         <td><%= object.goldLabel.value.value %></td>
                         <td><%= object.goldLabel.value.zeta %></td>
-                        <td><%= o.est_zeta %></td>
                     <% } %>
+                    <td><%= o.est_zeta %></td>
                 </tr>
                 <% }); %>
             </table>

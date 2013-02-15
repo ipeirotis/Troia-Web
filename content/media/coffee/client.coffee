@@ -98,13 +98,13 @@ class Client
 
 
 class App.NominalClient extends Client
-    'jobs_cb': "jobs/"
-    'assigns_cb': "/assignedLabels"
-    'compute_cb': "/compute"
-    'gold_labels_cb': "/goldData"
-    'data_prediction_cb': "/prediction/data"
-    'data_folder': "/media/txt/jobs_data/"
-    'gold_data_folder': "/media/txt/jobs_gold_data/"
+    jobs_cb: "jobs/"
+    assigns_cb: "/assignedLabels"
+    compute_cb: "/compute"
+    gold_labels_cb: "/goldData"
+    data_prediction_cb: "/prediction/data"
+    data_folder: "/media/txt/jobs_data/"
+    gold_data_folder: "/media/txt/jobs_gold_data/"
 
     create: (categories, success) ->
         @_post(@jobs_cb, {'id': id, 'categories': categories},
@@ -122,7 +122,7 @@ class App.NominalClient extends Client
     collect_predicted_labels: (success) ->
         @predicted_labels = []
         algorithms = ["DS", "MV"]
-        label_choosing_functions = ["MaxLikelihood", "MinCost"];
+        label_choosing_functions = ["MaxLikelihood", "MinCost"]
         for alg in algorithms
             for choose_func in label_choosing_functions
                 @get_predicted_labels(
@@ -146,23 +146,30 @@ class App.NominalClient extends Client
 
 
 class App.ContinuousClient extends Client
-    'jobs_cb': "cjobs/"
-    'assigns_cb': "/assigns"
-    'compute_cb': "/compute"
-    'gold_labels_cb': "/goldObjects"
-    'data_prediction_cb': "/prediction/objects/"
-    'worker_prediction_cb': "/prediction/workers/"
-    'data_folder': "/media/txt/cjobs_data/"
-    'gold_data_folder': "/media/txt/cjobs_gold_data/"
+    jobs_cb: "cjobs/"
+    assign_cb: "/assign"
+    compute_cb: "/compute"
+    gold_label_cb: "/goldObject"
+    data_prediction_cb: "/prediction/objects/"
+    worker_prediction_cb: "/prediction/workers/"
+    data_folder: "/media/txt/cjobs_data/"
+    gold_data_folder: "/media/txt/cjobs_gold_data/"
+
+    _jsonify: (data) ->
+        result = {}
+        for k, v of data
+            result[k] = v
+        return result
 
     create: (success) ->
         @_post(@jobs_cb, {'id': @id}, true, success, false)
 
     post_assigns: (assigns, success) ->
         for assign in assigns
-            @_post(@jobs_cb + @id + @assigns_cb, {
-                'object': assign[0],
-                'worker': assign[1],
+            console.log "assign" + assign
+            @_post(@jobs_cb + @id + @assign_cb, {
+                'worker': assign[0],
+                'object': assign[1],
                 'label': parseInt(assign[2])},
                 false, #in the future we will post in chunks and use async = true
                 () -> console.log "todo"
@@ -171,7 +178,7 @@ class App.ContinuousClient extends Client
 
     post_gold_labels: (labels, success) ->
         for label in labels
-            @_post(@jobs_cb + @id + @gold_labels_cb, {
+            @_post(@jobs_cb + @id + @gold_label_cb, {
                 'objectId': label[0],
                 'label': parseInt(label[1]),
                 'zeta': parseInt(label[2])},

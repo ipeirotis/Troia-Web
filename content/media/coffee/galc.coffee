@@ -61,6 +61,7 @@ $("#menuTab li:nth-child(2) a").attr("data-toggle", "").css("cursor",  "not-allo
 cclient.get_test_data(1,
     (data) ->
         $('#id_data').val(data)
+        console.log data
     (data) ->
         $('#id_gold_labels').val(data)
 )
