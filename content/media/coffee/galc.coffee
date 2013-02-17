@@ -25,7 +25,7 @@ process_handler = () ->
         that = this
         cclient.create(() ->
             cclient.post_assigns(assigns, () ->
-                cclient.post_gold_labels(gold_labels, () ->
+                cclient.post_gold_objects(gold_labels, () ->
                     $("#img-load").show()
                     $("#response").hide()
                     $(that).text('Computing..')

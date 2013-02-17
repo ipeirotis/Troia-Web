@@ -1,9 +1,8 @@
 window.App = {}
 
 class Client
-    constructor: (
-        @id = @generate_id(),
-        @api_url = 'api') ->
+    constructor: (@id = @generate_id(), @api_url = 'api') ->
+        @job_url = "#{@api_url}/#{@id}"
         @chunk_size = 10
 
     set_id: (@id) ->
@@ -149,27 +148,20 @@ class App.ContinuousClient extends Client
     jobs_cb: "/cjobs"
     assigns_cb: "/assigns"
     compute_cb: "/compute"
-    gold_label_cb: "/goldObject"
+    gold_objects_cb: "/goldObjects"
     data_prediction_cb: "/prediction/objects/"
     worker_prediction_cb: "/prediction/workers/"
     data_folder: "/media/txt/cjobs_data/"
     gold_data_folder: "/media/txt/cjobs_gold_data/"
 
-    _jsonify: (data) ->
-        result = {}
-        for k, v of data
-            result[k] = v
-        return result
-
     _post_as_json: (url, data, async, success, redirect) ->
-        console.log @_jsonify data
         $.ajax
             url: @api_url + url
             type: 'post'
             dataType: 'json'
-            contentType: "application/json; charset=utf-8",
+            contentType: "application/json; charset=utf-8"
             async: async
-            data: @_jsonify(data)
+            data: JSON.stringify(data)
             success: (response) =>
                 if redirect
                     @_redirect_func(response, success)
@@ -181,35 +173,19 @@ class App.ContinuousClient extends Client
         @_post(@jobs_cb, {'id': @id}, true, success, false)
 
     post_assigns: (assigns, success) ->
-        # for assign in assigns
-        ass = {'assigns': [{'worker': 'worker1', 'object': 'object1', 'label': 3.14}, {'worker': 'worker2', 'object': 'object2', 'label': 2.71}]}
-        @_post_as_json("#{@jobs_cb}/#{@id}#{@assigns_cb}", ass,
-            # 'worker': assign[0],
-            # 'object': assign[1],
-            # 'label': parseInt(assign[2])},
+        @_post_as_json("#{@jobs_cb}/#{@id}#{@assigns_cb}", {assigns:
+            {'worker': a[0], 'object': a[1], 'label': a[2]} for a in assigns},
             false, #in the future we will post in chunks and use async = true
             () -> console.log "todo"
             , true)
         success()
 
-    post_assigns_batch: (assigns, success) ->
-        for assign in assigns
-            @_post_in_chunks(@jobs_cb + @id + @assign_cb,
-                {'assigns': assigns},
-                'assigns',
-                0,
-                () -> console.log 'todo')
-        success()
-
-    post_gold_labels: (labels, success) ->
-        # for label in labels
-        #     @_post(@jobs_cb + @id + @gold_label_cb, {
-        #         'objectId': label[0],
-        #         'label': parseInt(label[1]),
-        #         'zeta': parseInt(label[2])},
-        #         false, #in the future we will post in chunks and use async = true
-        #         () -> console.log "todo"
-        #         , true)
+    post_gold_objects: (objects, success) ->
+        @_post_as_json("#{@jobs_cb}/#{@id}#{@gold_objects_cb}", {objects:
+            {'object': o[0], 'label': o[1]} for o in objects}
+            false, #in the future we will post in chunks and use async = true
+            () -> console.log "todo"
+            , true)
         success()
 
     collect_predicted_labels: (success) ->
