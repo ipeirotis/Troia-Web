@@ -29,13 +29,18 @@ class Client
         @_post("#{@jobs_url}/#{@id}#{@compute_url}",
             {'iterations': iterations}, true, success, true)
 
-    get_test_data: (type, data_cb, gold_data_cb) ->
+    get_job: (id, success) ->
+        @_get(@_job_url(id), {}, true, success, null, true)
+
+    get_example_job: (type, eval_success, gold_success) ->
         $.ajax(
-            url: @data_dir + type)
-            .done(data_cb)
+            url: @eval_data_dir + type)
+            .done(eval_success)
         $.ajax(
             url: @gold_data_dir + type)
-            .done(gold_data_cb)
+            .done(gold_success)
+
+    _job_url: (id) -> "#{@jobs_url}/#{id}#"
 
     _job_post_in_chunks: (url, data, axis, async, offset, success, error,
             settings, process) ->
@@ -173,7 +178,7 @@ class App.ContinuousClient extends Client
     gold_objects_url: "/goldObjects"
     objects_prediction_url: "/prediction/objects/"
     workers_prediction_url: "/prediction/workers/"
-    data_dir: "/media/txt/cjobs_data/"
+    eval_data_dir: "/media/txt/cjobs_data/"
     gold_data_dir: "/media/txt/cjobs_gold_data/"
 
     create: (success) ->

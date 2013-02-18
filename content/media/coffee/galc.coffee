@@ -49,8 +49,38 @@ process_handler = () ->
     $(@).one('click', process_handler)
 
 
-
 cclient = new App.ContinuousClient()
+id = App.get_url_parameter('id')
+
+if id
+    success = (response) ->
+        job = $.parseJSON(response.responseText).result
+        console.log(job)
+        eval_result = ''
+        for assign in job.assigns
+            eval_result += assign.worker + ' ' + assign.object + ' ' + assign.label.value + '\n'
+        $('#id_data').val(eval_result)
+        gold_result = ''
+        for label in job.goldObjects
+            # TODO this values do not arrive from the server
+            if not label.value
+                label.value = 0
+                label.zeta = 0
+            else
+                label.zeta = label.value.zeta
+                label.value = label.value.value
+            gold_result += label.name + ' ' + label.value + ' ' + label.zeta + '\n'
+        $('#id_gold_labels').val(gold_result)
+
+    cclient.get_job(id, success)
+else
+    cclient.get_example_job(1,
+        (data) ->
+            $('#id_data').val(data)
+        (data) ->
+            $('#id_gold_labels').val(data)
+    )
+
 cclient.ajax_error = (jqXHR, textStatus, errorThrown) ->
     $(".alert p").text("Troia server error (" + errorThrown.toString() + ").")
     $(".alert").show()
@@ -58,11 +88,5 @@ cclient.ajax_error = (jqXHR, textStatus, errorThrown) ->
 #disable results tab
 $("#menuTab li:nth-child(2) a").attr("data-toggle", "").css("cursor",  "not-allowed")
 
-cclient.get_test_data(1,
-    (data) ->
-        $('#id_data').val(data)
-    (data) ->
-        $('#id_gold_labels').val(data)
-)
-App.set_textarea_maxrows 20000
+App.set_textarea_maxrows(20000)
 $('#send_data').one('click', process_handler)

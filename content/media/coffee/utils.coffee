@@ -23,3 +23,7 @@ App.parse_input = (input_el, control_el, text_el, tab_el, condition, error_msg) 
         data.push(parsed_line)
 
     return data
+
+App.get_url_parameter = `function(name) {
+    return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+)').exec(location.search) || [,""])[1].replace(/\+/g, '%20')) || null;
+}`
