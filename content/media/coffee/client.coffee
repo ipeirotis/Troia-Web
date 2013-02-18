@@ -1,8 +1,7 @@
 window.App = {}
 
 class Client
-    constructor: (@id = @generate_id(), @api_url = 'api') ->
-        @job_url = "#{@api_url}/#{@id}"
+    constructor: (@id = @generate_id(), @api_url = '/api') ->
         @chunk_size = 10
 
     set_id: (@id) ->
@@ -12,7 +11,7 @@ class Client
 
     exists: ->
         ret = false
-        @_get(@jobs_cb + @id, {}, false,
+        @_get(@jobs_url + @id, {}, false,
             () -> ret = true,
             () -> ret = false,
             false)
@@ -27,15 +26,15 @@ class Client
         return ret
 
     compute: (success, iterations = 20) ->
-        @_post("#{@jobs_cb}/#{@id}#{@compute_cb}", {'iterations': iterations},
-            true, success, true)
+        @_post("#{@jobs_url}/#{@id}#{@compute_url}",
+            {'iterations': iterations}, true, success, true)
 
     get_test_data: (type, data_cb, gold_data_cb) ->
         $.ajax(
-            url: @data_folder + type)
+            url: @data_dir + type)
             .done(data_cb)
         $.ajax(
-            url: @gold_data_folder + type)
+            url: @gold_data_dir + type)
             .done(gold_data_cb)
 
     _post_in_chunks: (url, data, axis, async, offset, success) ->
@@ -63,7 +62,6 @@ class Client
             error:
                 if error then error else @_ajax_error
         })
-        console.log(set)
         $.ajax(set)
 
     _post: (url, data, async, success, error = null, redirect = null,
@@ -73,6 +71,20 @@ class Client
     _get: (url, data, async, success, error = null, redirect = null,
             settings = {}) ->
         @_ajax(url, 'get', data, async, success, error, redirect, settings)
+
+    _job_ajax: (url, type, data, async, success, error = null, redirect = null,
+            settings = {}) ->
+        @_ajax("/#{@jobs_url}/#{@id}#{url}", type, data, async, success, error,
+            redirect, settings)
+
+    _job_post: (url, data, async, success, error = null, redirect = null,
+            settings = {}) ->
+        @_job_ajax(url, 'post', data, async, success, error, redirect,
+            settings)
+
+    _job_get: (url, data, async, success, error = null, redirect = null,
+            settings = {}) ->
+        @_job_ajax(url, 'get', data, async, success, error, redirect, settings)
 
     _redirect_func: (response, success) ->
         timeout_func = () =>
@@ -97,16 +109,16 @@ class Client
 
 
 class App.NominalClient extends Client
-    jobs_cb: "/jobs"
-    assigns_cb: "/assignedLabels"
-    compute_cb: "/compute"
-    gold_labels_cb: "/goldData"
-    data_prediction_cb: "/prediction/data"
+    jobs_url: "/jobs"
+    assigns_url: "/assignedLabels"
+    compute_url: "/compute"
+    gold_labels_url: "/goldData"
+    data_prediction_url: "/prediction/data"
     data_folder: "/media/txt/jobs_data/"
     gold_data_folder: "/media/txt/jobs_gold_data/"
 
     create: (categories, success) ->
-        @_post(@jobs_cb, {'id': id, 'categories': categories},
+        @_post(@jobs_url, {'id': id, 'categories': categories},
             true, success, false)
 
     post_assigns: (assigns, success) ->
@@ -145,53 +157,37 @@ class App.NominalClient extends Client
 
 
 class App.ContinuousClient extends Client
-    jobs_cb: "/cjobs"
-    assigns_cb: "/assigns"
-    compute_cb: "/compute"
-    gold_objects_cb: "/goldObjects"
-    data_prediction_cb: "/prediction/objects/"
-    worker_prediction_cb: "/prediction/workers/"
-    data_folder: "/media/txt/cjobs_data/"
-    gold_data_folder: "/media/txt/cjobs_gold_data/"
-
-    _post_as_json: (url, data, async, success, redirect) ->
-        $.ajax
-            url: @api_url + url
-            type: 'post'
-            dataType: 'json'
-            contentType: "application/json; charset=utf-8"
-            async: async
-            data: JSON.stringify(data)
-            success: (response) =>
-                if redirect
-                    @_redirect_func(response, success)
-                else
-                    success(response)
-            error: @ajax_error
+    jobs_url: "/cjobs"
+    assigns_url: "/assigns"
+    compute_url: "/compute"
+    gold_objects_url: "/goldObjects"
+    objects_prediction_url: "/prediction/objects/"
+    workers_prediction_url: "/prediction/workers/"
+    data_dir: "/media/txt/cjobs_data/"
+    gold_data_dir: "/media/txt/cjobs_gold_data/"
 
     create: (success) ->
-        console.log("asd")
-        @_post(@jobs_cb, {'id': @id}, true, success)
-        console.log("asd")
+        @_post(@jobs_url, {'id': @id}, true, success)
 
     post_assigns: (assigns, success) ->
-        url = "#{@jobs_cb}/#{@id}#{@assigns_cb}"
-        json = JSON.stringify({
-            assigns: {worker: a[0], object: a[1], label: a[2]} for a in assigns})
-        console.log json
+        assigns = assigns.map((a) -> {worker: a[0], object: a[1], label: {value: a[2]}})
+        json = JSON.stringify({assigns: assigns})
         settings = {contentType: 'application/json; charset=utf-8'}
-        @_post(url, json, true, success, null, null, settings)
+        @_job_post(@assigns_url, json, true, success, null, true, settings)
 
     post_gold_objects: (objects, success) ->
-        url = "#{@jobs_cb}/#{@id}#{@gold_objects_cb}"
-        objects = {'object': o[0], 'label': o[1]} for o in objects
+        objects = objects.map((o) -> {object: o[0], label: o[1]})
         json = JSON.stringify({objects: objects})
         settings = {contentType: 'application/json; charset=utf-8'}
-        @_post(url, json, true, success, null, null, settings)
+        @_job_post(@gold_objects_url, json, true, success, null, true,
+            settings)
+
+    compute: (success, iterations = 20) ->
+        @_job_post(@compute_url, {'iterations': iterations}, true, success, null, true)
 
     collect_predicted_labels: (success) ->
         @predicted_labels = []
-        @_get(@jobs_cb + @id + @data_prediction_cb, {}, true,
+        @_job_get(@objects_prediction_url, {}, true,
             (res) =>
                 @predicted_labels = $.parseJSON(res.responseText)['result']
                 success()
@@ -199,7 +195,7 @@ class App.ContinuousClient extends Client
 
     collect_workers_statistics: (success) ->
         @worker_stats = []
-        @_get(@jobs_cb + @id + @worker_prediction_cb, {}, true,
+        @_job_get(@workers_prediction_url, {}, true,
             (res) =>
                 @worker_stats = $.parseJSON(res.responseText)['result']
                 success()
