@@ -2,7 +2,7 @@ window.App = {}
 
 class Client
     constructor: (@id = @generate_id(), @api_url = '/api') ->
-        @chunk_size = 10
+        @chunk_size = 80
 
     set_id: (@id) ->
 
@@ -37,15 +37,23 @@ class Client
             url: @gold_data_dir + type)
             .done(gold_data_cb)
 
-    _post_in_chunks: (url, data, axis, async, offset, success) ->
+    _job_post_in_chunks: (url, data, axis, async, offset, success, error,
+            settings, process) ->
         limit = Math.min(@chunk_size, data[axis].length - offset)
-        @_post(url, data[axis][offset..offset+limit], async,
+        # TODO currently it sends only the axis field.
+        load = {}
+        load[axis] = data[axis][offset..offset+limit]
+        load = if process then process(load) else load
+        console.log(load)
+        that = this
+        this._job_post(url, load, async,
             (res) ->
                 if offset + limit < data[axis].length
-                    @_post_in_chunks(url, data, axis, async, offset+limit, success, id)
+                    that._job_post_in_chunks(url, data, axis, async, offset+limit,
+                        success, error, settings, process)
                 else
                     success()
-            ,true)
+            , error, true, settings)
 
     _ajax: (url, type, data, async, success, error = null, redirect = null,
             settings = {}) ->
@@ -74,7 +82,7 @@ class Client
 
     _job_ajax: (url, type, data, async, success, error = null, redirect = null,
             settings = {}) ->
-        @_ajax("/#{@jobs_url}/#{@id}#{url}", type, data, async, success, error,
+        @_ajax("#{@jobs_url}/#{@id}#{url}", type, data, async, success, error,
             redirect, settings)
 
     _job_post: (url, data, async, success, error = null, redirect = null,
@@ -103,6 +111,8 @@ class Client
         for k, v of data
             result[k] = if k isnt "id" then JSON.stringify(v) else v
         return result
+
+    _stringify: (data) -> JSON.stringify(data)
 
     _ajax_error: (jqXHR, textStatus, errorThrown) ->
         console.log jqXHR, textStatus, errorThrown
@@ -171,16 +181,17 @@ class App.ContinuousClient extends Client
 
     post_assigns: (assigns, success) ->
         assigns = assigns.map((a) -> {worker: a[0], object: a[1], label: {value: a[2]}})
-        json = JSON.stringify({assigns: assigns})
+        assigns = {assigns: assigns}
         settings = {contentType: 'application/json; charset=utf-8'}
-        @_job_post(@assigns_url, json, true, success, null, true, settings)
+        @_job_post_in_chunks(@assigns_url, assigns, 'assigns', true, 0,
+            success, null, settings, @_stringify)
 
     post_gold_objects: (objects, success) ->
         objects = objects.map((o) -> {object: o[0], label: o[1]})
-        json = JSON.stringify({objects: objects})
+        objects = {objects: objects}
         settings = {contentType: 'application/json; charset=utf-8'}
-        @_job_post(@gold_objects_url, json, true, success, null, true,
-            settings)
+        @_job_post_in_chunks(@gold_objects_url, objects, 'objects', true, 0,
+            success, null, settings, @_stringify)
 
     compute: (success, iterations = 20) ->
         @_job_post(@compute_url, {'iterations': iterations}, true, success, null, true)
