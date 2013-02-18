@@ -137,7 +137,7 @@ title: Demo application
 			<table class='table table-striped'>
 				<tr><th><%= objName %></th>
 				<% _.each(headers, function(h){  %>
-					<th><%= h %></th>
+					<th width="150px"><%= h %></th>
 				<% }); %>				
 				</tr>
 				<% _.each(objects, function(o){ %>
@@ -158,12 +158,12 @@ title: Demo application
 			<table class='table table-striped'>
 				<tr>
 					<th>Worker</th>
-					<th class="small">ExpectedCost</th>
-					<th class="small">MaxLikelihood</th>
-					<th class="small">MinCost</th>
-					<th class="small">Number of annotations</th>
-					<th class="small">Number of gold tests</th>
-					<th class="small">Confusion Matrix</th>
+					<th width="93px">ExpectedCost</th>
+					<th width="93px">MaxLikelihood</th>
+					<th width="93px">MinCost</th>
+					<th width="93px">Number of annotations</th>
+					<th width="93px">Number of gold tests</th>
+					<th width="93px">Confusion Matrix</th>
 				</tr>
 			    <% 	for (var i = 0; i < workers.length; i++) { %>
 				<tr>
