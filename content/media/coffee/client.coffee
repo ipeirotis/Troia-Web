@@ -48,31 +48,31 @@ class Client
                     success()
             ,true)
 
-    _post: (url, data, async, success, redirect) ->
-        $.ajax
+    _ajax: (url, type, data, async, success, error = null, redirect = null,
+            settings = {}) ->
+        set = $.extend(settings, {
             url: @api_url + url
-            type: "post"
-            async: async
-            data: @_jsonify(data)
-            success: (response) =>
-                if redirect
-                    @_redirect_func(response, success)
-                else
-                    success(response)
-            error: @ajax_error
-
-    _get: (url, data, async, success, error, redirect) ->
-        $.ajax
-            url: @api_url + url
-            type: "get"
-            async: async
+            type: type
             data: data
+            async: async
             success: (response) =>
                 if redirect
                     @_redirect_func(response, success)
                 else
                     success(response)
-            error: if error then error else @ajax_error
+            error:
+                if error then error else @_ajax_error
+        })
+        console.log(set)
+        $.ajax(set)
+
+    _post: (url, data, async, success, error = null, redirect = null,
+            settings = {}) ->
+        @_ajax(url, 'post', data, async, success, error, redirect, settings)
+
+    _get: (url, data, async, success, error = null, redirect = null,
+            settings = {}) ->
+        @_ajax(url, 'get', data, async, success, error, redirect, settings)
 
     _redirect_func: (response, success) ->
         timeout_func = () =>
@@ -170,23 +170,24 @@ class App.ContinuousClient extends Client
             error: @ajax_error
 
     create: (success) ->
-        @_post(@jobs_cb, {'id': @id}, true, success, false)
+        console.log("asd")
+        @_post(@jobs_cb, {'id': @id}, true, success)
+        console.log("asd")
 
     post_assigns: (assigns, success) ->
-        @_post_as_json("#{@jobs_cb}/#{@id}#{@assigns_cb}", {assigns:
-            {'worker': a[0], 'object': a[1], 'label': a[2]} for a in assigns},
-            false, #in the future we will post in chunks and use async = true
-            () -> console.log "todo"
-            , true)
-        success()
+        url = "#{@jobs_cb}/#{@id}#{@assigns_cb}"
+        json = JSON.stringify({
+            assigns: {worker: a[0], object: a[1], label: a[2]} for a in assigns})
+        console.log json
+        settings = {contentType: 'application/json; charset=utf-8'}
+        @_post(url, json, true, success, null, null, settings)
 
     post_gold_objects: (objects, success) ->
-        @_post_as_json("#{@jobs_cb}/#{@id}#{@gold_objects_cb}", {objects:
-            {'object': o[0], 'label': o[1]} for o in objects}
-            false, #in the future we will post in chunks and use async = true
-            () -> console.log "todo"
-            , true)
-        success()
+        url = "#{@jobs_cb}/#{@id}#{@gold_objects_cb}"
+        objects = {'object': o[0], 'label': o[1]} for o in objects
+        json = JSON.stringify({objects: objects})
+        settings = {contentType: 'application/json; charset=utf-8'}
+        @_post(url, json, true, success, null, null, settings)
 
     collect_predicted_labels: (success) ->
         @predicted_labels = []
