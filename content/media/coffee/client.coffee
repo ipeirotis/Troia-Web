@@ -147,7 +147,7 @@ class App.NominalClient extends Client
 
 class App.ContinuousClient extends Client
     jobs_cb: "/cjobs"
-    assigns_cb: "/assigns"
+    assigns_cb: "/assign"
     compute_cb: "/compute"
     gold_label_cb: "/goldObject"
     data_prediction_cb: "/prediction/objects/"
@@ -181,40 +181,30 @@ class App.ContinuousClient extends Client
         @_post(@jobs_cb, {'id': @id}, true, success, false)
 
     post_assigns: (assigns, success) ->
-        # for assign in assigns
-        ass = {'assigns': [{'worker': 'worker1', 'object': 'object1', 'label': 3.14}, {'worker': 'worker2', 'object': 'object2', 'label': 2.71}]}
-        @_post_as_json("#{@jobs_cb}/#{@id}#{@assigns_cb}", ass,
-            # 'worker': assign[0],
-            # 'object': assign[1],
-            # 'label': parseInt(assign[2])},
-            false, #in the future we will post in chunks and use async = true
-            () -> console.log "todo"
-            , true)
-        success()
-
-    post_assigns_batch: (assigns, success) ->
         for assign in assigns
-            @_post_in_chunks(@jobs_cb + @id + @assign_cb,
-                {'assigns': assigns},
-                'assigns',
-                0,
-                () -> console.log 'todo')
+            @_post_as_json("#{@jobs_cb}/#{@id}#{@assigns_cb}", {
+                'worker': assign[0],
+                'object': assign[1],
+                'label': parseInt(assign[2])},
+                false, #in the future we will post in chunks and use async = true
+                () -> console.log "todo"
+                , true)
         success()
 
     post_gold_labels: (labels, success) ->
-        # for label in labels
-        #     @_post(@jobs_cb + @id + @gold_label_cb, {
-        #         'objectId': label[0],
-        #         'label': parseInt(label[1]),
-        #         'zeta': parseInt(label[2])},
-        #         false, #in the future we will post in chunks and use async = true
-        #         () -> console.log "todo"
-        #         , true)
+        for label in labels
+            @_post_as_json("#{@jobs_cb}/#{@id}#{@gold_label_cb}", {
+                'objectId': label[0],
+                'label': parseInt(label[1]),
+                'zeta': parseInt(label[2])},
+                false, #in the future we will post in chunks and use async = true
+                () -> console.log "todo"
+                , true)
         success()
 
     collect_predicted_labels: (success) ->
         @predicted_labels = []
-        @_get(@jobs_cb + @id + @data_prediction_cb, {}, true,
+        @_get("#{@jobs_cb}/#{@id}#{@data_prediction_cb}", {}, true,
             (res) =>
                 @predicted_labels = $.parseJSON(res.responseText)['result']
                 success()
@@ -222,7 +212,7 @@ class App.ContinuousClient extends Client
 
     collect_workers_statistics: (success) ->
         @worker_stats = []
-        @_get(@jobs_cb + @id + @worker_prediction_cb, {}, true,
+        @_get("#{@jobs_cb}/#{@id}#{@worker_prediction_cb}", {}, true,
             (res) =>
                 @worker_stats = $.parseJSON(res.responseText)['result']
                 success()
