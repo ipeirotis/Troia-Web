@@ -85,7 +85,7 @@ Send labels that worker assigned to objects.
         "worker":"worker2",
         "object":"http://yahoo.com",
         "label":{"value":-1.2928498723416584}
-    }]'
+    }]}'
 
 As a result we get JSON:
 ::
@@ -127,7 +127,7 @@ Send samples for which we know correct label. That would allow algorithm to a be
 	{
         "object": "http://sunnyfun.com",
 		"label":{"value":8.219077484951955,"zeta":0.343407722905}
-    }]'
+    }]}'
 
 Similarly as previously, as a result we get:
 ::
@@ -140,19 +140,18 @@ Similarly as previously, as a result we get:
     }
 
 Load objects without labels
-----------------
+---------------------------
 Send objects without labels
 ::
 
     curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/cjobs/<JOB_ID>/objects" -d '{"objects":
     [	"object1",
 		"object2"
-	]'
+	]}'
 
 Similarly as previously, as a result we get:
 ::
 
-    
     {
         "timestamp":"2013-02-19T12:47:37.977+02:00",
         "status":"OK",
@@ -193,9 +192,9 @@ Get results
 -----------
 
 Prediction objects
-+++++++++++++++++
+++++++++++++++++++
 
-To collect the prediction objects results we call:
+To collect the prediction objects we call:
 ::
 
     curl -X GET "http://project-troia.com/api/cjobs/<JOB_ID>/prediction/objects"
@@ -220,7 +219,7 @@ and as in the previous case, we get the JSON object containing the redirect uri.
 
 
 Prediction workers
-+++++++++++++++++
+++++++++++++++++++
 
 To collect the prediction workers results we call:
 ::
