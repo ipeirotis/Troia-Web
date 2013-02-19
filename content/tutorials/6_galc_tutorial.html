@@ -1,0 +1,270 @@
+---
+extends: skeleton/_base.html
+title: GALC tutorial
+---
+
+{% block content %}
+
+{% restructuredtext %}
+
+What this tutorial is about?
+============================
+This tutorial would show you, step by step, how to use Troia Server with continuous variables. We will use `cURL <http://curl.haxx.se/>`_ to communicate with Troia Server API.
+
+Create job
+----------
+To create a new continuous job, simply enter:
+::
+
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/cjobs"
+
+As a result we get JSON response:
+::
+
+    {
+        "timestamp":"2013-02-19T12:47:37.977+02:00",
+        "result":"New job created with ID: <JOB_ID>",
+        "status":"OK"
+    }
+
+Note that the response contains the job ID. It is neccessary to pass the generated id to all the other endpoints that operate on jobs.
+
+
+Load assigned labels
+--------------------
+Send labels that worker assigned to objects.
+::
+
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/cjobs/<JOB_ID>/assigns" -d '{"assigns":
+    [{
+        "worker":"worker1",
+        "object":"http://sunnyfun.com",
+		"label":{"value":4.399898705211159}
+    },
+    {
+        "worker":"worker1",
+        "object":"http://sex-mission.com",
+        "label":{"value":-2.2209043312752503}
+    },
+    {
+        "worker":"worker1",
+        "object":"http://google.com",
+        "label":{"value":0.2501928056080521}
+    },
+    {
+        "worker":"worker1",
+        "object":"http://youporn.com",
+        "label":{"value":2.630393454314285}
+    },
+    {
+        "worker":"worker1",
+        "object":"http://yahoo.com",
+        "label":{"value":1.7745486537318291}
+    },
+    {
+        "worker":"worker2",
+        "object":"http://sunnyfun.com",
+        "label":{"value":2.0909755923562328}
+    },
+    {
+        "worker":"worker2",
+        "object":"http://sex-mission.com",
+        "label":{"value":2.879992076430761}
+    },
+    {
+        "worker":"worker2",
+        "object":"http://google.com",
+        "label":{"value":-0.800554365150114}
+    },
+    {
+        "worker":"worker2",
+        "object":"http://youporn.com",
+        "label":{"value":-1.5672083199519249}
+    },
+    {
+        "worker":"worker2",
+        "object":"http://yahoo.com",
+        "label":{"value":-1.2928498723416584}
+    }]'
+
+As a result we get JSON:
+::
+
+    {
+        "timestamp":"2013-02-19T12:47:37.977+02:00",
+        "status":"OK",
+        "redirect":"responses/<RESPONSE_ID>/POST/cjobs/<JOB_ID>/assigns"
+    }
+
+where <RESPONSE_ID> is some generated id.
+That means we need to call:
+::
+
+    curl -X GET "http://project-troia.com/api/responses/<RESPONSE_ID>/POST/cjobs/<JOB_ID>/assigns
+
+to see what is the status of calling load assigned labels method.
+As a result we get another JSON:
+::
+
+    {
+        "timestamp":"2013-02-19T12:47:37.977+02:00",
+        "result":"Assigns added",
+        "status":"OK"
+    }
+
+This way of getting command results concerns all of the following methods.
+
+Load gold labels
+----------------
+Send samples for which we know correct label. That would allow algorithm to a better estimation of workers quality and what is connected with this better estimation of correct labels.
+::
+
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/cjobs/<JOB_ID>/goldObjects" -d '{"objects":
+    [{
+        "object": "http://google.com",
+		"label":{"value":10.219077484951955,"zeta":0.292643407722905}
+    },
+	{
+        "object": "http://sunnyfun.com",
+		"label":{"value":8.219077484951955,"zeta":0.343407722905}
+    }]'
+
+Similarly as previously, as a result we get:
+::
+
+    
+    {
+        "timestamp":"2013-02-19T12:47:37.977+02:00",
+        "status":"OK",
+        "redirect":"responses/<RESPONSE_ID>/POST/cjobs/<JOB_ID>/goldObjects"
+    }
+
+Load objects without labels
+----------------
+Send objects without labels
+::
+
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/cjobs/<JOB_ID>/objects" -d '{"objects":
+    [	"object1",
+		"object2"
+	]'
+
+Similarly as previously, as a result we get:
+::
+
+    
+    {
+        "timestamp":"2013-02-19T12:47:37.977+02:00",
+        "status":"OK",
+        "redirect":"responses/<RESPONSE_ID>/POST/cjobs/<JOB_ID>/objects"
+    }
+
+	
+Start compute
+-------------
+We start actual calculations:
+::
+
+    curl -X POST "http://project-troia.com/api/cjobs/<JOB_ID>/compute"
+
+As a result, as previously we get JSON containg redirect uri:
+::
+
+    {
+        "timestamp":"2013-02-19T12:47:37.977+02:00",
+        "status":"OK",
+        "redirect":"responses/<RESPONSE_ID>/POST/cjobs/<JOB_ID>/compute"
+    }
+    
+We can check if computation has ended by checking its status:
+::
+
+    curl -X GET "http://project-troia.com/api/responses/<RESPONSE_ID>/POST/cjobs/<JOB_ID>/compute"
+
+If dataset is huge and we checked status just after start computation call we'll get:
+::
+
+    {
+        "timestamp":"2013-02-19T12:47:37.977+02:00",
+        "status":"NOT_READY"
+    }
+
+Get results
+-----------
+
+Prediction objects
++++++++++++++++++
+
+To collect the prediction objects results we call:
+::
+
+    curl -X GET "http://project-troia.com/api/cjobs/<JOB_ID>/prediction/objects"
+
+and as in the previous case, we get the JSON object containing the redirect uri. Following the link, we get the estimated zeta values for each data point:
+
+::
+
+	{
+		"timestamp":"2013-02-19T13:07:03.390+02:00",	
+		"result":[	
+			{"est_zeta":-0.1913547099132667,"object":{"name":"http://youporn.com"}},
+			{"est_zeta":0.343407722905,"object":{"name":"http://sunnyfun.com","goldLabel":{"value":{"value":8.219077484951955,"zeta":0.343407722905}}}},
+			{"est_zeta":-0.08366872414864963,"object":{"name":"http://sex-mission.com"}},
+			{"est_zeta":0.292643407722905,"object":{"name":"http://google.com","goldLabel":{"value":{"value":10.219077484951955,"zeta":0.292643407722905}}}},
+			{"est_zeta":NaN,"object":{"name":"object1"}},
+			{"est_zeta":NaN,"object":{"name":"object2"}},
+			{"est_zeta":-0.2965350443548846,"object":{"name":"http://yahoo.com"}}
+		],
+		"status":"OK"
+	}
+
+
+Prediction workers
++++++++++++++++++
+
+To collect the prediction workers results we call:
+::
+
+    curl -X GET "http://project-troia.com/api/cjobs/<JOB_ID>/prediction/workers"
+
+The JSON object received contains the redirect uri. Following the link, we get the estimated corellation values for each worker:
+	
+::
+
+	{
+		"timestamp":"2013-02-19T13:17:55.117+02:00",
+		"result":[
+			{
+				"est_rho":-0.2706672409621047,
+				"est_mu":0.26207102226865925,
+				"est_sigma":1.8488708546932122,
+				"zeta":[
+					{"worker":"worker2","object":"http://youporn.com","label":{"value":-0.9894035257125199}},
+					{"worker":"worker2","object":"http://yahoo.com","label":{"value":-0.8410110909927939}},
+					{"worker":"worker2","object":"http://google.com","label":{"value":-0.5747428949520097}},
+					{"worker":"worker2","object":"http://sex-mission.com","label":{"value":1.4159566891958497}},
+					{"worker":"worker2","object":"http://sunnyfun.com","label":{"value":0.9892008224614738}}
+					],
+				"worker":"worker2"
+			},
+			{
+				"est_rho":0.2706672409621048,
+				"est_mu":1.366825857518015,
+				"est_sigma":2.2396896717998964,
+				"zeta":[
+					{"worker":"worker1","object":"http://google.com","label":{"value":-0.4985659691918817}},
+					{"worker":"worker1","object":"http://youporn.com","label":{"value":0.5641708370163716}},
+					{"worker":"worker1","object":"http://sex-mission.com","label":{"value":-1.60188718730396}},
+					{"worker":"worker1","object":"http://yahoo.com","label":{"value":0.18204432575971705}},
+					{"worker":"worker1","object":"http://sunnyfun.com","label":{"value":1.354237993719753}}
+					],
+				"worker":"worker1"
+			}
+		],
+		"status":"OK"
+	}
+}
+	
+{% endrestructuredtext %}
+{% endblock %}
+
