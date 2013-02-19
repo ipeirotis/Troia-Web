@@ -200,18 +200,18 @@ class App.ContinuousClient extends Client
     compute: (success, iterations = 20) ->
         @_job_post(@compute_url, {'iterations': iterations}, true, success, null, true)
 
-    collect_predicted_labels: (success) ->
-        @predicted_labels = []
+    get_objects_prediction: (success) ->
+        @prediction = []
         @_job_get(@objects_prediction_url, {}, true,
-            (res) =>
-                @predicted_labels = $.parseJSON(res.responseText)['result']
+            (response) =>
+                @objects_prediction = $.parseJSON(response.responseText)['result']
                 success()
             , null, true)
 
-    collect_workers_statistics: (success) ->
-        @worker_stats = []
+    get_workers_prediction: (success) ->
+        @prediction = []
         @_job_get(@workers_prediction_url, {}, true,
-            (res) =>
-                @worker_stats = $.parseJSON(res.responseText)['result']
+            (response) =>
+                @workers_prediction = $.parseJSON(response.responseText)['result']
                 success()
             , null, true)

@@ -43,7 +43,7 @@ title: GALC TEST
                             <div class="tab-pane" id="gold">
                                 <div class="span7">
                                     <div class="control-group">
-                                        <textarea id="id_gold_labels" class="field span12" rows="15" cols="40" placeholder="object label zeta"></textarea>
+                                        <textarea id="id_gold_data" class="field span12" rows="15" cols="40" placeholder="object label zeta"></textarea>
                                         <span class="help-inline"></span>
                                         <h3>Line format:</h3>
                                         <pre>objectid[tab]correctlabel[tab]zeta</pre>
@@ -68,15 +68,15 @@ title: GALC TEST
                     <div id="url">
                         You can see later your results at:
                         <pre></pre>
-                    </div>              
+                    </div>
                 <div id="response">
                     <ul class="nav nav-tabs" id="resultsTab">
                         <li class="active"><a href="#labels" data-toggle="tab">Predicted labels</a></li>
-                        <li><a href="#workers" data-toggle="tab">Workers statistics</a></li>
+                        <li><a href="#workers" data-toggle="tab">Workers stats</a></li>
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane active" id="labels">
-                            <div id="classes"></div>
+                            <div id="objects"></div>
                         </div>
                         <div class="tab-pane" id="workers">
                             <div id="workers"></div>
@@ -85,29 +85,19 @@ title: GALC TEST
                 </div>
             </div>
         </div>
-        <div id="objects">
-        </div>
-        
+
         <!-- Objects table template. -->
         <script type="text/template" id="objects_template">
             <table class='table table-striped'>
                 <tr>
                     <th>Name</th>
-                    <th>Gold label value</th>
-                    <th>Gold label zeta</th>
+                    <th>Estimated value</th>
                     <th>Estimated Zeta</th>
                 </tr>
                 <% _.each(objects, function(o) { %>
                 <tr>
-                    <% var object = o.object %>
-                    <td><%= object.name %></td>
-                    <% if (_.isUndefined(object.goldLabel)) { %>
-                        <td>null</td>
-                        <td>null</td>
-                    <% } else { %>
-                        <td><%= object.goldLabel.value.value %></td>
-                        <td><%= object.goldLabel.value.zeta %></td>
-                    <% } %>
+                    <td><%= o.object.name %></td>
+                    <td><%= o.est_value %></td>
                     <td><%= o.est_zeta %></td>
                 </tr>
                 <% }); %>
@@ -115,26 +105,22 @@ title: GALC TEST
         </script>
 
         <!-- Workers table template. -->
-        <script type="text/template" id="objects_template">
+        <script type="text/template" id="workers_template">
             <table class='table table-striped'>
                 <tr>
                     <th>Name</th>
-                    <th>Gold label value</th>
-                    <th>Gold label zeta</th>
-                    <th>Estimated Zeta</th>
+                    <th>Estimated mu</th>
+                    <th>Estimated rho</th>
+                    <th>Estimated sigma</th>
+                    <!-- TODO show zetas <th>Zeta</th> -->
                 </tr>
-                <% _.each(objects, function(o) { %>
+                <% _.each(workers, function(w) { %>
                 <tr>
-                    <% var object = o.object %>
-                    <td><%= object.name %></td>
-                    <% if (!_.isUndefined(object.goldLabel)) { %>
-                        <td>null</td>
-                        <td>null</td>
-                    <% } else { %>
-                        <td><%= object.goldLabel.value.value %></td>
-                        <td><%= object.goldLabel.value.zeta %></td>
-                    <% } %>
-                    <td><%= o.est_zeta %></td>
+                    <td><%= w.worker %></td>
+                    <td><%= w.est_mu %></td>
+                    <td><%= w.est_rho %></td>
+                    <td><%= w.est_sigma %></td>
+                    <!-- <td>&nbsp;</td> -->
                 </tr>
                 <% }); %>
             </table>

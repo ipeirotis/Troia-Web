@@ -11,7 +11,7 @@ process_handler = () ->
         'Only 3 words per line allowed.')
 
     gold_labels = App.parse_input(
-        $("#id_gold_labels")
+        $("#id_gold_data")
         $("#gold .control-group")
         $("#gold span")
         $('#dataTab li:nth-child(2) a')
@@ -34,12 +34,14 @@ process_handler = () ->
                     cclient.compute(() ->
                         $(that).removeClass('disabled').text(button_text)
                         $("#url pre").text(document.URL + "?id=" + cclient.id)
-                        cclient.collect_predicted_labels(() ->
-                            cclient.collect_workers_statistics(()->
+                        cclient.get_objects_prediction(() ->
+                            cclient.get_workers_prediction(()->
                                 $("#img-load").hide()
-                                $("#objects").html(_.template($("#objects_template").html(), {objects: cclient.predicted_labels}))
-                                console.log cclient.predicted_labels
-                                console.log cclient.worker_stats
+                                $("#objects").html(_.template($("#objects_template").html(), {objects: cclient.objects_prediction}))
+                                $("#workers").html(_.template($("#workers_template").html(), {workers: cclient.workers_prediction}))
+                                $("#response").show()
+                                console.log cclient.objects_prediction
+                                console.log cclient.workers_prediction
                             )
                         )
                     )
@@ -63,7 +65,7 @@ if id
             v = o.goldLabel.value
             [o.name, v.value, v.zeta].join('\t')).join('\n')
         $('#id_data').val(assigns)
-        $('#id_gold_labels').val(objects)
+        $('#id_gold_data').val(objects)
 
     cclient.get_job(id, success)
 else
@@ -71,7 +73,7 @@ else
         (data) ->
             $('#id_data').val(data)
         (data) ->
-            $('#id_gold_labels').val(data)
+            $('#id_gold_data').val(data)
     )
 
 cclient.ajax_error = (jqXHR, textStatus, errorThrown) ->

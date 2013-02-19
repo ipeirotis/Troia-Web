@@ -6,8 +6,8 @@ App.set_textarea_maxrows = (max_rows) ->
             $(".alert").show()
         else
             $(".alert").hide()
-    $('#id_data').keyup(handler)
-    $('#id_gold_data').keyup(handler)
+    $('#eval_data_input').keyup(handler)
+    $('#gold_data_input').keyup(handler)
 
 App.parse_input = (input_el, control_el, text_el, tab_el, condition, error_msg) ->
     control_el.removeClass('error')
