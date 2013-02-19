@@ -18,7 +18,7 @@ To create a new continuous job, simply enter:
 
     curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/cjobs"
 
-As a result we get JSON response:
+As a result we get the following JSON response:
 ::
 
     {
@@ -32,7 +32,7 @@ Note that the response contains the job ID. It is neccessary to pass the generat
 
 Load assigned labels
 --------------------
-Send labels that worker assigned to objects.
+Send labels assigned by workers to objects.
 ::
 
     curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/cjobs/<JOB_ID>/assigns" -d '{"assigns":
@@ -96,7 +96,7 @@ As a result we get JSON:
         "redirect":"responses/<RESPONSE_ID>/POST/cjobs/<JOB_ID>/assigns"
     }
 
-where <RESPONSE_ID> is some generated id.
+where <RESPONSE_ID> is a generated id.
 That means we need to call:
 ::
 
@@ -132,7 +132,6 @@ Send samples for which we know correct label. That would allow algorithm to a be
 Similarly as previously, as a result we get:
 ::
 
-    
     {
         "timestamp":"2013-02-19T12:47:37.977+02:00",
         "status":"OK",
@@ -266,4 +265,5 @@ The JSON object received contains the redirect uri. Following the link, we get t
 	
 {% endrestructuredtext %}
 {% endblock %}
+
 
