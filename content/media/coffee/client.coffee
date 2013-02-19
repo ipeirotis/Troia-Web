@@ -13,16 +13,18 @@ class Client
         ret = false
         @_get(@jobs_url + @id, {}, false,
             () -> ret = true,
-            () -> ret = false,
-            false)
+            () -> ret = false
+        )
         return ret
 
     ping: ->
         ret = false
-        @_get('status', {}, false,
-            () -> ret = true,
-            () -> ret = false,
-            false)
+        @_get('/status', {}, false
+            () -> ret = true
+            (jqXHR, textStatus, errorThrown) =>
+                @_ajax_error(jqXHR, textStatus, errorThrown)
+                ret = false
+        )
         return ret
 
     compute: (success, iterations = 20) ->
@@ -40,9 +42,9 @@ class Client
             url: @gold_data_dir + type)
             .done(gold_success)
 
-    _job_url: (id) -> "#{@jobs_url}/#{id}#"
+    _job_url: (id = @id) -> @jobs_url + '/' + id
 
-    _job_post_in_chunks: (url, data, axis, async, offset, success, error,
+    _post_in_chunks: (url, data, axis, async, offset, success, error,
             settings, process) ->
         limit = Math.min(@chunk_size, data[axis].length - offset)
         # TODO currently it sends only the axis field.
@@ -50,10 +52,10 @@ class Client
         load[axis] = data[axis][offset..offset+limit]
         load = if process then process(load) else load
         that = this
-        this._job_post(url, load, async,
+        this._post(url, load, async,
             (res) ->
                 if offset + limit < data[axis].length
-                    that._job_post_in_chunks(url, data, axis, async, offset+limit,
+                    that._post_in_chunks(url, data, axis, async, offset+limit,
                         success, error, settings, process)
                 else
                     success()
@@ -83,20 +85,6 @@ class Client
     _get: (url, data, async, success, error = null, redirect = null,
             settings = {}) ->
         @_ajax(url, 'get', data, async, success, error, redirect, settings)
-
-    _job_ajax: (url, type, data, async, success, error = null, redirect = null,
-            settings = {}) ->
-        @_ajax("#{@jobs_url}/#{@id}#{url}", type, data, async, success, error,
-            redirect, settings)
-
-    _job_post: (url, data, async, success, error = null, redirect = null,
-            settings = {}) ->
-        @_job_ajax(url, 'post', data, async, success, error, redirect,
-            settings)
-
-    _job_get: (url, data, async, success, error = null, redirect = null,
-            settings = {}) ->
-        @_job_ajax(url, 'get', data, async, success, error, redirect, settings)
 
     _redirect_func: (response, success) ->
         timeout_func = () =>
@@ -184,34 +172,49 @@ class App.ContinuousClient extends Client
         @_post(@jobs_url, {'id': @id}, true, success)
 
     post_assigns: (assigns, success) ->
-        assigns = assigns.map((a) -> {worker: a[0], object: a[1], label: {value: a[2]}})
+        assigns = assigns.map(
+            (a) -> {worker: a[0], object: a[1], label: {value: a[2]}})
         assigns = {assigns: assigns}
         settings = {contentType: 'application/json; charset=utf-8'}
-        @_job_post_in_chunks(@assigns_url, assigns, 'assigns', true, 0,
-            success, null, settings, @_stringify)
+        @_post_in_chunks(@_job_url() + @assigns_url, assigns, 'assigns', true,
+            0, success, null, settings, @_stringify)
 
     post_gold_objects: (objects, success) ->
-        objects = objects.map((o) -> {object: o[0], label: {value: o[1], zeta: o[2]}})
+        objects = objects.map(
+            (o) -> {object: o[0], label: {value: o[1], zeta: o[2]}})
         objects = {objects: objects}
         settings = {contentType: 'application/json; charset=utf-8'}
-        @_job_post_in_chunks(@gold_objects_url, objects, 'objects', true, 0,
-            success, null, settings, @_stringify)
+        @_post_in_chunks(@_job_url() + @gold_objects_url, objects,
+            'objects', true, 0, success, null, settings, @_stringify)
 
     compute: (success, iterations = 20) ->
-        @_job_post(@compute_url, {'iterations': iterations}, true, success, null, true)
+        @_post(@_job_url() + @compute_url, {'iterations': iterations}, true,
+            success, null, true)
 
-    get_objects_prediction: (success) ->
+    get_objects_prediction: (id, success) ->
         @prediction = []
-        @_job_get(@objects_prediction_url, {}, true,
+        @_get(@_job_url(id) + @objects_prediction_url, {}, true,
             (response) =>
                 @objects_prediction = $.parseJSON(response.responseText)['result']
-                success()
+                success(response)
             , null, true)
 
-    get_workers_prediction: (success) ->
+    get_workers_prediction: (id, success) ->
         @prediction = []
-        @_job_get(@workers_prediction_url, {}, true,
+        @_get(@_job_url(id) + @workers_prediction_url, {}, true,
             (response) =>
                 @workers_prediction = $.parseJSON(response.responseText)['result']
-                success()
+                success(response)
             , null, true)
+
+    get_prediction: (id, success_objects, success_workers, success) ->
+        @get_objects_prediction(id,
+            (response) =>
+                success_objects(response)
+                @get_workers_prediction(id,
+                    (response) ->
+                        success_workers(response)
+                        success(response)
+                )
+        )
+
