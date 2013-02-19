@@ -55,22 +55,15 @@ id = App.get_url_parameter('id')
 if id
     success = (response) ->
         job = $.parseJSON(response.responseText).result
-        console.log(job)
         eval_result = ''
         for assign in job.assigns
-            eval_result += assign.worker + ' ' + assign.object + ' ' + assign.label.value + '\n'
-        $('#id_data').val(eval_result)
-        gold_result = ''
-        for label in job.goldObjects
-            # TODO this values do not arrive from the server
-            if not label.value
-                label.value = 0
-                label.zeta = 0
-            else
-                label.zeta = label.value.zeta
-                label.value = label.value.value
-            gold_result += label.name + ' ' + label.value + ' ' + label.zeta + '\n'
-        $('#id_gold_labels').val(gold_result)
+            eval_result += assign.worker + '\t' + assign.object + '\t' + assign.label.value + '\n'
+        assigns = job.assigns.map((a) -> [a.worker, a.object, a.label.value].join('\t')).join('\n')
+        objects = job.goldObjects.map((o) ->
+            v = o.goldLabel.value
+            [o.name, v.value, v.zeta].join('\t')).join('\n')
+        $('#id_data').val(assigns)
+        $('#id_gold_labels').val(objects)
 
     cclient.get_job(id, success)
 else

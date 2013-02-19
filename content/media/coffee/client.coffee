@@ -49,7 +49,6 @@ class Client
         load = {}
         load[axis] = data[axis][offset..offset+limit]
         load = if process then process(load) else load
-        console.log(load)
         that = this
         this._job_post(url, load, async,
             (res) ->
@@ -192,7 +191,7 @@ class App.ContinuousClient extends Client
             success, null, settings, @_stringify)
 
     post_gold_objects: (objects, success) ->
-        objects = objects.map((o) -> {object: o[0], label: o[1]})
+        objects = objects.map((o) -> {object: o[0], label: {value: o[1], zeta: o[2]}})
         objects = {objects: objects}
         settings = {contentType: 'application/json; charset=utf-8'}
         @_job_post_in_chunks(@gold_objects_url, objects, 'objects', true, 0,
