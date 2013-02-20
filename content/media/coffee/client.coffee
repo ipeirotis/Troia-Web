@@ -1,7 +1,7 @@
 window.App = {}
 
 class Client
-    constructor: (@id = @generate_id(), @api_url = '/api') ->
+    constructor: (@id = @generate_id(), @api_url = '/api_devel') ->
         @chunk_size = 80
 
     set_id: (@id) ->
