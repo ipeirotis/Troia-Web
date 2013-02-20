@@ -1,6 +1,6 @@
 ---
 extends: skeleton/_base.html
-title: GALC TEST
+title: Demo application GALC
 ---
 
 {% block extra_js %}
@@ -21,7 +21,7 @@ title: GALC TEST
         <div class="tab-content">
             <div class="tab-pane active" id="input">
                 <div>
-                    <form id="data_form" class="form-horizontal" method="post">     
+                    <form id="data_form" class="form-horizontal" method="post">
                         <ul class="nav nav-tabs" id="dataTab">
                             <li class="active"><a href="#data" data-toggle="tab">Data</a></li>
                             <li><a href="#gold" data-toggle="tab">Gold data</a></li>
@@ -37,7 +37,7 @@ title: GALC TEST
                                     </div>
                                 </div>
                                 <div class="span5 well">
-                                    
+
                                 </div>
                             </div>
                             <div class="tab-pane" id="gold">
@@ -50,13 +50,13 @@ title: GALC TEST
                                     </div>
                                 </div>
                                 <div class="span5 well">
-            
+
                                 </div>
                             </div>
                         </div>
-                        <div class="alert alert-error" style="display:none;">  
-                            <strong>Error!</strong><p>Troia server not responding.</p>  
-                        </div> 
+                        <div class="alert alert-error" style="display:none;">
+                            <strong>Error!</strong><p>Troia server not responding.</p>
+                        </div>
                         <div class="form-actions">
                             <span type="button" class="btn btn-info" id="send_data">Process</span>
                         </div>
