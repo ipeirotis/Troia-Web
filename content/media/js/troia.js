@@ -3,7 +3,7 @@ var labelChoosingFunctions = ["MaxLikelihood", "MinCost"];
 var costFunctions = ["ExpectedCost", "MaxLikelihood", "MinCost"];
 
 function initialize() {
-    var apiUrl = 'http://localhost:8080/troia-server-0.8/';
+    var apiUrl = '/api/';
     var id = getURLParameter("id");
     var categoryList = [];
     var oldCategoryList = [];
@@ -118,7 +118,7 @@ function initialize() {
         $('#id_data').keyup(handler);
         $('#id_gold_data').keyup(handler);
     }
-    
+
     function invalidateCostMatrix(categories){
         parseWorkerAssignedLabels();
         createCostMatrix(categoryList, categories);
@@ -147,7 +147,7 @@ function initialize() {
             invalidateCostMatrix();
         }
     }
-    
+
     function loadData(id) {
         get('jobs/' + id + '/data', {}, true, function(response){
             var json = $.parseJSON(response.responseText);
@@ -166,7 +166,7 @@ function initialize() {
             }, ajax_error, true, id);
         }, ajax_error, true, id);
     }
-    
+
     function getResults(id) {
         _.each(algorithms, function(alg){
             _.each(labelChoosingFunctions, function(labelChoosing){
@@ -458,7 +458,7 @@ function initialize() {
             }
         }, ajax_error, true, id);
     }
-    
+
     function workersQuality(id, costFunc) {
         get('jobs/' + id + '/prediction/workersQuality', {'costAlgorithm': costFunc}, true, function(response) {
             var json = $.parseJSON(response.responseText);
@@ -474,7 +474,7 @@ function initialize() {
                             w[attr] = json.result[w.name][attr];
                         });
                     });
-                    
+
                     $('#workers').html(createWorkersTable(workers));
 
                     gettingWorkerQualities = false;
@@ -483,7 +483,7 @@ function initialize() {
             }
         }, ajax_error, true, id);
     }
-    
+
     /*
      * for input [{'key': aaa, 'value': 123}, {'key': bbb, 'value': 432}]
      * returns {'aaa': 123, 'bbb': 432}
@@ -513,7 +513,7 @@ function initialize() {
         });
         return ret;
     }
-    
+
     function getHeaders(arg) {
         var ret = [];
         _.each(_.keys(arg[0]), function(obj){
@@ -522,7 +522,7 @@ function initialize() {
         });
         return ret;
     }
-    
+
     function toggleTablesVisibility(){
         if (!gettingPredictedLabels && !gettingWorkerQualities){
             $("#img-load").fadeOut(200, function() {
@@ -538,7 +538,7 @@ function initialize() {
             });
         }
     }
-    
+
     function createWorkersTable(data) {
         if (categoryList.length === 0){
             categories = [];
