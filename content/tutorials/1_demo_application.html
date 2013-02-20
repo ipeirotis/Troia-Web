@@ -1,6 +1,6 @@
 ---
 extends: skeleton/_base.html
-title: Demo application
+title: Demo application GAL
 ---
 
 {% block extra_js %}
@@ -36,7 +36,7 @@ title: Demo application
 		    			<h2>2. Data</h2>
 		    		</div>
 		    		<p>
-		    			<form id="data_form" class="form-horizontal" method="post">		
+		    			<form id="data_form" class="form-horizontal" method="post">
 							<ul class="nav nav-tabs" id="dataTab">
 								<!--<div class="span7">-->
 							    <li class="active"><a href="#data" data-toggle="tab">Data</a></li>
@@ -55,20 +55,20 @@ title: Demo application
 										</div>
 									</div>
 									<div class="span5 well">
-										
+
 										<p>You can use the form below to calculate the quality of the workers that submit answers to your tasks on Mechanical Turk.</p>
-																
+
 										<p>The pre-populated example has five workers (worker1 to worker5), five objects (url1 to url5), and two classes (porn and notporn). The correct (but unknown) label for url1, url3, and url5 is notporn; for url2 and url4 is porn.</p>
-				
+
 										<p>The workers have varying levels of quality.</p>
-				
+
 										<ul>
 											<li>worker1 is lazy, and gives the answer porn all the time</li>
 											<li>worker2 is ok but not great. For example, labeled object5 as porn even though it is notporn</li>
 											<li>worker3 and worker4 are high-quality workers</li>
 											<li>worker5 is malicious, giving always the incorrect answer, trying to fool the system</li>
 										</ul>
-				
+
 									</div>
 								</div>
 								<div class="tab-pane" id="gold">
@@ -82,19 +82,19 @@ title: Demo application
 									</div>
 									<div class="span5 well">
 										<p>Optionally, you may also provide a few known ("gold") answers. See <a href="http://behind-the-enemy-lines.blogspot.com/2010/09/worker-evaluation-in-crowdsourcing-gold.html">Worker Evaluation in Crowdsourcing: Gold Data or Multiple Workers?</a> for a discussion on how much help we can get from the usage of the "gold" answers.</p>
-				
+
 									</div>
 								</div>
 								<div class="tab-pane" id="matrix" >
 									<div id="cost_matrix" class="span7"></div>
 									<div class="span5 well">
-										<p>Cost matrix is calculated automaticly based on categories you've entered. You can change the default values.</p>	
+										<p>Cost matrix is calculated automaticly based on categories you've entered. You can change the default values.</p>
 									</div>
 								</div>
 							</div>
-                            <div class="alert alert-error" style="display:none;">  
-                                <strong>Error!</strong><p>Troia server not responding.</p>  
-                            </div> 
+                            <div class="alert alert-error" style="display:none;">
+                                <strong>Error!</strong><p>Troia server not responding.</p>
+                            </div>
 							<div class="form-actions">
 								<span type="button" class="btn btn-info" id="send_data">Process</span>
 							</div>
@@ -107,7 +107,7 @@ title: Demo application
 					<div id="url">
 						You can see later your results at:
 						<pre></pre>
-					</div>				
+					</div>
 	    		<div id="response">
                     <ul class="nav nav-tabs" id="resultsTab">
                         <li class="active"><a href="#labels" data-toggle="tab">Predicted labels</a></li>
@@ -124,10 +124,10 @@ title: Demo application
 		        </div>
 	    	</div>
 	    </div>
- 
+
         <!-- Cost matrix table template. -->
         <script type="text/template" id="cost_matrix_template">
-            <table> 
+            <table>
             </table>
         </script>
 
@@ -138,7 +138,7 @@ title: Demo application
 				<tr><th><%= objName %></th>
 				<% _.each(headers, function(h){  %>
 					<th width="150px"><%= h %></th>
-				<% }); %>				
+				<% }); %>
 				</tr>
 				<% _.each(objects, function(o){ %>
 					<tr>
