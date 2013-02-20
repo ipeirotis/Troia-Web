@@ -34,35 +34,32 @@ class Client
     get_job: (id, success) ->
         @_get(@_job_url(id), {}, true, success, null, true)
 
-    get_example_job: (type, eval_success, gold_success) ->
+    get_example_job: (type, data_success, gold_success) ->
         $.ajax(
-            url: @eval_data_dir + type)
-            .done(eval_success)
+            url: @data_dir + type)
+            .done(data_success)
         $.ajax(
             url: @gold_data_dir + type)
             .done(gold_success)
 
     _job_url: (id = @id) -> @jobs_url + '/' + id
 
-    _post_in_chunks: (url, data, axis, async, offset, success, error,
-            settings, process) ->
+    _post_in_chunks: (url, data, axis, async, offset, success, error, settings, process) ->
         limit = Math.min(@chunk_size, data[axis].length - offset)
         # TODO currently it sends only the axis field.
         load = {}
         load[axis] = data[axis][offset..offset+limit]
         load = if process then process(load) else load
-        that = this
-        this._post(url, load, async,
-            (res) ->
+        @_post(url, load, async,
+            (res) =>
                 if offset + limit < data[axis].length
-                    that._post_in_chunks(url, data, axis, async, offset+limit,
+                    @_post_in_chunks(url, data, axis, async, offset+limit,
                         success, error, settings, process)
                 else
                     success()
             , error, true, settings)
 
-    _ajax: (url, type, data, async, success, error = null, redirect = null,
-            settings = {}) ->
+    _ajax: (url, type, data, async, success, error = null, redirect = null, settings = {}) ->
         set = $.extend(settings, {
             url: @api_url + url
             type: type
@@ -78,12 +75,10 @@ class Client
         })
         $.ajax(set)
 
-    _post: (url, data, async, success, error = null, redirect = null,
-            settings = {}) ->
+    _post: (url, data, async, success, error = null, redirect = null, settings = {}) ->
         @_ajax(url, 'post', data, async, success, error, redirect, settings)
 
-    _get: (url, data, async, success, error = null, redirect = null,
-            settings = {}) ->
+    _get: (url, data, async, success, error = null, redirect = null, settings = {}) ->
         @_ajax(url, 'get', data, async, success, error, redirect, settings)
 
     _redirect_func: (response, success) ->
@@ -116,8 +111,8 @@ class App.NominalClient extends Client
     compute_url: "/compute"
     gold_labels_url: "/goldData"
     data_prediction_url: "/prediction/data"
-    data_folder: "/media/txt/jobs_data/"
-    gold_data_folder: "/media/txt/jobs_gold_data/"
+    data_dir: "/media/txt/jobs_data/"
+    gold_data_dir: "/media/txt/jobs_gold_data/"
 
     create: (categories, success) ->
         @_post(@jobs_url, {'id': id, 'categories': categories},
@@ -165,7 +160,7 @@ class App.ContinuousClient extends Client
     gold_objects_url: "/goldObjects"
     objects_prediction_url: "/prediction/objects/"
     workers_prediction_url: "/prediction/workers/"
-    eval_data_dir: "/media/txt/cjobs_data/"
+    data_dir: "/media/txt/cjobs_data/"
     gold_data_dir: "/media/txt/cjobs_gold_data/"
 
     create: (success) ->
