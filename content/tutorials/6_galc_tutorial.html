@@ -39,7 +39,7 @@ Send labels assigned by workers to objects.
     [{
         "worker":"worker1",
         "object":"http://sunnyfun.com",
-		"label":{"value":4.399898705211159}
+        "label":{"value":4.399898705211159}
     },
     {
         "worker":"worker1",
@@ -96,14 +96,12 @@ As a result we get JSON:
         "redirect":"responses/<RESPONSE_ID>/POST/cjobs/<JOB_ID>/assigns"
     }
 
-where <RESPONSE_ID> is a generated id.
-That means we need to call:
+where <RESPONSE_ID> is a generated id. This means that we need to call:
 ::
 
     curl -X GET "http://project-troia.com/api/responses/<RESPONSE_ID>/POST/cjobs/<JOB_ID>/assigns
 
-to see what is the status of calling load assigned labels method.
-As a result we get another JSON:
+to see what is the status of calling load assigned labels method. As a result we get another JSON:
 ::
 
     {
@@ -116,17 +114,17 @@ This way of getting command results concerns all of the following methods.
 
 Load gold labels
 ----------------
-Send samples for which we know correct label. That would allow algorithm to a better estimation of workers quality and what is connected with this better estimation of correct labels.
+Send samples for which we know the correct label. This allows the algorithm to achieve a better estimation for the workers quality also for the correct labels.
 ::
 
     curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/cjobs/<JOB_ID>/goldObjects" -d '{"objects":
     [{
         "object": "http://google.com",
-		"label":{"value":10.219077484951955,"zeta":0.292643407722905}
+        "label":{"value":10.219077484951955,"zeta":0.292643407722905}
     },
 	{
         "object": "http://sunnyfun.com",
-		"label":{"value":8.219077484951955,"zeta":0.343407722905}
+        "label":{"value":8.219077484951955,"zeta":0.343407722905}
     }]}'
 
 Similarly as previously, as a result we get:
@@ -144,11 +142,12 @@ Send objects without labels
 ::
 
     curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/cjobs/<JOB_ID>/objects" -d '{"objects":
-    [	"object1",
-		"object2"
-	]}'
+    [
+    	"object1", 
+    	"object2"
+    ]}'
 
-Similarly as previously, as a result we get:
+Similarly as previously, we get the result:
 ::
 
     {
@@ -160,12 +159,12 @@ Similarly as previously, as a result we get:
 	
 Start compute
 -------------
-We start actual calculations:
+We start the actual calculations:
 ::
 
     curl -X POST "http://project-troia.com/api/cjobs/<JOB_ID>/compute"
 
-As a result, as previously we get JSON containg redirect uri:
+As a result, we get the JSON containg the redirect uri:
 ::
 
     {
@@ -179,7 +178,7 @@ We can check if computation has ended by checking its status:
 
     curl -X GET "http://project-troia.com/api/responses/<RESPONSE_ID>/POST/cjobs/<JOB_ID>/compute"
 
-If dataset is huge and we checked status just after start computation call we'll get:
+If the provided dataset is huge and the computation has not ended yet, we'll get:
 ::
 
     {
@@ -205,13 +204,34 @@ and as in the previous case, we get the JSON object containing the redirect uri.
 	{
 		"timestamp":"2013-02-19T13:07:03.390+02:00",	
 		"result":[	
-			{"est_zeta":-0.1913547099132667,"object":{"name":"http://youporn.com"}},
-			{"est_zeta":0.343407722905,"object":{"name":"http://sunnyfun.com","goldLabel":{"value":{"value":8.219077484951955,"zeta":0.343407722905}}}},
-			{"est_zeta":-0.08366872414864963,"object":{"name":"http://sex-mission.com"}},
-			{"est_zeta":0.292643407722905,"object":{"name":"http://google.com","goldLabel":{"value":{"value":10.219077484951955,"zeta":0.292643407722905}}}},
-			{"est_zeta":NaN,"object":{"name":"object1"}},
-			{"est_zeta":NaN,"object":{"name":"object2"}},
-			{"est_zeta":-0.2965350443548846,"object":{"name":"http://yahoo.com"}}
+			{
+				"est_zeta":-0.1913547099132667,
+				"object":{"name":"http://youporn.com"}
+			},
+			{
+				"est_zeta":0.343407722905,
+				"object":{"name":"http://sunnyfun.com","goldLabel":{"value":{"value":8.219077484951955,"zeta":0.343407722905}}}
+			},
+			{
+				"est_zeta":-0.08366872414864963,
+				"object":{"name":"http://sex-mission.com"}
+			},
+			{
+				"est_zeta":0.292643407722905,
+				"object":{"name":"http://google.com","goldLabel":{"value":{"value":10.219077484951955,"zeta":0.292643407722905}}}
+			},
+			{
+				"est_zeta":NaN,
+				"object":{"name":"object1"}
+			},
+			{
+				"est_zeta":NaN,
+				"object":{"name":"object2"}
+			},
+			{
+				"est_zeta":-0.2965350443548846,
+				"object":{"name":"http://yahoo.com"}
+			}
 		],
 		"status":"OK"
 	}
@@ -237,12 +257,32 @@ The JSON object received contains the redirect uri. Following the link, we get t
 				"est_mu":0.26207102226865925,
 				"est_sigma":1.8488708546932122,
 				"zeta":[
-					{"worker":"worker2","object":"http://youporn.com","label":{"value":-0.9894035257125199}},
-					{"worker":"worker2","object":"http://yahoo.com","label":{"value":-0.8410110909927939}},
-					{"worker":"worker2","object":"http://google.com","label":{"value":-0.5747428949520097}},
-					{"worker":"worker2","object":"http://sex-mission.com","label":{"value":1.4159566891958497}},
-					{"worker":"worker2","object":"http://sunnyfun.com","label":{"value":0.9892008224614738}}
-					],
+					{
+						"worker":"worker2",
+						"object":"http://youporn.com",
+						"label":{"value":-0.9894035257125199}
+					},
+					{
+						"worker":"worker2",
+						"object":"http://yahoo.com",
+						"label":{"value":-0.8410110909927939}
+					},
+					{
+						"worker":"worker2",
+						"object":"http://google.com",
+						"label":{"value":-0.5747428949520097}
+					},
+					{
+						"worker":"worker2",
+						"object":"http://sex-mission.com",
+						"label":{"value":1.4159566891958497}
+					},
+					{
+						"worker":"worker2",
+						"object":"http://sunnyfun.com",
+						"label":{"value":0.9892008224614738}
+					}
+				],
 				"worker":"worker2"
 			},
 			{
@@ -250,20 +290,40 @@ The JSON object received contains the redirect uri. Following the link, we get t
 				"est_mu":1.366825857518015,
 				"est_sigma":2.2396896717998964,
 				"zeta":[
-					{"worker":"worker1","object":"http://google.com","label":{"value":-0.4985659691918817}},
-					{"worker":"worker1","object":"http://youporn.com","label":{"value":0.5641708370163716}},
-					{"worker":"worker1","object":"http://sex-mission.com","label":{"value":-1.60188718730396}},
-					{"worker":"worker1","object":"http://yahoo.com","label":{"value":0.18204432575971705}},
-					{"worker":"worker1","object":"http://sunnyfun.com","label":{"value":1.354237993719753}}
-					],
+					{
+						"worker":"worker1",
+						"object":"http://google.com",
+						"label":{"value":-0.4985659691918817}
+					},
+					{
+						"worker":"worker1",
+						"object":"http://youporn.com",
+						"label":{"value":0.5641708370163716}
+					},
+					{
+						"worker":"worker1",
+						"object":"http://sex-mission.com",
+						"label":{"value":-1.60188718730396}
+					},
+					{
+						"worker":"worker1",
+						"object":"http://yahoo.com",
+						"label":{"value":0.18204432575971705}
+					},
+					{
+						"worker":"worker1",
+						"object":"http://sunnyfun.com",
+						"label":{"value":1.354237993719753}
+					}
+				],
 				"worker":"worker1"
 			}
 		],
 		"status":"OK"
 	}
 }
+
 	
 {% endrestructuredtext %}
 {% endblock %}
-
 
