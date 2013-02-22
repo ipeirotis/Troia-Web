@@ -91,11 +91,10 @@ if cclient.ping()
                 job = $.parseJSON(response.responseText).result
                 assigns = job.assigns.map((a) -> [a.worker, a.object, a.label.value].join('\t')).join('\n')
                 objects = job.goldObjects.map((o) ->
-                    v = o.goldLabel.value
-                    [o.name, v.value, v.zeta].join('\t')).join('\n')
+                    l = o.goldLabel
+                    [o.name, l.value, l.zeta].join('\t')).join('\n')
                 $('#id_data').val(assigns)
                 $('#id_gold_data').val(objects)
-                compute_handler(cclient, id)
         )
     else
         # Disable the results tab.
