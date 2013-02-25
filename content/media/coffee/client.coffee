@@ -1,15 +1,21 @@
 window.App = {}
 
 class Client
-    constructor: (@id = @generate_id(), @api_url = '/api_devel') ->
+    constructor: (@api_url = '/api_devel') ->
         @chunk_size = 80
 
-    set_id: (@id) ->
-
-    generate_id: ->
+    generate_id: () ->
         @id = "troia-web-test-" + new Date().getTime().toString() + "-" + parseInt(Math.random()*1000000000000)
 
-    exists: ->
+    create: (success) ->
+        @_post(@jobs_url, {}, true,
+            (response) =>
+                result = response.result.replace(/.*ID\:\s*/, ($0) -> '')
+                @id = result.replace(/.*ID\:\s*/, ($0) -> '')
+                success(response)
+        )
+
+    exists: () ->
         ret = false
         @_get(@jobs_url + @id, {}, false,
             () -> ret = true,
@@ -17,7 +23,7 @@ class Client
         )
         return ret
 
-    ping: ->
+    ping: () ->
         ret = false
         @_get('/status', {}, false
             () -> ret = true
@@ -163,9 +169,6 @@ class App.ContinuousClient extends Client
     data_dir: "/media/txt/cjobs_data/"
     gold_data_dir: "/media/txt/cjobs_gold_data/"
 
-    create: (success) ->
-        @_post(@jobs_url, {'id': @id}, true, success)
-
     post_assigns: (assigns, success) ->
         assigns = assigns.map(
             (a) -> {worker: a[0], object: a[1], label: {value: a[2]}})
@@ -212,4 +215,3 @@ class App.ContinuousClient extends Client
                         success(response)
                 )
         )
-

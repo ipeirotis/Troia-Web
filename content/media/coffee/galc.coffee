@@ -26,6 +26,8 @@ process_handler = () ->
         cclient.create(() ->
             cclient.post_assigns(assigns, () ->
                 cclient.post_gold_objects(gold_labels, () ->
+                    $("#url pre").text(App.get_job_url(cclient.id))
+                    $("#url").show()
                     $("#img-load").show()
                     $("#response").hide()
                     $(that).text('Computing..')
@@ -46,9 +48,6 @@ process_handler = () ->
                             () ->
                                 $("#img-load").hide()
                                 $("#response").show()
-                                # Here the client should be reset
-                                # with a new id.
-                                cclient.generate_id()
                         )
                     )
                 )
@@ -71,12 +70,12 @@ cclient._ajax_error = (jqXHR, textStatus, errorThrown) ->
 url = document.URL
 base_url = url.replace(/\?.*/g, ($0) -> '')
 base_url = base_url.replace(/\#.*/g, ($0) -> '')
-$("#url pre").text(base_url + "?id=" + cclient.id)
 
 if cclient.ping()
     if id
         # Show the results tab at first.
         $('#menuTab li:nth-child(2) a').tab('show')
+        $("#url").hide()
         cclient.get_prediction(id
             () ->
                 $("#objects").html(_.template($("#objects_template").html(), {objects: cclient.objects_prediction}))
