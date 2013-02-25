@@ -26,6 +26,7 @@ process_handler = () ->
         cclient.create(() ->
             cclient.post_assigns(assigns, () ->
                 cclient.post_gold_objects(gold_labels, () ->
+                    $("#url pre").text(App.get_job_url(cclient.id))
                     $("#img-load").show()
                     $("#response").hide()
                     $(that).text('Computing..')
@@ -63,6 +64,7 @@ $('#send_data').one('click', process_handler)
 App.set_textarea_maxrows(20000)
 id = App.get_url_parameter('id')
 cclient = new App.ContinuousClient()
+cclient.generate_id()
 cclient._ajax_error = (jqXHR, textStatus, errorThrown) ->
     console.log "error"
     $(".alert p").text("Troia server error (" + errorThrown.toString() + ").")
@@ -71,7 +73,6 @@ cclient._ajax_error = (jqXHR, textStatus, errorThrown) ->
 url = document.URL
 base_url = url.replace(/\?.*/g, ($0) -> '')
 base_url = base_url.replace(/\#.*/g, ($0) -> '')
-$("#url pre").text(base_url + "?id=" + cclient.id)
 
 if cclient.ping()
     if id

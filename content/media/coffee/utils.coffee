@@ -27,3 +27,13 @@ App.parse_input = (input_el, control_el, text_el, tab_el, condition, error_msg) 
 App.get_url_parameter = `function(name) {
     return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+)').exec(location.search) || [,""])[1].replace(/\+/g, '%20')) || null;
 }`
+
+App.get_base_url = () ->
+    url = document.URL
+    base_url = url.replace(/\?.*/g, ($0) -> '')
+    base_url = base_url.replace(/\#.*/g, ($0) -> '')
+    return base_url
+
+App.get_job_url = (id) ->
+    base_url = App.get_base_url()
+    return base_url + '?id=' + id

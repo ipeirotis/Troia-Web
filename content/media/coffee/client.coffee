@@ -1,15 +1,15 @@
 window.App = {}
 
 class Client
-    constructor: (@id = @generate_id(), @api_url = '/api_devel') ->
+    constructor: (@api_url = '/api_devel') ->
         @chunk_size = 80
 
     set_id: (@id) ->
 
-    generate_id: ->
+    generate_id: () ->
         @id = "troia-web-test-" + new Date().getTime().toString() + "-" + parseInt(Math.random()*1000000000000)
 
-    exists: ->
+    exists: () ->
         ret = false
         @_get(@jobs_url + @id, {}, false,
             () -> ret = true,
@@ -17,7 +17,7 @@ class Client
         )
         return ret
 
-    ping: ->
+    ping: () ->
         ret = false
         @_get('/status', {}, false
             () -> ret = true
