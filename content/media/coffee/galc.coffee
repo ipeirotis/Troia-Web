@@ -27,6 +27,7 @@ process_handler = () ->
             cclient.post_assigns(assigns, () ->
                 cclient.post_gold_objects(gold_labels, () ->
                     $("#url pre").text(App.get_job_url(cclient.id))
+                    $("#url").show()
                     $("#img-load").show()
                     $("#response").hide()
                     $(that).text('Computing..')
@@ -47,9 +48,6 @@ process_handler = () ->
                             () ->
                                 $("#img-load").hide()
                                 $("#response").show()
-                                # Here the client should be reset
-                                # with a new id.
-                                cclient.generate_id()
                         )
                     )
                 )
@@ -64,7 +62,6 @@ $('#send_data').one('click', process_handler)
 App.set_textarea_maxrows(20000)
 id = App.get_url_parameter('id')
 cclient = new App.ContinuousClient()
-cclient.generate_id()
 cclient._ajax_error = (jqXHR, textStatus, errorThrown) ->
     console.log "error"
     $(".alert p").text("Troia server error (" + errorThrown.toString() + ").")
@@ -78,6 +75,7 @@ if cclient.ping()
     if id
         # Show the results tab at first.
         $('#menuTab li:nth-child(2) a').tab('show')
+        $("#url").hide()
         cclient.get_prediction(id
             () ->
                 $("#objects").html(_.template($("#objects_template").html(), {objects: cclient.objects_prediction}))
