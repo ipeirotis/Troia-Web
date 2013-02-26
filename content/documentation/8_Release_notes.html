@@ -16,9 +16,48 @@ title: Release Notes
 
         {% restructuredtext %}
 
+Release notes
+*************
 
-Troia {{ app_version }}
-=======================
+Troia {{ app_version }} - February 25, 2013
+===========================================
+
+The main objectives of this release are to:
+- improve the existing code base and documentation
+- integrate the manipulation of continuous variables into Troia Quality Control API.
+
+Features included in this release:
+
+API fixes
+---------
+
+- Added more “meta” JSON schema responses to make better documentation on Mashape
+- Updated the Mashape documentation on responses such that now it uses models (“redirect” uses different address for different requests)
+- Jobs are not created anymore with given IDs; new jobs are given random JOB IDs.
+- Adapted documentation/tutorials/demo to those changes
+
+
+GALC integration
+----------------
+
+- Added REST API entries for continuous jobs
+- Integrated test data generator for continuous data
+- Added the ability to run GALC from the command line (from the generated jar)
+- Added persistency to GALC jobs
+- Added API entry points for uploading multiple assigns, gold objects, objects
+
+Web development
+---------------
+
+- Added web demo application for GALC
+- Created GALC API related documentation on Mashape
+- Created GALC usage tutorial
+- Updated GAL web demo to show the new worker and data quality metrics
+
+
+
+Troia 0.8 - December 31, 2012
+===============================
 
 This is the first release of Troia Quality Control API for crowdsourcing
 applications.
