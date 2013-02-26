@@ -1,7 +1,7 @@
 window.App = {}
 
 class Client
-    constructor: (@api_url = '/api_devel') ->
+    constructor: (@api_url = '/api') ->
         @chunk_size = 80
 
     generate_id: () ->
@@ -164,8 +164,8 @@ class App.ContinuousClient extends Client
     assigns_url: "/assigns"
     compute_url: "/compute"
     gold_objects_url: "/goldObjects"
-    objects_prediction_url: "/prediction/objects/"
-    workers_prediction_url: "/prediction/workers/"
+    objects_prediction_url: "/objects/prediction/"
+    workers_prediction_url: "/workers/quality/estimated/"
     data_dir: "/media/txt/cjobs_data/"
     gold_data_dir: "/media/txt/cjobs_gold_data/"
 
