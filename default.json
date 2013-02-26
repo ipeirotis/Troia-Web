@@ -10,7 +10,7 @@
     "troia_server_repo": "git://github.com/ipeirotis/Troia-Server.git",
     "troia_server_branch": "master",
     "troia_server_name": "troia-server",
-    "troia_server_war_name": "troia-server-0.8",
+    "troia_server_war_name": "troia-server-1.0",
 
     "db_name": "db_name",
     "db_user": "db_user",

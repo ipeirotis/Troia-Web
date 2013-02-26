@@ -11,19 +11,19 @@ context:
         menu:
             -
                 name: Documentation
-                description: 
+                description:
                 type: node
                 url: documentation
             -
                 name: Tutorials
-                description: 
+                description:
                 type: node
                 url: tutorials
         sitetitle: Troia
         use_less_js: true
-        app_version: 0.8
+        app_version: 1.0
 meta:
     nodemeta: meta.yaml
     created: !!timestamp 2010-01-01 00:00:00
     author: 10clouds
-        
+
