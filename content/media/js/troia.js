@@ -18,6 +18,45 @@ function initialize() {
     $('#url').hide();
     $(".alert").hide();
 
+    var clickHandler = function() {
+        $(".alert").hide();
+        hasErrors = false;
+        predictedLabels = [];
+        workerQualities = [];
+        // Validate input.
+        var workerLabels = parseWorkerAssignedLabels();
+        var goldLabels = parseGoldLabels();
+        var categories = parseCostMatrix(categoryList);
+        if (!hasErrors && ping()) {
+            id = "troia-web-test-" + new Date().getTime().toString() + "-" + parseInt(Math.random()*1000000000000);
+            // Change button.
+            var buttonText = $(this).text();
+            $(this).addClass('disabled').text('Sending data..');
+            var that = this;
+            // Upload data.
+            createJob(id, categories, function(){
+                loadWorkerAssignedLabels(id, workerLabels, function() {
+                    loadGoldLabels(id, goldLabels, function() {
+                        // Compute and get answer.
+                        $("#img-load").show();
+                        $("#response").hide();
+                        gettingPredictedLabels = gettingWorkerQualities = false;
+                        $(that).text('Computing..');
+                        $('#menuTab li:nth-child(2) a').attr("data-toggle", "tab").tab('show');
+
+                        compute(id,  numIterations, function() {
+                            $(that).removeClass('disabled').text(buttonText);
+                            $(that).one('click', clickHandler);
+                            $("#url pre").text(document.URL + "?id=" + id);
+                            getResults(id);
+                        });
+                    });
+                });
+            });
+        } else {
+            $(this).one('click', clickHandler);
+        }
+    };
     if (id && exists(id)) {
         //switch to results tab
         $('#menuTab li:nth-child(2) a').tab('show');
@@ -42,46 +81,7 @@ function initialize() {
         $('#id_data_choose').change(function(){
             loadTestData($('#id_data_choose :selected').val());
         });
-
-        var clickHandler = function() {
-            $(".alert").hide();
-            hasErrors = false;
-            predictedLabels = [];
-            workerQualities = [];
-            // Validate input.
-            var workerLabels = parseWorkerAssignedLabels();
-            var goldLabels = parseGoldLabels();
-            var categories = parseCostMatrix(categoryList);
-            if (!hasErrors && ping()) {
-                id = "troia-web-test-" + new Date().getTime().toString() + "-" + parseInt(Math.random()*1000000000000);
-                // Change button.
-                var buttonText = $(this).text();
-                $(this).addClass('disabled').text('Sending data..');
-                var that = this;
-                // Upload data.
-                createJob(id, categories, function(){
-                    loadWorkerAssignedLabels(id, workerLabels, function() {
-                        loadGoldLabels(id, goldLabels, function() {
-                            // Compute and get answer.
-                            $("#img-load").show();
-                            $("#response").hide();
-                            gettingPredictedLabels = gettingWorkerQualities = false;
-                            $(that).text('Computing..');
-                            $('#menuTab li:nth-child(2) a').attr("data-toggle", "tab").tab('show');
-
-                            compute(id,  numIterations, function() {
-                                $(that).removeClass('disabled').text(buttonText);
-                                $(that).one('click', clickHandler);
-                                $("#url pre").text(document.URL + "?id=" + id);
-                                getResults(id);
-                            });
-                        });
-                    });
-                });
-            } else {
-                $(this).one('click', clickHandler);
-            }
-        };
+        
         $('#send_data').one('click', clickHandler);
     }
 
@@ -151,18 +151,21 @@ function initialize() {
     function loadData(id) {
         get('jobs/' + id + '/data', {}, true, function(response){
             var json = $.parseJSON(response.responseText);
-            var data_str = "";
-            _.each(json.result, function(data){
-                _.each(data.labels, function(al, i){
-                    data_str += al.workerName + "\t" + al.objectName + "\t" + al.categoryName + "\n";
+            var gold = [];
+            var data = _.map(json.result, function(d) {
+                if (d.isGold) {
+                    gold.push(d.name + '\t' + d.correctCategory);
+                }
+                return _.map(d.labels, function(al) {
+                    return al.workerName + '\t' + al.objectName + '\t' + al.categoryName;
                 });
-                if (data.isGold)
-                    $('#id_gold_labels').append(data.name + "\t" + data.correctCategory + "\n");
             });
-            $('#id_data').append(data_str.substring(0, data_str.length-1));
+            $('#id_data').text(_.flatten(data).join('\n'));
+            $('#id_gold_labels').text(gold.join('\n'));
             get('jobs/' + id + '/costs', {}, true, function(response){
                 var json = $.parseJSON(response.responseText);
                 invalidateCostMatrix(json.result);
+                $('#send_data').one('click', clickHandler);
             }, ajax_error, true, id);
         }, ajax_error, true, id);
     }
