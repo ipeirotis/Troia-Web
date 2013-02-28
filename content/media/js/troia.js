@@ -85,6 +85,7 @@ function initialize() {
         $('#send_data').one('click', clickHandler);
     }
 
+    //hide worker's confusion matrix on Esc
     $(document).keydown(function(e){
         if (e.keyCode === 27)
             $("a[rel=popover]").popover('hide');
@@ -528,11 +529,29 @@ function initialize() {
     }
 
     function toggleTablesVisibility(){
+        var isVisible = false;
+        var clickedAway = false;
         if (!gettingPredictedLabels && !gettingWorkerQualities){
             $("#img-load").fadeOut(200, function() {
-                $("a[rel=popover]").popover({html: true, title: "Confusion matrix", placement: "left"}).click(function(e) {
+                // TROIA-306
+                // See: http://stackoverflow.com/questions/13485705/is-there-a-way-to-close-a-twitter-bootstrap-popover-on-click-outside-the-popover
+                $("a[rel=popover]").popover({html: true, title: "Confusion matrix", placement: "left", trigger: "manual"}).click(function(e) {
                     $("a[rel=popover]").not(this).popover('hide');
+                    $(this).popover('show');
+                    clickedAway = false;
+                    isVisible = true;
                     e.preventDefault();
+                    $('.popover').bind('click',function() {
+                        clickedAway = false
+                    });
+                });
+                $(document).click(function(e) {
+                    if(isVisible && clickedAway) {
+                        $("a[rel=popover]").popover('hide')
+                        isVisible = clickedAway = false
+                    } else {
+                        clickedAway = true
+                    }
                 });
                 $("#response").fadeIn(200);
                 if (!$("#url pre").text()) {
