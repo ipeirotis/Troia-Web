@@ -195,9 +195,9 @@ Prediction objects
 To collect the prediction objects we call:
 ::
 
-    curl -X GET "http://project-troia.com/api/cjobs/<JOB_ID>/prediction/objects"
+    curl -X GET "http://project-troia.com/api/cjobs/<JOB_ID>/objects/prediction"
 
-and as in the previous case, we get the JSON object containing the redirect uri. Following the link, we get the estimated zeta values for each data point:
+and as in the previous case, we get the JSON object containing the redirect uri. Following the link, we get the estimated value, zeta value, distribution mean and standard deviation values for each data point:
 
 ::
 
@@ -280,9 +280,9 @@ Prediction workers
 To collect the prediction workers results we call:
 ::
 
-    curl -X GET "http://project-troia.com/api/cjobs/<JOB_ID>/prediction/workers"
+    curl -X GET "http://project-troia.com/api/cjobs/<JOB_ID>/workers/quality/estimated"
 
-The JSON object received contains the redirect uri. Following the link, we get the estimated corellation values for each worker:
+The JSON object received contains the redirect uri. Following the link, we get the estimated corellation, mean and standard deviation values for each worker:
 	
 ::
 
