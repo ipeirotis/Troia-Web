@@ -81,7 +81,7 @@ function initialize() {
         $('#id_data_choose').change(function(){
             loadTestData($('#id_data_choose :selected').val());
         });
-        
+
         $('#send_data').one('click', clickHandler);
     }
 
@@ -265,7 +265,8 @@ function initialize() {
                 url: apiUrl + json.redirect,
                 type: 'get',
                 complete: function(res) {
-                    if (res.statusText === "OK")
+                    var json = $.parseJSON(res.responseText);
+                    if (json.status === "OK")
                         success(res);
                     else
                         setTimeout(timeoutf, 500);
@@ -545,7 +546,7 @@ function initialize() {
     function createWorkersTable(data) {
         if (categoryList.length === 0){
             categories = [];
-            _.each(data[0]['Confusion Matrix'], function(el){
+            _.each(data[0]['Confusion matrix'], function(el){
                 categories.push(el['from']);
             });
             categoryList = _.uniq(categories);

@@ -93,7 +93,8 @@ class Client
                 url: @api_url + "/" + response.redirect
                 type: "get"
                 complete: (res) ->
-                    if res.statusText is "OK"
+                    json = $.parseJSON(res.responseText)
+                    if json.status is "OK"
                         success(res)
                     else
                         setTimeout(timeout_func, 500)
