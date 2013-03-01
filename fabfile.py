@@ -424,8 +424,8 @@ def deploy_troia_server(confpath=None, blocking=False):
             context=conf)
     # Replace the properties with custom file.
     upload_template(
-        os.path.join(CONF_ROOT, 'troia-server', 'dawidskene.properties'),
-        '{troia_server_source}/troia-server/src/main/resources/dawidskene.properties'.format(**conf),
+        os.path.join(CONF_ROOT, 'troia-server', 'troia.properties'),
+        '{troia_server_source}/troia-server/src/main/resources/troia.properties'.format(**conf),
         context=conf)
     upload_template(
         os.path.join(CONF_ROOT, 'troia-server', 'log4j.properties'),
