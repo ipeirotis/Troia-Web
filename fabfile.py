@@ -380,11 +380,11 @@ def deploy_troia_web(confpath=None):
         lessc('bootstrap.less', '../css/bootstrap.css')
         lessc('responsive.less', '../css/responsive.css')
         lessc('troia.less', '../css/troia.css')
-    
+
     message("Compiling coffee")
     with cd('{troia_web_source}/content/media/coffee'.format(**conf)):
         coffee('.', '../js')
-    
+
     message('Generating static content')
     with prefix('source {virtualenv_root}/bin/activate'.format(**conf)):
         run('hyde -s \'{troia_web_source}\' gen'
@@ -427,6 +427,11 @@ def deploy_troia_server(confpath=None, blocking=False):
         os.path.join(CONF_ROOT, 'troia-server', 'dawidskene.properties'),
         '{troia_server_source}/troia-server/src/main/resources/'
         'dawidskene.properties'.format(**conf),
+        context=conf)
+    upload_template(
+        os.path.join(CONF_ROOT, 'troia-server', 'log4j.properties'),
+        '{troia_server_source}/troia-server/src/main/resources/'
+        'log4j.properties'.format(**conf),
         context=conf)
     # Clean and build the .war file.
     with cd('{troia_server_source}/troia-server'.format(**conf)):
