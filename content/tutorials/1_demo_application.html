@@ -109,10 +109,17 @@ title: Demo application GAL
 					<pre></pre>
 				</div>
 	    		<div id="response">
-                    <ul class="nav nav-tabs" id="resultsTab">
-                        <li class="active"><a href="#labels" data-toggle="tab">Predicted labels</a></li>
-                        <li><a href="#workers" data-toggle="tab">Workers stats</a></li>
-                    </ul>
+                    <div class="row" style="margin-left: auto; margin-right: auto; padding-right: 0;">
+                        <div class="span8">
+                            <ul class="nav nav-tabs" id="resultsTab">
+                                <li class="active"><a href="#labels" data-toggle="tab">Predicted labels</a></li>
+                                <li><a href="#workers" data-toggle="tab">Workers stats</a></li>
+                            </ul>
+                        </div>
+                        <div class="span4 btn-wrapper" style="margin-left: 0; margin-right: 0">
+                            <span id="download_zip_btn" class="btn btn-info" style="margin-top: 20px">Download zipped results</span>
+                        </div>
+                    </div>
                     <div class="tab-content">
                         <div class="tab-pane active" id="labels">
                             <div id="classes"></div>
