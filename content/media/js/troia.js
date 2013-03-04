@@ -17,6 +17,9 @@ function initialize() {
 
     $('#url').hide();
     $(".alert").hide();
+    $("#download_zip_btn").click(function(){
+        downloadZip(id);
+    });
 
     var clickHandler = function() {
         $(".alert").hide();
@@ -632,6 +635,13 @@ function initialize() {
         $('#cost_matrix')[0].appendChild(tab);
         $('#cost_matrix input').numeric({ negative : false });
     }
+
+    function downloadZip(id){
+        get('jobs/' + id + '/prediction/zip', {}, true, function(response){
+            var json = $.parseJSON(response.responseText);
+            window.location.assign(json.result);
+        }, ajax_error, true, id);
+    }
 }
 
 (function ($) {
@@ -670,9 +680,8 @@ $(document).ready(function() {
     $('#workers .table')
     .rotateTableCellContent({className: 'whatever'});
 
-$("#workers .table").createScrollableTable({
-    width: '586px',
-    height: '600px'
-});
-
+    $("#workers .table").createScrollableTable({
+        width: '586px',
+        height: '600px'
+    });
 });
