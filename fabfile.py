@@ -4,7 +4,7 @@ import requests
 import time
 
 from fabric import colors
-from fabric.api import (cd, env, execute, prefix, run, local, settings, sudo,
+from fabric.api import (cd, env, execute, prefix, run, settings, sudo,
                         runs_once)
 from fabric.contrib.files import exists, upload_template
 from fabric.tasks import WrappedCallableTask
@@ -114,8 +114,10 @@ def lessc(less, css):
     run('{lessc} {} > {}'.format(less.format(**conf), css.format(**conf),
         **conf))
 
+
 def coffee(input, output):
     run("coffee --compile --output {} {}".format(output, input))
+
 
 def mvn(command):
     run('{maven_root}/bin/mvn {0}'.format(command, **conf))
@@ -298,43 +300,51 @@ def initialize_project(reinstall_services=False, reinstall_requirements=False,
 @task
 def install_services(force_reinstall=False, confpath=None):
     """Installs services."""
+    readconf(confpath)
     message('Installing services')
     # Remove whole subdirectory.
     if force_reinstall:
         rm('{services_root}', recursive=True, force=True)
     # Check if services exist.
-    elif (exists('{services_root}/tomcat/bin/catalina.sh'.format(**conf)) and
-            exists('{services_root}/maven/bin/mvn'.format(**conf))):
-        message('Services already installed. Skipping')
-        return
-    # Create services root directory if does not exist.
-    mkdir('{services_root}')
+    if not exists('{services_root}'):
+        # Create services root directory if does not exist.
+        mkdir('{services_root}')
     # Download and install services.
     with cd('/tmp'):
         # Tomcat 7.
-        if not exists('/tmp/tomcat.tgz'):
-            message('Downloading apache tomcat')
-            run('wget {tomcat_url} -O tomcat.tgz'.format(**conf))
-        message('Installing apache tomcat')
-        run('tar xzf tomcat.tgz')
-        rm('{services_root}/tomcat', recursive=True, force=True)
-        mv('apache-tomcat-*', '{services_root}/tomcat')
+        if not exists('{services_root}/tomcat/bin/catalina.sh'.format(**conf)):
+            message('Installing apache tomcat')
+            if not exists('/tmp/tomcat.tgz'):
+                message('Downloading apache tomcat')
+                run('wget {tomcat_url} -O tomcat.tgz'.format(**conf))
+            run('tar xzf tomcat.tgz')
+            rm('{services_root}/tomcat', recursive=True, force=True)
+            mv('apache-tomcat-*', '{services_root}/tomcat')
         # Maven 3.
-        if not exists('/tmp/maven.tgz'):
-            message('Downloading apache maven')
-            run('wget {maven_url} -O maven.tgz'.format(**conf))
-        message('Installing apache maven')
-        run('tar xzf maven.tgz')
-        rm('{services_root}/maven', recursive=True, force=True)
-        run('rm -rf maven/')
-        mv('apache-maven-*', '{services_root}/maven')
+        if not exists('{services_root}/maven/bin/mvn'.format(**conf)):
+            message('Installing apache maven')
+            if not exists('/tmp/maven.tgz'):
+                run('wget {maven_url} -O maven.tgz'.format(**conf))
+            run('tar xzf maven.tgz')
+            rm('{services_root}/maven', recursive=True, force=True)
+            mv('apache-maven-*', '{services_root}/maven')
         # Java Server Faces library.
         if not exists('/tmp/javax.faces.jar'):
-            message('Downloading Java Server Faces library')
-            run('wget {faces_url} -O javax.faces.jar'.format(**conf))
-        message('Installing Java Server Faces library')
-        # TODO not works.
-        # mv('javax.faces.jar', '{tomcat_root}/lib')
+            message('Installing Java Server Faces library')
+            if not exists('/tmp/javax.faces.jar'):
+                message('Downloading Java Server Faces library')
+                run('wget {faces_url} -O javax.faces.jar'.format(**conf))
+            # TODO not works.
+            # mv('javax.faces.jar', '{tomcat_root}/lib')
+        # Raven Java.
+        if not exists('{services_root}/raven-java'):
+            message('Installing Raven Java Server')
+            if not exists('/tmp/raven-java'):
+                message('Downloading Raven Java')
+                run('git clone {raven_url} raven-java'.format(**conf))
+                with cd('raven-java'):
+                    mvn('clean install')
+            mv('raven-java', '{services_root}')
     # Update services configuration.
     execute('update_tomcat')
 

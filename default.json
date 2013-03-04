@@ -25,6 +25,7 @@
     "tomcat_url": "http://ftp.ps.pl/pub/apache/tomcat/tomcat-7/v7.0.34/bin/apache-tomcat-7.0.34.tar.gz",
     "maven_url": "http://ftp.ps.pl/pub/apache/maven/maven-3/3.0.4/binaries/apache-maven-3.0.4-bin.tar.gz",
     "faces_url": "https://maven.java.net/content/repositories/releases/org/glassfish/javax.faces/2.1.14/javax.faces-2.1.14.jar",
+    "raven_url": "https://github.com/kencochrane/raven-java.git",
 
     "tomcat_port": "8080",
     "ci_port": "7070"

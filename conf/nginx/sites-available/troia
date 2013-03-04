@@ -11,10 +11,15 @@ server {
     access_log  %(project_root)s/logs/nginx/%(project_name)s.access.log;
     error_log   %(project_root)s/logs/nginx/%(project_name)s.error.log;
 
-# Troia-Web.
-
     root %(project_root)s/static/%(troia_web_name)s;
     index index.html index.htm;
+
+    location /media/downloads  {
+        gzip on;
+        alias %(project_root)s/static/downloads;
+        autoindex  off;
+        expires 60d;
+    }
 
     location /media  {
         gzip on;
@@ -43,24 +48,4 @@ server {
         proxy_set_header   Host             $host;
         proxy_pass http://127.0.0.1:%(tomcat_port)s/%(troia_server_devel_name)s;
     }
-
-# Continous Integration.
-
-    location /ci/ {
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Host $http_host;
-        proxy_pass http://localhost:%(ci_port)s/ci/;
-        proxy_redirect off;
-    }
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    location = /robots.txt {
-        root %(project_root)s/static/%(troia_web_name)s;
-    }
-
-    error_page  404  /404.html;
-    error_page  500  /500.html;
 }
