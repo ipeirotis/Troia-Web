@@ -1,6 +1,8 @@
 window.App = {}
 
 class Client
+    download_zip_url: "/prediction/zip"
+
     constructor: (@api_url = '/api') ->
         @chunk_size = 80
 
@@ -47,6 +49,13 @@ class Client
         $.ajax(
             url: @gold_data_dir + type)
             .done(gold_success)
+
+    download_zip: () ->
+        @_get(@_job_url() + @download_zip_url, {}, true,
+            (response) =>
+                result = $.parseJSON(response.responseText)['result']
+                window.location.assign(result)
+            , null, true)
 
     _job_url: (id = @id) -> @jobs_url + '/' + id
 

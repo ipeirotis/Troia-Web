@@ -66,6 +66,8 @@ cclient._ajax_error = (jqXHR, textStatus, errorThrown) ->
     console.log "error"
     $(".alert p").text("Troia server error (" + errorThrown.toString() + ").")
     $(".alert").show()
+$("#download_zip_btn").click(() ->
+    cclient.download_zip())
 # Prepare an URL for the 'see results later' link.
 url = document.URL
 base_url = url.replace(/\?.*/g, ($0) -> '')
