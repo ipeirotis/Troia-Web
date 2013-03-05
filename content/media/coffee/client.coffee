@@ -3,7 +3,7 @@ window.App = {}
 class Client
     download_zip_url: "/prediction/zip"
 
-    constructor: (@api_url = '/api') ->
+    constructor: (@api_url = '/api_devel') ->
         @chunk_size = 80
 
     generate_id: () ->
