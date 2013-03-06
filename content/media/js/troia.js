@@ -31,7 +31,7 @@ function initialize() {
         var goldLabels = parseGoldLabels();
         var categories = parseCostMatrix(categoryList);
         if (!hasErrors && ping()) {
-            id = "troia-web-test-" + new Date().getTime().toString() + "-" + parseInt(Math.random()*1000000000000);
+            id = "troia-web-" + new Date().getTime().toString() + "-" + parseInt(Math.random()*1000000000000);
             // Change button.
             var buttonText = $(this).text();
             $(this).addClass('disabled').text('Sending data..');
