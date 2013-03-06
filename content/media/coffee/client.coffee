@@ -37,11 +37,11 @@ class Client
         return ret
 
     compute: (success, iterations = 20) ->
-        @_post(@_job_url(@id) + '/' + @compute_url,
+        @_post(@_job_url() + '/' + @compute_url,
             {'iterations': iterations}, true, success, true)
 
     get_job: (success) ->
-        @_get(@_job_url(@id), {}, true, success, null, true)
+        @_get(@_job_url(), {}, true, success, null, true)
 
     get_example_job: (type, data_success, gold_success) ->
         $.ajax(
@@ -52,7 +52,7 @@ class Client
             .done(gold_success)
 
     download_zip: () ->
-        @_get(@_job_url(@id) + @download_zip_url, {}, true,
+        @_get(@_job_url() + @download_zip_url, {}, true,
             (response) =>
                 result = $.parseJSON(response.responseText)['result']
                 window.location.assign(result)
