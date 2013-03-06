@@ -1,9 +1,10 @@
 window.App = {}
 
 class Client
+    api_url: '/api_devel'
     download_zip_url: "/prediction/zip"
 
-    constructor: (@api_url = '/api_devel') ->
+    constructor: (@id = null) ->
         @chunk_size = 80
 
     generate_id: () ->
@@ -36,11 +37,11 @@ class Client
         return ret
 
     compute: (success, iterations = 20) ->
-        @_post("#{@jobs_url}/#{@id}#{@compute_url}",
+        @_post(@_job_url(@id) + '/' + @compute_url,
             {'iterations': iterations}, true, success, true)
 
-    get_job: (id, success) ->
-        @_get(@_job_url(id), {}, true, success, null, true)
+    get_job: (success) ->
+        @_get(@_job_url(@id), {}, true, success, null, true)
 
     get_example_job: (type, data_success, gold_success) ->
         $.ajax(
@@ -51,7 +52,7 @@ class Client
             .done(gold_success)
 
     download_zip: () ->
-        @_get(@_job_url() + @download_zip_url, {}, true,
+        @_get(@_job_url(@id) + @download_zip_url, {}, true,
             (response) =>
                 result = $.parseJSON(response.responseText)['result']
                 window.location.assign(result)
@@ -199,29 +200,27 @@ class App.ContinuousClient extends Client
         @_post(@_job_url() + @compute_url, {'iterations': iterations}, true,
             success, null, true)
 
-    get_objects_prediction: (id, success) ->
+    get_objects_prediction: (success) ->
         @prediction = []
-        @_get(@_job_url(id) + @objects_prediction_url, {}, true,
+        @_get(@_job_url() + @objects_prediction_url, {}, true,
             (response) =>
                 @objects_prediction = $.parseJSON(response.responseText)['result']
                 success(response)
             , null, true)
 
-    get_workers_prediction: (id, success) ->
+    get_workers_prediction: (success) ->
         @prediction = []
-        @_get(@_job_url(id) + @workers_prediction_url, {}, true,
+        @_get(@_job_url() + @workers_prediction_url, {}, true,
             (response) =>
                 @workers_prediction = $.parseJSON(response.responseText)['result']
                 success(response)
             , null, true)
 
-    get_prediction: (id, success_objects, success_workers, success) ->
-        @get_objects_prediction(id,
-            (response) =>
+    get_prediction: (success_objects, success_workers, success) ->
+        @get_objects_prediction((response) =>
                 success_objects(response)
-                @get_workers_prediction(id,
-                    (response) ->
-                        success_workers(response)
-                        success(response)
+                @get_workers_prediction((response) ->
+                    success_workers(response)
+                    success(response)
                 )
         )
