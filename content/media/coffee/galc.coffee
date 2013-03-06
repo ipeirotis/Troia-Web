@@ -34,7 +34,7 @@ process_handler = () ->
                     $('#menuTab li:nth-child(2) a').attr("data-toggle", "tab").tab('show')
                     cclient.compute(() ->
                         $('#send_data').removeClass('disabled').text(button_text)
-                        cclient.get_prediction(id
+                        cclient.get_prediction(
                             () ->
                                 $("#objects").html(_.template(
                                     $("#objects_template").html(),
@@ -61,7 +61,7 @@ $('#send_data').one('click', process_handler)
 
 App.set_textarea_maxrows(20000)
 id = App.get_url_parameter('id')
-cclient = new App.ContinuousClient()
+cclient = new App.ContinuousClient(id)
 cclient._ajax_error = (jqXHR, textStatus, errorThrown) ->
     console.log "error"
     $(".alert p").text("Troia server error (" + errorThrown.toString() + ").")
@@ -78,7 +78,7 @@ if cclient.ping()
         # Show the results tab at first.
         $('#menuTab li:nth-child(2) a').tab('show')
         $("#url").hide()
-        cclient.get_prediction(id
+        cclient.get_prediction(
             () ->
                 $("#objects").html(_.template($("#objects_template").html(), {objects: cclient.objects_prediction}))
             () ->
@@ -87,15 +87,14 @@ if cclient.ping()
                 $("#img-load").hide()
                 $("#response").show()
         )
-        cclient.get_job(id,
-            (response) ->
-                job = $.parseJSON(response.responseText).result
-                assigns = job.assigns.map((a) -> [a.worker, a.object, a.label.value].join('\t')).join('\n')
-                objects = job.goldObjects.map((o) ->
-                    l = o.goldLabel
-                    [o.name, l.value, l.zeta].join('\t')).join('\n')
-                $('#id_data').val(assigns)
-                $('#id_gold_data').val(objects)
+        cclient.get_job((response) ->
+            job = $.parseJSON(response.responseText).result
+            assigns = job.assigns.map((a) -> [a.worker, a.object, a.label.value].join('\t')).join('\n')
+            objects = job.goldObjects.map((o) ->
+                l = o.goldLabel
+                [o.name, l.value, l.zeta].join('\t')).join('\n')
+            $('#id_data').val(assigns)
+            $('#id_gold_data').val(objects)
         )
     else
         # Disable the results tab.
