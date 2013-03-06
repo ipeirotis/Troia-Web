@@ -1,7 +1,7 @@
 window.App = {}
 
 class Client
-    api_url: '/api_devel'
+    api_url: '/api'
     download_zip_url: "/prediction/zip"
 
     constructor: (@id = null) ->
