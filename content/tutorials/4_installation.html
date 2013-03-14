@@ -39,7 +39,7 @@ following line into this file
 
 ::
 
-    user username="administrator" password="drowssap" roles="admin,manager-gui" />
+    <user username="administrator" password="drowssap" roles="admin,manager-gui" />
 
 This will create user *administrator* with password *drowssap* and all privileges that will be needed
 in this project.  
@@ -57,11 +57,14 @@ address:
 
 Then you should find part of manager that allows you to upload and deploy .war files from disk.
 After that you should simply choose .war that was generated in previous step and deploy it.
-To check if everything is working correctly you can open service that will ping Troia
+To check if everything is working correctly you can go to *status* entry:
 
 ::
   
-    http://localhost:8080/troia-server-{{ app_version }}/status/ping
+    http://localhost:8080/troia-server-{{ app_version }}/status
+
+You can do this in your browser. As a result you should get JSON response saying that everything is OK.
+
 
 Setting up a DB
 ---------------
