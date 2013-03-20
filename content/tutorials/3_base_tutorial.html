@@ -13,10 +13,13 @@ This tutorial would show you, step by step, how to play with Troia Server. We wi
 
 Create job
 ----------
-To create new simply enter:
+Job creation needs the following arguments:
+	**categories** (mandatory argument, should contain category prior, category name and misclassification costs matrix)
+	**algorithm** used for executing the job tasks (optional argument, the default value is BDS)
+As an example, if you want to create a Batch Dawid Skene job with two categories, simply enter:
 ::
 
-    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs" -d 'type=batch&categories=
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs" -d '{categories:
     [{
         "prior":"0.5",
         "name":"porn",
@@ -34,12 +37,10 @@ To create new simply enter:
             {"categoryName": "porn", "value": 1},
             {"categoryName": "notporn", "value": 0}
         ]
-    }]'
+    }], algorithm:'BDS'}'
 
-We need also send collection of **categories**, containing their names, priorities and misclassification costs matrix.
-As you can see there's another, optional parameter **type**, which have two possible values: *batch, incremental* determinig type of DawidSkene.
 
-As a result we get JSON:
+As a result we get the following JSON:
 ::
 
     {
@@ -48,7 +49,7 @@ As a result we get JSON:
         "status":"OK"
     }
 
-Note, that the response contains job ID. It is neccessary to pass the generated id to all other endpoints that operates on jobs.
+Note that the response contains the job ID. It is neccessary to pass the generated id to all the other endpoints that operate on jobs.
 
 
 Load assigned labels
@@ -56,132 +57,132 @@ Load assigned labels
 Send labels that worker assigned to objects.
 ::
 
-    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/<JOB_ID>/assignedLabels" -d 'labels=
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/<JOB_ID>/assigns" -d '{assigns:
     [{
-        "workerName":"worker1",
-        "objectName":"http://sunnyfun.com",
-        "categoryName":"porn"
+        "worker":"worker1",
+        "object":"http://sunnyfun.com",
+        "label":"porn"
     },
     {
-        "workerName":"worker1",
-        "objectName":"http://sex-mission.com",
-        "categoryName":"porn"
+        "worker":"worker1",
+        "object":"http://sex-mission.com",
+        "label":"porn"
     },
     {
-        "workerName":"worker1",
-        "objectName":"http://google.com",
-        "categoryName":"porn"
+        "worker":"worker1",
+        "object":"http://google.com",
+        "label":"porn"
     },
     {
-        "workerName":"worker1",
-        "objectName":"http://youporn.com",
-        "categoryName":"porn"
+        "worker":"worker1",
+        "object":"http://youporn.com",
+        "label":"porn"
     },
     {
-        "workerName":"worker1",
-        "objectName":"http://yahoo.com",
-        "categoryName":"porn"
+        "worker":"worker1",
+        "object":"http://yahoo.com",
+        "label":"porn"
     },
     {
-        "workerName":"worker2",
-        "objectName":"http://sunnyfun.com",
-        "categoryName":"notporn"
+        "worker":"worker2",
+        "object":"http://sunnyfun.com",
+        "label":"notporn"
     },
     {
-        "workerName":"worker2",
-        "objectName":"http://sex-mission.com",
-        "categoryName":"porn"
+        "worker":"worker2",
+        "object":"http://sex-mission.com",
+        "label":"porn"
     },
     {
-        "workerName":"worker2",
-        "objectName":"http://google.com",
-        "categoryName":"notporn"
+        "worker":"worker2",
+        "object":"http://google.com",
+        "label":"notporn"
     },
     {
-        "workerName":"worker2",
-        "objectName":"http://youporn.com",
-        "categoryName":"porn"
+        "worker":"worker2",
+        "object":"http://youporn.com",
+        "label":"porn"
     },
     {
-        "workerName":"worker2",
-        "objectName":"http://yahoo.com",
-        "categoryName":"porn"
+        "worker":"worker2",
+        "object":"http://yahoo.com",
+        "label":"porn"
     },
     {
-        "workerName":"worker3",
-        "objectName":"http://sunnyfun.com",
-        "categoryName":"notporn"
+        "worker":"worker3",
+        "object":"http://sunnyfun.com",
+        "label":"notporn"
     },
     {
-        "workerName":"worker3",
-        "objectName":"http://sex-mission.com",
-        "categoryName":"porn"
+        "worker":"worker3",
+        "object":"http://sex-mission.com",
+        "label":"porn"
     },
     {
-        "workerName":"worker3",
-        "objectName":"http://google.com",
-        "categoryName":"notporn"
+        "worker":"worker3",
+        "object":"http://google.com",
+        "label":"notporn"
     },
     {
-        "workerName":"worker3",
-        "objectName":"http://youporn.com",
-        "categoryName":"porn"
+        "worker":"worker3",
+        "object":"http://youporn.com",
+        "label":"porn"
     },
     {
-        "workerName":"worker3",
-        "objectName":"http://yahoo.com",
-        "categoryName":"notporn"
+        "worker":"worker3",
+        "object":"http://yahoo.com",
+        "label":"notporn"
     },
     {
-        "workerName":"worker4",
-        "objectName":"http://sunnyfun.com",
-        "categoryName":"notporn"
+        "worker":"worker4",
+        "object":"http://sunnyfun.com",
+        "label":"notporn"
     },
     {
-        "workerName":"worker4",
-        "objectName":"http://sex-mission.com",
-        "categoryName":"porn"
+        "worker":"worker4",
+        "object":"http://sex-mission.com",
+        "label":"porn"
     },
     {
-        "workerName":"worker4",
-        "objectName":"http://google.com",
-        "categoryName":"notporn"
+        "worker":"worker4",
+        "object":"http://google.com",
+        "label":"notporn"
     },
     {
-        "workerName":"worker4",
-        "objectName":"http://youporn.com",
-        "categoryName":"porn"
+        "worker":"worker4",
+        "object":"http://youporn.com",
+        "label":"porn"
     },
     {
-        "workerName":"worker4",
-        "objectName":"http://yahoo.com",
-        "categoryName":"notporn"
+        "worker":"worker4",
+        "object":"http://yahoo.com",
+        "label":"notporn"
     },
     {
-        "workerName":"worker5",
-        "objectName":"http://sunnyfun.com",
-        "categoryName":"porn"
+        "worker":"worker5",
+        "object":"http://sunnyfun.com",
+        "label":"porn"
     },
     {
-        "workerName":"worker5",
-        "objectName":"http://sex-mission.com",
-        "categoryName":"notporn"
+        "worker":"worker5",
+        "object":"http://sex-mission.com",
+        "label":"notporn"
     },
     {
-        "workerName":"worker5",
-        "objectName":"http://google.com",
-        "categoryName":"porn"
+        "worker":"worker5",
+        "object":"http://google.com",
+        "label":"porn"
     },
     {
-        "workerName":"worker5",
-        "objectName":"http://youporn.com",
-        "categoryName":"notporn"
+        "worker":"worker5",
+        "object":"http://youporn.com",
+        "label":"notporn"
     },
     {
-        "workerName":"worker5",
-        "objectName":"http://yahoo.com",
-        "categoryName":"porn"
-    }]'
+        "worker":"worker5",
+        "object":"http://yahoo.com",
+        "label":"porn"
+    }]}'
 
 As a result we get JSON:
 ::
@@ -215,11 +216,11 @@ Load gold labels
 Send samples for which we know correct label. That would allow algorithm to a better estimation of workers quality and what is connected with this better estimation of correct labels.
 ::
 
-    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/<JOB_ID>/goldData" -d 'labels=
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/<JOB_ID>/goldObjects" -d '{objects:
     [{
-        "correctCategory": "notporn",
-        "objectName": "http://google.com"
-    }]'
+        "goldLabel": "notporn",
+        "name": "http://google.com"
+    }]}'
 
 Similarly as previously, as a result we get:
 ::
@@ -228,7 +229,7 @@ Similarly as previously, as a result we get:
     {
         "timestamp":"2012-12-29T13:15:41.299Z",
         "status":"OK",
-        "redirect":"responses/<RESPONSE_ID>/POST/jobs/<JOB_ID>/goldData"
+        "redirect":"responses/<RESPONSE_ID>/POST/jobs/<JOB_ID>/goldObjects"
     }
 
 Start compute
@@ -263,21 +264,26 @@ If dataset is huge and we checked status just after start computation call we'll
 Get results
 -----------
 
-Workers qualities
-+++++++++++++++++
+Workers confusion matrices
+++++++++++++++++++++++++++
 
-To collect workers results we call:
+To see workers' confusion matrices, call:
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/prediction/workersScore"
+    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/workers/quality/matrix"
 
-and as previous we get JSON containing redirect uri. Following the link we get stats including workers error rate, quality (both optimized and exptected), number of annotations, number of gold tests and their confusion matrix.
+and as previous we get JSON containing the redirect uri. Following the link we get the confusion matrix for each worker
+
+
+Estimated workers quality
++++++++++++++++++++++++++
 
 To see what are the workers qualities call:
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/prediction/workersQuality"
+    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/workers/quality/estimated" -d "{costAlgorithm: <COST_ALGORITHM>}"
 
+Where <COST_ALGORITHM> is an optional parameter (the default value is ExpectedCost) and represents the cost algorithm used to calculate the workers quality. Other cost algorithms are MaxLikelihood and MinCost. 
 Below are the qualities of workers for provided data. 
 ::
 
@@ -298,20 +304,17 @@ Returned qualities coincide with our assumptions about the workers:
 - worker1 is lazy, and gives the answer porn all the time (quality = 0)
 - worker2 is ok but not great. For example, labeled object5 as porn even though it is notporn (quality = 0.(4))
 - worker3 and worker4 are high-quality workers (quality = 1)
-- worker5 is malicious, giving always the incorrect answer, trying to fool the system (quality = 1 but error rate which we can get from previuos call is 1)
+- worker5 is malicious, giving always the incorrect answer, trying to fool the system (quality = 1 but the error rate - calculated based on the confusion matrix - is 1)
 
 Label predictions
 +++++++++++++++++
 
-To see what are the most likely categories for data use:
+In order to see what are the most likely categories for data, use:
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/prediction/data?algorithm=DS&labelChoosing=MaxLikelihood"
+    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/objects/prediction" -d "{labelChoosing: <LABEL_CHOOSING_METHOD>}"
 
-As you can see there are two parameters:
-
-- **algorithm**, which have two possible values: default *DS* (DawidSkene), *MV* (MajorityVote),
-- **labelChoosing**, which have two passible values: default *MaxLikelihood*, *MinCost*.
+Where <LABEL_CHOOSING_METHOD> can have two passible values: *MaxLikelihood* (default) and *MinCost*.
 
 As usual we get JSON containing redirect uri. Folowing the link we get result similar to:
 ::
@@ -334,11 +337,7 @@ Label probability distribution for single object
 We can also see what is the label probability distribution for objects by calling:
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/data/http://sunnyfun.com/categoryProbability"
-
-There is optional parameter:
-
-- **type**, which have two possible values: default *DS* (DawidSkene), *MV* (MajorityVote).
+    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/objects/http://sunnyfun.com/categoryProbability"
 
 Following the returned redirect uri we get result:
 ::
