@@ -14,8 +14,12 @@ This tutorial would show you, step by step, how to play with Troia Server. We wi
 Create job
 ----------
 Job creation needs the following arguments:
-	**categories** (mandatory argument, should contain category prior, category name and misclassification costs matrix)
-	**algorithm** used for executing the job tasks (optional argument, the default value is BDS)
+
+- **categories** (mandatory argument, should contain category names; may contain category priors (they should sum up to 1.0) and misclassification costs matrix; if priors would not be given there would be equal; if misclassification cost would not be given it would be 0/1 matrix (with zeros on the matrix diagonal))
+- **algorithm** used for executing the job tasks (optional argument, the default value is BDS)
+- **iterations** how many iterations should be done after calling compute (optional argument, the default value is 10)
+- **epsilon** another stop condition for the algorithm (optional argument, the default value is 1e-6)
+
 As an example, if you want to create a Batch Dawid Skene job with two categories, simply enter:
 ::
 
@@ -237,7 +241,7 @@ Start compute
 We start actual calculations:
 ::
 
-    curl -X POST -d "iterations=20" "http://project-troia.com/api/jobs/<JOB_ID>/compute"
+    curl -X POST "http://project-troia.com/api/jobs/<JOB_ID>/compute"
 
 As a result, as previously we get JSON containg redirect uri:
 ::
@@ -281,7 +285,7 @@ Estimated workers quality
 To see what are the workers qualities call:
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/workers/quality/estimated" -d "{costAlgorithm: <COST_ALGORITHM>}"
+    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/workers/quality/estimated?costAlgorithm=<COST_ALGORITHM>"
 
 Where <COST_ALGORITHM> is an optional parameter (the default value is ExpectedCost) and represents the cost algorithm used to calculate the workers quality. Other cost algorithms are MaxLikelihood and MinCost. 
 Below are the qualities of workers for provided data. 
@@ -312,7 +316,7 @@ Label predictions
 In order to see what are the most likely categories for data, use:
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/objects/prediction" -d "{labelChoosing: <LABEL_CHOOSING_METHOD>}"
+    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/objects/prediction?labelChoosing=<LABEL_CHOOSING_METHOD>"
 
 Where <LABEL_CHOOSING_METHOD> can have two passible values: *MaxLikelihood* (default) and *MinCost*.
 
