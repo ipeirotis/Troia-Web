@@ -33,11 +33,14 @@ As for servlet container you can use different one but this tutorial will be wri
 Setting up Tomcat
 -----------------
 
-You can find detailed documentation on installing tomcat here <http://tomcat.apache.org/tomcat-7.0-doc/setup.html>:
+You can find detailed documentation on installing tomcat `here <http://tomcat.apache.org/tomcat-6.0-doc/setup.html>:`
 
 In order to be able to use Tomcat's administrative functions, you must create an user with administrator privileges.
-You can do that by modifying *tomcat-users.xml* file. If you are using Linux, the file is probably located at
-*/etc/tomcat6/tomcat-users.xml* path. On Windows, the file can be found at the location *<CATALINA_HOME>/conf/tomcat-users.xml*.
+You can do that by modifying *tomcat-users.xml* file. 
+
+* if you are using Linux, the file is probably located at */etc/tomcat6/tomcat-users.xml* path
+* on Windows, the file can be found at the location *<CATALINA_HOME>/conf/tomcat-users.xml*
+
 To create an user with full required privileges you must add the following line into this file
 
 ::
@@ -68,23 +71,28 @@ To check if everything is working correctly you can punch the following into the
 As a result you should get a JSON response saying that everything is OK.
 
 
-Creating the database
----------------------
+Setting up the database
+-----------------------
+
+Create the database
+=====================
 
 In order to create the database schema you have to run **Troia/troia-server/src/main/resources/troia.sql** script on the running
 mysql server instance. The result of the script should be a brand new database with all the necessary tables, fields and indexes.
 
 
-Setting up database connection
-------------------------------
+Set up database connection
+==============================
 
 To set up the database connection you must have to check that the information from **Troia/troia-server/src/main/resources/troia.properties**
-file is correct for your deployment environment. Parameter meaning:
-* USER - mysql user who owns the database
-* PASSWORD - mysql user's password
-* DB - the database name (make sure that it is the same as the one from troia.sql script)
-* URL - the url of tomcat host machine (localhost if tomcat runs locally)
-* DOWNLOADS_PATH - the path for downloading the zip archive containing the computation results
+file is correct for your deployment environment. 
+Parameter meaning:
+
+	* USER - mysql user who owns the database
+	* PASSWORD - mysql user's password
+	* DB - the database name (make sure that it is the same as the one from troia.sql script)
+	* URL - the url of tomcat host machine (localhost if tomcat runs locally)
+	* DOWNLOADS_PATH - the path for downloading the zip archive containing the computation results
 
 **That covers all issues in regard of setting up Troia from precompiled WAR file, following part will instruct 
 you how to build your own WAR file from sources downloaded from GitHub.**
