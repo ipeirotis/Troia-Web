@@ -1,3 +1,20 @@
+populate_results_tables = (client) ->
+    client.get_prediction(
+        () ->
+            $("#objects").html(_.template(
+                $("#objects_template").html(),
+                {objects: client.objects_prediction})
+            )
+        () ->
+            $("#workers").html(_.template(
+                $("#workers_template").html(),
+                {workers: client.workers_prediction})
+            )
+        () ->
+            $("#img-load").hide()
+            $("#response").show()
+    )
+
 process_handler = () ->
     $(".alert").hide()
 
@@ -23,32 +40,18 @@ process_handler = () ->
         button_text = $(@).text()
         $(@).addClass('disabled').text('Sending data..')
         that = this
-        cclient.create(() ->
-            cclient.post_assigns(assigns, () ->
-                cclient.post_gold_objects(gold_labels, () ->
-                    $("#url pre").text(App.get_job_url(cclient.id))
+        client.create(() ->
+            client.post_assigns(assigns, () ->
+                client.post_gold_objects(gold_labels, () ->
+                    $("#url pre").text(App.get_job_url(client.id))
                     $("#url").show()
                     $("#img-load").show()
                     $("#response").hide()
                     $(that).text('Computing..')
                     $('#menuTab li:nth-child(2) a').attr("data-toggle", "tab").tab('show')
-                    cclient.compute(() ->
+                    client.compute(() ->
                         $('#send_data').removeClass('disabled').text(button_text)
-                        cclient.get_prediction(
-                            () ->
-                                $("#objects").html(_.template(
-                                    $("#objects_template").html(),
-                                    {objects: cclient.objects_prediction})
-                                )
-                            () ->
-                                $("#workers").html(_.template(
-                                    $("#workers_template").html(),
-                                    {workers: cclient.workers_prediction})
-                                )
-                            () ->
-                                $("#img-load").hide()
-                                $("#response").show()
-                        )
+                        populate_results_tables(client)
                     )
                 )
             )
@@ -61,45 +64,33 @@ $('#send_data').one('click', process_handler)
 
 App.set_textarea_maxrows(20000)
 id = App.get_url_parameter('id')
-cclient = new App.ContinuousClient(id)
-cclient._ajax_error = (jqXHR, textStatus, errorThrown) ->
-    console.log "error"
+client = new App.ContinuousClient(id)
+client._ajax_error = (jqXHR, textStatus, errorThrown) ->
+    console.log "error", textStatus
     $(".alert p").text("Troia server error (" + errorThrown.toString() + ").")
     $(".alert").show()
 $("#download_zip_btn").click(() ->
-    cclient.download_zip())
+    client.download_zip())
 # Prepare an URL for the 'see results later' link.
 url = document.URL
 base_url = url.replace(/\?.*/g, ($0) -> '')
 base_url = base_url.replace(/\#.*/g, ($0) -> '')
 
-if cclient.ping()
+if client.ping()
     if id
         # Show the results tab at first.
         $('#menuTab li:nth-child(2) a').tab('show')
         $("#url").hide()
-        cclient.get_prediction(
-            () ->
-                $("#objects").html(_.template($("#objects_template").html(), {objects: cclient.objects_prediction}))
-            () ->
-                $("#workers").html(_.template($("#workers_template").html(), {workers: cclient.workers_prediction}))
-            () ->
-                $("#img-load").hide()
-                $("#response").show()
-        )
-        cclient.get_job((response) ->
-            job = $.parseJSON(response.responseText).result
-            assigns = job.assigns.map((a) -> [a.worker, a.object, a.label.value].join('\t')).join('\n')
-            objects = job.goldObjects.map((o) ->
-                l = o.goldLabel
-                [o.name, l.value, l.zeta].join('\t')).join('\n')
-            $('#id_data').val(assigns)
-            $('#id_gold_data').val(objects)
-        )
+        populate_results_tables(client)
+        client.get_assigns((res) ->
+            $('#id_data').val(client.assigns.map(client._assign_to_text).join('\n')))
+
+        client.get_gold_objects((res) ->
+            $('#id_gold_data').val(client.gold_objects.map(client._gold_object_to_text).join('\n')))
     else
         # Disable the results tab.
         $("#menuTab li:nth-child(2) a").attr("data-toggle", "").css("cursor",  "not-allowed")
-        cclient.get_example_job(1,
+        client.get_example_job(1,
             (data) ->
                 $('#id_data').val(data)
             (data) ->
