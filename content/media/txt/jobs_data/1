@@ -21,5 +21,5 @@ worker4 http://yahoo.com       notporn
 worker5 http://sunnyfun.com    porn
 worker5 http://sex-mission.com notporn
 worker5 http://google.com      porn
-worker5 http://youporn.com     notporn	
+worker5 http://youporn.com     notporn
 worker5 http://yahoo.com       porn
