@@ -458,9 +458,7 @@ def deploy_troia_server(confpath=None, blocking=True):
         print after.content
         if not before.ok and after.ok:
             break
-        if (before.ok and after.ok and
-                before.json()['result']['deploy_time'] !=
-                after.json()['deploy_time']):
+        if (before.ok and after.ok and after.json()['status'] == "NOT_INITIALIZED"):
             break
         time.sleep(5)
     requests.post("http://{project_domain}/api/config".format(**conf), data={'freezed': 'on'})
