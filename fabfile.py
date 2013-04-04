@@ -463,7 +463,7 @@ def deploy_troia_server(confpath=None, blocking=False):
                 after.json()['result']['deploy_time']):
             break
         time.sleep(5)
-    requests.post("http://{project_domain}/api/config", data={'freezed': 'on'})
+    requests.post("http://{project_domain}/api/config".format(**conf), data={'freezed': 'on'})
 
 
 @task
