@@ -13,31 +13,37 @@ This tutorial would show you, step by step, how to play with Troia Server. We wi
 
 Create job
 ----------
-To create new simply enter:
+To create new job enter:
 ::
 
-    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs" -d 'type=batch&categories=
-    [{
-        "prior":"0.5",
-        "name":"porn",
-        "misclassification_cost":
-        [
-            {"categoryName": "porn", "value": 0},
-            {"categoryName": "notporn", "value": 1}
-        ]
-    },
-    {
-        "prior":"0.5",
-        "name":"notporn",
-        "misclassification_cost":
-        [
-            {"categoryName": "porn", "value": 1},
-            {"categoryName": "notporn", "value": 0}
-        ]
-    }]'
+	curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs" -d '{
+		categories: ["porn", "notporn"],
+		categoryPriors: [
+		    {"categoryName": "porn", "value": 0.5},
+		    {"categoryName": "notporn", "value": 0.5}],
+		costMatrix: [
+		    {"from": "porn", "to": "notporn", "value": 1.0}, 
+		    {"from": "porn", "to": "porn", "value": 0.0}, 
+		    {"from": "notporn", "to": "porn", "value": 1.0}, 
+		    {"from": "notporn", "to": "notporn", "value": 0.0}],
+		algorithm: "BDS",
+		iterations: 10,
+		epsilon: 0.0001,
+		scheduler: "NormalScheduler",
+		calculator: "CostBased"
+	}'
 
-We need also send collection of **categories**, containing their names, priorities and misclassification costs matrix.
-As you can see there's another, optional parameter **type**, which have two possible values: *batch, incremental* determinig type of DawidSkene.
+There are couple of parameters needs explenation:
+
+- **categories**: collection of categories names
+- **categoryPriors** (optional): the probability for a randomly chosen object to belong to a given category
+- **costMatrix** (optional): n x n matrix that stores the cost of a misclassification (n is number of categories). The value of the matrix in the [i,j] position is the cost for labeling an object that belongs to category i, as an object that belongs to category j. If not given the cost matrix would be instatitaed as 0-1 matrix with 0 values on the main diagonal.
+- **algorithm** (optional): type of algorithm; possible values are: blockingEM (aka BDS, default one), onlineEM (aka IDS), blockingMV (aka BMV), onlineMV (aka IMV).
+- **iterations** (optional): only for blocking algorithms, default is 10
+- **epsilon** (optional): only for blocking algotithms, default is 1e-6
+- **scheduler** (optional): type of used scheduler (more about scheduler in Scheduler Tutorial); possible values are NormalScheduler, CachedScheduler
+- **calculator** (optional): type of calculator used by scheduler;
+
 
 As a result we get JSON:
 ::
@@ -236,7 +242,7 @@ Start compute
 We start actual calculations:
 ::
 
-    curl -X POST -d "iterations=20" "http://project-troia.com/api/jobs/<JOB_ID>/compute"
+    curl -X POST "http://project-troia.com/api/jobs/<JOB_ID>/compute"
 
 As a result, as previously we get JSON containg redirect uri:
 ::
@@ -266,17 +272,10 @@ Get results
 Workers qualities
 +++++++++++++++++
 
-To collect workers results we call:
-::
-
-    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/prediction/workersScore"
-
-and as previous we get JSON containing redirect uri. Following the link we get stats including workers error rate, quality (both optimized and exptected), number of annotations, number of gold tests and their confusion matrix.
-
 To see what are the workers qualities call:
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/prediction/workersQuality"
+    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/workers/quality/estimated"
 
 Below are the qualities of workers for provided data. 
 ::
@@ -300,17 +299,16 @@ Returned qualities coincide with our assumptions about the workers:
 - worker3 and worker4 are high-quality workers (quality = 1)
 - worker5 is malicious, giving always the incorrect answer, trying to fool the system (quality = 1 but error rate which we can get from previuos call is 1)
 
-Label predictions
-+++++++++++++++++
+Objects predictions
++++++++++++++++++++
 
 To see what are the most likely categories for data use:
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/prediction/data?algorithm=DS&labelChoosing=MaxLikelihood"
+    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/objects/prediction?labelChoosing=MaxLikelihood"
 
-As you can see there are two parameters:
+As you can see there is one (optional) parameter:
 
-- **algorithm**, which have two possible values: default *DS* (DawidSkene), *MV* (MajorityVote),
 - **labelChoosing**, which have two passible values: default *MaxLikelihood*, *MinCost*.
 
 As usual we get JSON containing redirect uri. Folowing the link we get result similar to:
@@ -335,10 +333,6 @@ We can also see what is the label probability distribution for objects by callin
 ::
 
     curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/data/http://sunnyfun.com/categoryProbability"
-
-There is optional parameter:
-
-- **type**, which have two possible values: default *DS* (DawidSkene), *MV* (MajorityVote).
 
 Following the returned redirect uri we get result:
 ::
