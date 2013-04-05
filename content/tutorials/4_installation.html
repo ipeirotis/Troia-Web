@@ -61,41 +61,54 @@ Tomcat runs on port 8080, web application manager will be up at the following ad
 
 Find the part of the manager that allows you to upload and deploy .war files from disk.
 After that you should simply choose .war that was generated in previous step and deploy it.
-If the deployment succeeds, you will see Troia listed under Applications panel and its status will be 'Running'
-To check if everything is working correctly you can punch the following into the browser's url bar:
+If the deployment succeeds, you will see Troia listed under Applications panel and its status will be 'Running'. If you'll the visit following url:
+
+::
+  
+    http://localhost:8080/troia-server-{{ app_version }}/status
+
+As a result you should get a JSON response saying that server is not initialized. We will initialize it after seeting up the database.
+
+Setting up the database
+-----------------------
+
+In order to create the database schema you have to run **Troia/troia-server/src/main/resources/troia.sql** script on the running
+mysql server instance. The result of the script should be a brand new database with all the necessary tables, fields and indexes.
+
+
+Configuring server
+------------------
+
+So, after deploying WAR and setting up the database, now it's time to configure server. To do so go to the following url:
+
+::
+  
+    http://localhost:8080/troia-server-{{ app_version }}/config
+
+Parameter meaning:
+
+    * CACHE_DUMP_TIME - for how long (in seconds) job should be stored in the cache
+    * CACHE_SIZE - how many jobs should be stored in the cache
+    * DB_NAME - the database name (make sure that it is the same as the one from troia.sql script)
+    * DB_PASSWORD - mysql user's password
+    * DB_URL - the url of mysql host machine (localhost if tomcat runs locally)
+    * DB_USER - mysql user who owns the database 
+    * DOWNLOADS_PATH - the path for downloading the zip archive containing the computation results
+    * EXECUTOR_THREADS_NUM - number of executor threads    
+    * RESPONSES_CACHE_SIZE - how many responses should be store in the cache    
+    * RESPONSES_DUMP_TIME - for how long (in seconds) responses should be stored in the cache    
+
+After filling the form, click Submit button. To check if everything is working correctly you can punch the following into the browser's url bar:
 
 ::
   
     http://localhost:8080/troia-server-{{ app_version }}/status
 
 As a result you should get a JSON response saying that everything is OK.
-
-
-Setting up the database
------------------------
-
-Create the database
-=====================
-
-In order to create the database schema you have to run **Troia/troia-server/src/main/resources/troia.sql** script on the running
-mysql server instance. The result of the script should be a brand new database with all the necessary tables, fields and indexes.
-
-
-Set up database connection
-==============================
-
-To set up the database connection you must have to check that the information from **Troia/troia-server/src/main/resources/troia.properties**
-file is correct for your deployment environment. 
-Parameter meaning:
-
-	* USER - mysql user who owns the database
-	* PASSWORD - mysql user's password
-	* DB - the database name (make sure that it is the same as the one from troia.sql script)
-	* URL - the url of tomcat host machine (localhost if tomcat runs locally)
-	* DOWNLOADS_PATH - the path for downloading the zip archive containing the computation results
-
+    
 **That covers all issues in regard of setting up Troia from precompiled WAR file, following part will instruct 
 you how to build your own WAR file from sources downloaded from GitHub.**
+
 
 Getting code
 ------------
