@@ -13,10 +13,12 @@ The purpose of this tutorial is to explain how the scheduler functions are used 
 API calls will be done using `cURL <http://curl.haxx.se/>`_
 
 There are two types of schedulers implemented into Troia:
+
 	- CachedScheduler - puts out the object after it is requested and keeps it out for a given amount of time so that it won't be returned within this time or until a new assign related to it is added
-	- NormalScheduler - returns the same object until a new assign is added
+	- NormalScheduler - returns the same value until a new object with higher priority is available
 
 In order to be able to set up the priority of each object and to return the object with the highest priority, schedulers need to calculate object priority. There are two types of calculators used:
+
 	- CostBased - the object with the highest priority is the object with highest cost
 	- AssignCount - the object with highest priority is the object with the smallest number of assigns
 
