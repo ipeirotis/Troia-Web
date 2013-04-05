@@ -10,11 +10,12 @@ title: Scheduler tutorial
 What this tutorial is about?
 ============================
 The purpose of this tutorial is to explain how the scheduler functions are used in Troia. 
-API calls will be done using `cURL <http://curl.haxx.se/>`_
+API calls will be done using `cURL <http://curl.haxx.se/>`
 
-There are two types of schedulers implemented into Troia
-	- NormalScheduler - returns the same object until a new assign is added
+
+There are two types of schedulers implemented into Troia:
 	- CachedScheduler - puts out the object after it is requested and keeps it out for a given amount of time so that it won't be returned within this time or until a new assign related to it is added
+	- NormalScheduler - returns the same object until a new assign is added
 
 In order to be able to set up the priority of each object and to return the object with the highest priority, schedulers need to calculate object priority. There are two types of calculators used:
 	- CostBased - the object with the highest priority is the object with highest cost
@@ -125,7 +126,7 @@ We require the object with highest priority calling
 
     curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/nextObject"
 
-As a result, as previously we get the following JSON:
+As a result, we get the following JSON:
 ::
 
     {
@@ -145,7 +146,7 @@ Now, let's see what happens if we call the second time
 
     curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/nextObject"
 
-As a result, as previously we get the following JSON:
+As a result, as previously, we get the JSON:
 ::
 
     {
@@ -224,7 +225,7 @@ As a result we get JSON:
         "status":"OK"
     }
 
-Note, that the response contains job ID. It is neccessary to pass the generated id to all other endpoints that operates on jobs.
+Note, that the response contains job ID. It is neccessary to pass the generated id to all the other endpoints that operate on jobs.
 
 
 Load assigned labels
