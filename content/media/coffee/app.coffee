@@ -16,32 +16,31 @@ class App.Application
         id = App.get_url_parameter('id')
         @client = new @_client_type(id)
         @client._ajax_error = (jqXHR, textStatus, errorThrown) ->
-            console.log "error", textStatus
-            $(".alert p").text("Troia server error (" + errorThrown.toString() + ").")
-            $(".alert").show()
+            console.log "error", errorThrown
+            @show_error("Troia server error (" + errorThrown.toString() + ").")
 
         $("#download_zip_btn").click(() =>
             @client.download_zip())
 
-        # Prepare an URL for the 'see results later' link.
-        url = document.URL
-        base_url = url.replace(/\?.*/g, ($0) -> '')
-        base_url = base_url.replace(/\#.*/g, ($0) -> '')
-
         if @client.ping()
             if id
-                # Show the results tab at first.
-                $('#menuTab li:nth-child(2) a').tab('show')
-                $("#url").hide()
-                @populate_results_tables()
-                @client.get_assigns((res) =>
-                    $('#id_data').val(@client.assigns.map(@client._assign_to_text).join('\n')))
+                @client.exists(
+                    () =>
+                        # Show the results tab at first.
+                        $('#menuTab li:nth-child(2) a').tab('show')
+                        $("#url").hide()
+                        @populate_results_tables()
+                        @client.get_assigns((res) =>
+                            $('#id_data').val(@client.assigns.map(@client._assign_to_text).join('\n')))
 
-                @client.get_gold_objects((res) =>
-                    $('#id_gold_data').val(@client.gold_objects.map(@client._gold_object_to_text).join('\n')))
+                        @client.get_gold_objects((res) =>
+                            $('#id_gold_data').val(@client.gold_objects.map(@client._gold_object_to_text).join('\n')))
+                    () =>
+                        @show_error("Sorry, id=" + id + " hasn't been found.")
+                        @disable_results_tab()
+                )
             else
-                # Disable the results tab.
-                $("#menuTab li:nth-child(2) a").attr("data-toggle", "").css("cursor",  "not-allowed")
+                @disable_results_tab()
                 @load_test_data(1)
                 $('#id_data_choose').change(() =>
                     @load_test_data($('#id_data_choose :selected').val());
@@ -51,6 +50,13 @@ class App.Application
             $(".alert").hide()
             @on_tab_change(e)
         )
+
+    show_error: (txt) ->
+        $(".alert p").text(txt)
+        $(".alert").show()
+
+    disable_results_tab: () ->
+        $("#menuTab li:nth-child(2) a").attr("data-toggle", "").css("cursor",  "not-allowed")
 
     load_test_data: (type) ->
         @client.get_example_job(type,

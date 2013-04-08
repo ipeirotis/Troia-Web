@@ -23,13 +23,14 @@ class App.Client
             null, null, settings
         )
 
-    exists: () ->
-        ret = false
-        @_get(@jobs_url + @id, {}, false,
-            () -> ret = true,
-            () -> ret = false
-        )
-        return ret
+    exists: (exists_cb, not_exists_cb) ->
+        @_get(@_job_url(), {}, true, (response) ->
+            console.log $.parseJSON(response.responseText)["status"]
+            if $.parseJSON(response.responseText)["status"] == "OK"
+                exists_cb()
+            else
+                not_exists_cb()
+        , null, true)
 
     ping: () ->
         ret = false
@@ -164,10 +165,10 @@ class App.Client
                 type: "get"
                 complete: (res) ->
                     json = $.parseJSON(res.responseText)
-                    if json.status is "OK"
-                        success(res)
-                    else
+                    if json.status is "NOT_READY"
                         setTimeout(timeout_func, 500)
+                    else
+                        success(res)
         setTimeout(timeout_func, 500)
 
     _jsonify: (data) ->
