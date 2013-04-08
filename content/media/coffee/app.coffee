@@ -57,6 +57,9 @@ class App.Application
         $(".alert p").text(txt)
         $(".alert").show()
 
+    show_loading_indicator: (percentage) ->
+        $('#send_data').text("Sending assigns (" + percentage.toString() + "%)...")
+
     disable_results_tab: () ->
         $("#menuTab li:nth-child(2) a").attr("data-toggle", "").css("cursor",  "not-allowed")
 
@@ -130,19 +133,27 @@ class App.Application
             $('#send_data').addClass('disabled').text('Sending data..')
             @_before_create()
             @client.create(() =>
-                @client.post_assigns(assigns, () =>
-                    @client.post_gold_objects(gold_labels, () =>
-                        $("#url pre").text(App.get_job_url(@client.id))
-                        $("#url").show()
-                        $("#img-load").show()
-                        $("#response").hide()
-                        $('#send_data').text('Computing..')
-                        $('#menuTab li:nth-child(2) a').attr("data-toggle", "tab").tab('show')
-                        @client.compute(() =>
-                            $('#send_data').removeClass('disabled').text(button_text)
-                            @populate_results_tables()
+                @client.post_assigns(
+                    assigns
+                    () =>
+                        @client.post_gold_objects(
+                            gold_labels
+                            () =>
+                                $("#url pre").text(App.get_job_url(@client.id))
+                                $("#url").show()
+                                $("#img-load").show()
+                                $("#response").hide()
+                                $('#send_data').text('Computing..')
+                                $('#menuTab li:nth-child(2) a').attr("data-toggle", "tab").tab('show')
+                                @client.compute(() =>
+                                    $('#send_data').removeClass('disabled').text(button_text)
+                                    @populate_results_tables()
+                                )
+                            (p) =>
+                                @show_loading_indicator(p)
                         )
-                    )
+                    (p) =>
+                        @show_loading_indicator(p)
                 )
             )
         # Assign the function to the next next click event.

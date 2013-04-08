@@ -11,7 +11,7 @@ class App.Client
     creation_data: {}
 
     constructor: (@id = null) ->
-        @chunk_size = 100
+        @chunk_size = 500
 
     create: (success) ->
         settings = {contentType: 'application/json; charset=utf-8'}
@@ -58,17 +58,17 @@ class App.Client
                         success())
                 )
 
-    post_assigns: (assigns, success) ->
+    post_assigns: (assigns, success, partial_success) ->
         assigns = {assigns: assigns.map(@_assign_to_json)}
         settings = {contentType: 'application/json; charset=utf-8'}
         @_post_in_chunks(@_job_url() + @assigns_url, assigns, 'assigns', true,
-            0, success, null, settings, @_stringify)
+            0, success, null, settings, @_stringify, partial_success)
 
-    post_gold_objects: (objects, success) ->
+    post_gold_objects: (objects, success, partial_success) ->
         objects = {objects: objects.map(@_gold_object_to_json)}
         settings = {contentType: 'application/json; charset=utf-8'}
         @_post_in_chunks(@_job_url() + @gold_objects_url, objects,
-            'objects', true, 0, success, null, settings, @_stringify)
+            'objects', true, 0, success, null, settings, @_stringify, partial_success)
 
     download_zip: () ->
         @_get(@_job_url() + @download_zip_url, {}, true,
@@ -120,7 +120,7 @@ class App.Client
 
     _job_url: (id = @id) -> @jobs_url + '/' + id
 
-    _post_in_chunks: (url, data, axis, async, offset, success, error, settings, process) ->
+    _post_in_chunks: (url, data, axis, async, offset, success, error, settings, process, partial_cb) ->
         limit = Math.min(@chunk_size, data[axis].length - offset)
         # TODO currently it sends only the axis field.
         load = {}
@@ -128,9 +128,10 @@ class App.Client
         load = if process then process(load) else load
         @_post(url, load, async,
             (res) =>
+                partial_cb(Math.min(Math.floor(100*(offset+limit)/data[axis].length), 100))
                 if offset + limit < data[axis].length
                     @_post_in_chunks(url, data, axis, async, offset+limit,
-                        success, error, settings, process)
+                        success, error, settings, process, partial_cb)
                 else
                     success()
             , error, true, settings)
