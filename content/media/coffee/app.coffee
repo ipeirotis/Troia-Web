@@ -42,18 +42,24 @@ class App.Application
             else
                 # Disable the results tab.
                 $("#menuTab li:nth-child(2) a").attr("data-toggle", "").css("cursor",  "not-allowed")
-                @client.get_example_job(1,
-                    (data) ->
-                        $('#id_data').val(data)
-                    (data) ->
-                        $('#id_gold_data').val(data)
-                    () =>
-                        @_post_loading()
+                @load_test_data(1)
+                $('#id_data_choose').change(() =>
+                    @load_test_data($('#id_data_choose :selected').val());
                 )
 
         $('a[data-toggle="tab"]').on('shown', (e) =>
             $(".alert").hide()
             @on_tab_change(e)
+        )
+
+    load_test_data: (type) ->
+        @client.get_example_job(type,
+            (data) ->
+                $('#id_data').val(data)
+            (data) ->
+                $('#id_gold_data').val(data)
+            () =>
+                @_post_loading()
         )
 
     _parse_input: (input_el, control_el, text_el, tab_el, condition, error_msg) ->
