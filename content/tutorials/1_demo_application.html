@@ -160,7 +160,26 @@ title: Demo application GAL
         </script>
 
         <!-- Workers table template. -->
-		<script type="text/template" id="workers_template">
+        <script type="text/template" id="workers_template">
+            <div>
+            <table class='table table-striped'>
+                <tr><th>Workers</th>
+                <% _.each(headers, function(h){  %>
+                    <th width="150px"><%= h %></th>
+                <% }); %>
+                </tr>
+                <% _.each(_.keys(workers), function(k){ %>
+                    <tr>
+                        <td><%= k %></td>
+                        <% _.each(headers, function(h){ %>
+                        <td><%= workers[k][h] %></td>
+                        <% }); %>
+                    </tr>
+                <% }); %>
+            </table>
+            </div>
+        </script>
+		<script type="text/template" id="workers_template2">
 			<div>
 			<table class='table table-striped'>
 				<tr>

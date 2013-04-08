@@ -92,12 +92,12 @@ class App.Application
             () =>
                 $("#objects").html(_.template(
                     $("#objects_template").html(),
-                    {objects: @client.objects_prediction, headers: @client.headers})
+                    {objects: @client.objects_prediction, headers: @client.objects_headers})
                 )
             () =>
                 $("#workers").html(_.template(
                     $("#workers_template").html(),
-                    {workers: @client.workers_prediction})
+                    {workers: @client.workers_prediction, headers: @client.workers_headers})
                 )
             () =>
                 $("#img-load").hide()

@@ -13,8 +13,8 @@ class App.NominalClient extends App.Client
 
     get_objects_prediction: (success) ->
         @objects_prediction = []
-        @headers = ["MaxLikelihood", "MinCost"]
-        @_get_objects_prediction_rec(success, @headers)
+        @objects_headers = ["MaxLikelihood", "MinCost"]
+        @_get_objects_prediction_rec(success, @objects_headers)
 
     _get_objects_prediction_rec: (success, label_choosing_functions) ->
         choose_func = label_choosing_functions[0]
@@ -26,15 +26,40 @@ class App.NominalClient extends App.Client
                 if (label_choosing_functions.length > 1)
                     @_get_objects_prediction_rec(success, label_choosing_functions[1..])
                 else
-                    @objects_prediction = @transpose_objects(@objects_prediction)
-                    success(response)
+                    @objects_prediction = @transpose_objects(
+                        @objects_prediction,
+                        "objectName",
+                        "categoryName")
+                    success()
             , null, true)
 
-    transpose_objects: (arg) ->
+    get_workers_prediction: (success) ->
+        @workers_prediction = []
+        @workers_headers = ["ExpectedCost", "MinCost", "MaxLikelihood"]
+        @_get_workers_prediction_rec(success, @workers_headers)
+
+    _get_workers_prediction_rec: (success, cost_algorithms) ->
+        cost_algorithm = cost_algorithms[0]
+        @_get(@_job_url() + @workers_prediction_url, {'costAlgorithm': cost_algorithm}, true,
+            (response) =>
+                result = $.parseJSON(response.responseText)['result']
+                result["name"] = cost_algorithm
+                @workers_prediction.push(result)
+                if (cost_algorithms.length > 1)
+                    @_get_workers_prediction_rec(success, cost_algorithms[1..])
+                else
+                    @workers_prediction = @transpose_objects(
+                        @workers_prediction,
+                        "workerName",
+                        "value")
+                    success()
+            , null, true)
+
+    transpose_objects: (arg, key, value) ->
         ret = {}
         for a in arg[0]
-            ret[a.objectName] = {}
+            ret[a[key]] = {}
         for res in arg
             for a in res
-                ret[a.objectName][res.name] = a.categoryName
+                ret[a[key]][res.name] =  if typeof a[value] == "number" then Math.round(a[value]*100)/100 else a[value]
         return ret
