@@ -92,7 +92,7 @@ class App.Application
             () =>
                 $("#objects").html(_.template(
                     $("#objects_template").html(),
-                    {objects: @client.objects_prediction})
+                    {objects: @client.objects_prediction, headers: @client.headers})
                 )
             () =>
                 $("#workers").html(_.template(

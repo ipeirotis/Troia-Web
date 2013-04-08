@@ -17,18 +17,16 @@ class GAL_Application extends App.Application
         _.uniq(a[2] for a in assigns)
 
     _parse_cost_matrix: (categories) ->
-        data = {}
-        d = {}
+        data = []
         k = 0
         l = categories.length;
         for input in $('#cost_matrix input')
-            if (k % l == 0)
-                d = {}
-                data[categories[k / l]] = d
-            d[categories[k % l]] = parseFloat($(input).prop('value'))
-            k += 1;
-
-        return data;
+            data.push({
+                "from": categories[Math.floor(k / l)],
+                "to": categories[k % l],
+                "value": parseFloat($(input).prop('value'))})
+            k += 1
+        return data
 
     on_tab_change: (e) ->
         if e.target.getAttribute('href') == '#matrix'

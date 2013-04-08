@@ -112,7 +112,7 @@ title: Demo application GAL
                     <div class="row" style="margin-left: auto; margin-right: auto; padding-right: 0;">
                         <div class="span8">
                             <ul class="nav nav-tabs" id="resultsTab">
-                                <li class="active"><a href="#labels" data-toggle="tab">Predicted labels</a></li>
+                                <li class="active"><a href="#objects" data-toggle="tab">Predicted labels</a></li>
                                 <li><a href="#workers" data-toggle="tab">Workers stats</a></li>
                             </ul>
                         </div>
@@ -121,8 +121,8 @@ title: Demo application GAL
                         </div>
                     </div>
                     <div class="tab-content">
-                        <div class="tab-pane active" id="labels">
-                            <div id="classes"></div>
+                        <div class="tab-pane active" id="objects">
+                            <div id="objects"></div>
                         </div>
                         <div class="tab-pane" id="workers">
                             <div id="workers"></div>
@@ -142,16 +142,16 @@ title: Demo application GAL
 		<script type="text/template" id="objects_template">
 			<div>
 			<table class='table table-striped'>
-				<tr><th><%= objName %></th>
+				<tr><th>Objects</th>
 				<% _.each(headers, function(h){  %>
 					<th width="150px"><%= h %></th>
 				<% }); %>
 				</tr>
-				<% _.each(objects, function(o){ %>
+				<% _.each(_.keys(objects), function(k){ %>
 					<tr>
-						<td><%= o.name %></td>
+						<td><%= k %></td>
 						<% _.each(headers, function(h){ %>
-						<td><%= o[h] %></td>
+						<td><%= objects[k][h] %></td>
 						<% }); %>
 					</tr>
 				<% }); %>
@@ -165,7 +165,7 @@ title: Demo application GAL
 			<table class='table table-striped'>
 				<tr>
 					<th>Worker</th>
-					<th width="93px">ExpectedCost</th>
+                    <th width="93px">ExpectedCost</th>
 					<th width="93px">MaxLikelihood</th>
 					<th width="93px">MinCost</th>
 					<th width="93px">Number of annotations</th>

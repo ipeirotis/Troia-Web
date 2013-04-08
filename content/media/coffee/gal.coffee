@@ -13,30 +13,28 @@ class App.NominalClient extends App.Client
 
     get_objects_prediction: (success) ->
         @objects_prediction = []
-        label_choosing_functions = ["MaxLikelihood", "MinCost"]
-        for choose_func in label_choosing_functions
-            @_get(@_job_url() + @objects_prediction_url, {'labelChoosing': choose_func}, true,
-                (response) =>
-                    console.log(response)
-                    result = $.parseJSON(response.responseText)['result']
-                    result['name'] = choose_func
-                    @objects_prediction.push(result)
-                    if @objects_prediction.length == label_choosing_functions.length
-                        console.log @objects_prediction
-                        console.log @transpose_objects(@objects_prediction)
-                        success(response)
-                , null, true)
+        @headers = ["MaxLikelihood", "MinCost"]
+        @_get_objects_prediction_rec(success, @headers)
+
+    _get_objects_prediction_rec: (success, label_choosing_functions) ->
+        choose_func = label_choosing_functions[0]
+        @_get(@_job_url() + @objects_prediction_url, {'labelChoosing': choose_func}, true,
+            (response) =>
+                result = $.parseJSON(response.responseText)['result']
+                result['name'] = choose_func
+                @objects_prediction.push(result)
+                if (label_choosing_functions.length > 1)
+                    @_get_objects_prediction_rec(success, label_choosing_functions[1..])
+                else
+                    @objects_prediction = @transpose_objects(@objects_prediction)
+                    success(response)
+            , null, true)
 
     transpose_objects: (arg) ->
-        ret = [];
-        _.each(_.keys(arg[0]), (obj) ->
-            if (obj != "name")
-                ret.push({'name': obj});
-        )
-        # console.log ret
-        _.each(arg, (a) ->
-            _.each(ret, (obj) ->
-                obj[a.name] = typeof a[obj.name] == "number" ? Math.round(a[obj.name]*100)/100 : a[obj.name];
-            )
-        )
-        return ret;
+        ret = {}
+        for a in arg[0]
+            ret[a.objectName] = {}
+        for res in arg
+            for a in res
+                ret[a.objectName][res.name] = a.categoryName
+        return ret
