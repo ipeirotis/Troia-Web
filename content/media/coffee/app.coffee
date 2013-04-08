@@ -20,7 +20,7 @@ class App.Application
             $(".alert p").text("Troia server error (" + errorThrown.toString() + ").")
             $(".alert").show()
 
-        $("#download_zip_btn").click(() ->
+        $("#download_zip_btn").click(() =>
             @client.download_zip())
 
         # Prepare an URL for the 'see results later' link.
