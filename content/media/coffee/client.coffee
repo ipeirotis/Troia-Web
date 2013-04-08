@@ -25,7 +25,6 @@ class App.Client
 
     exists: (exists_cb, not_exists_cb) ->
         @_get(@_job_url(), {}, true, (response) ->
-            console.log $.parseJSON(response.responseText)["status"]
             if $.parseJSON(response.responseText)["status"] == "OK"
                 exists_cb()
             else

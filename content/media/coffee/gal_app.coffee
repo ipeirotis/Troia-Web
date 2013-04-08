@@ -12,6 +12,7 @@ class GAL_Application extends App.Application
         @client.creation_data['categoryPriors'] =
             [{'categoryName': c, 'value': 1.0 / categories.length} for c in categories][0]
         @client.creation_data['costMatrix'] = @_parse_cost_matrix(categories)
+        @client.creation_data['algorithm'] = $('#id_algorithm_choose :selected').val()
 
     _categories_from_assigns: (assigns) ->
         _.uniq(a[2] for a in assigns)
@@ -33,6 +34,7 @@ class GAL_Application extends App.Application
             @_create_cost_matrix(@parse_assigns());
 
     _post_populate_results_table: () ->
+        #make confusion matrices clickable
         clickedAway = false;
         isVisible = false;
         $("a[rel=popover]").popover({html: true, title: "Confusion matrix", placement: "left", trigger: "manual"}).click((e) ->
@@ -53,8 +55,15 @@ class GAL_Application extends App.Application
                 clickedAway = true
         )
 
-    _post_loading: () ->
+    _post_loading_test_data: () ->
         @_create_cost_matrix(@parse_assigns())
+
+    _post_loading_results: () ->
+        #select used algorithm
+        @client.get_job((response) ->
+            result = $.parseJSON(response.responseText)['result']
+            $('#id_algorithm_choose').val(result['Initialization data']['algorithm'])
+        )
 
     _create_cost_matrix: (assigns) ->
         $('#cost_matrix').empty();

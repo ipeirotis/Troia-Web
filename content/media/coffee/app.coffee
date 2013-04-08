@@ -1,12 +1,14 @@
 class App.Application
 
-    _post_loading: () ->
+    _post_loading_test_data: () ->
 
     _before_create: () ->
 
     on_tab_change: (e) ->
 
     _post_populate_results_table: () ->
+
+    _post_loading_results: () ->
 
     constructor: () ->
         # Assign the process_hander function to the first click event.
@@ -32,9 +34,9 @@ class App.Application
                         @populate_results_tables()
                         @client.get_assigns((res) =>
                             $('#id_data').val(@client.assigns.map(@client._assign_to_text).join('\n')))
-
                         @client.get_gold_objects((res) =>
                             $('#id_gold_data').val(@client.gold_objects.map(@client._gold_object_to_text).join('\n')))
+                        @_post_loading_results()
                     () =>
                         @show_error("Sorry, id=" + id + " hasn't been found.")
                         @disable_results_tab()
@@ -65,7 +67,7 @@ class App.Application
             (data) ->
                 $('#id_gold_data').val(data)
             () =>
-                @_post_loading()
+                @_post_loading_test_data()
         )
 
     _parse_input: (input_el, control_el, text_el, tab_el, condition, error_msg) ->
