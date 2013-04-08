@@ -6,6 +6,8 @@ class App.Application
 
     on_tab_change: (e) ->
 
+    _post_populate_results_table: () ->
+
     constructor: () ->
         # Assign the process_hander function to the first click event.
         $('#send_data').one('click', @process_handler)
@@ -102,6 +104,7 @@ class App.Application
             () =>
                 $("#img-load").hide()
                 $("#response").show()
+                @_post_populate_results_table()
         )
 
     process_handler: () =>

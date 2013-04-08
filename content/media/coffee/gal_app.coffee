@@ -32,6 +32,27 @@ class GAL_Application extends App.Application
         if e.target.getAttribute('href') == '#matrix'
             @_create_cost_matrix(@parse_assigns());
 
+    _post_populate_results_table: () ->
+        clickedAway = false;
+        isVisible = false;
+        $("a[rel=popover]").popover({html: true, title: "Confusion matrix", placement: "left", trigger: "manual"}).click((e) ->
+            $("a[rel=popover]").not(@).popover('hide');
+            $(@).popover('show');
+            clickedAway = false;
+            isVisible = true;
+            e.preventDefault();
+            $('.popover').bind('click',() ->
+                clickedAway = false
+            )
+        )
+        $(document).click((e) ->
+            if isVisible && clickedAway
+                $("a[rel=popover]").popover('hide')
+                isVisible = clickedAway = false
+            else
+                clickedAway = true
+        )
+
     _post_loading: () ->
         @_create_cost_matrix(@parse_assigns())
 

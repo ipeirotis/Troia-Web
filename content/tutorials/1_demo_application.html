@@ -104,10 +104,6 @@ title: Demo application GAL
 	    	</div>
 	    	<div class="tab-pane" id="result">
 				<img src="/media/img/bigrotation.gif" id="img-load" />
-				<div id="url">
-					You can see later your results at:
-					<pre></pre>
-				</div>
 	    		<div id="response">
                     <div class="row" style="margin-left: auto; margin-right: auto; padding-right: 0;">
                         <div class="span8">
@@ -129,6 +125,10 @@ title: Demo application GAL
                         </div>
                     </div>
 		        </div>
+                <div id="url">
+                    You can see later your results at:
+                    <pre></pre>
+                </div>
 	    	</div>
 	    </div>
 
@@ -167,6 +167,7 @@ title: Demo application GAL
                 <% _.each(headers, function(h){  %>
                     <th width="150px"><%= h %></th>
                 <% }); %>
+                <th width="150px">Confusion Matrix</th>
                 </tr>
                 <% _.each(_.keys(workers), function(k){ %>
                     <tr>
@@ -174,39 +175,14 @@ title: Demo application GAL
                         <% _.each(headers, function(h){ %>
                         <td><%= workers[k][h] %></td>
                         <% }); %>
+                        <td>
+                            <a href="#" class="btn-small" data-content="<%= workers[k]['matrix'] %>" rel="popover"><i class="icon-search"></i></a>
+                        </td>
                     </tr>
                 <% }); %>
             </table>
             </div>
         </script>
-		<script type="text/template" id="workers_template2">
-			<div>
-			<table class='table table-striped'>
-				<tr>
-					<th>Worker</th>
-                    <th width="93px">ExpectedCost</th>
-					<th width="93px">MaxLikelihood</th>
-					<th width="93px">MinCost</th>
-					<th width="93px">Number of annotations</th>
-					<th width="93px">Number of gold tests</th>
-					<th width="93px">Confusion Matrix</th>
-				</tr>
-			    <% 	for (var i = 0; i < workers.length; i++) { %>
-				<tr>
-                    <td><%= workers[i]['name'] %></td>
-                    <td><%= workers[i]['ExpectedCost'] %></td>
-                    <td><%= workers[i]['MaxLikelihood'] %></td>
-                    <td><%= workers[i]['MinCost'] %></td>
-                    <td><%= workers[i]['Number of annotations'] %></td>
-                    <td><%= workers[i]['Gold tests'] %></td>
-                    <td>
-                        <a href="#" class="btn-small" data-content="<%= workers[i]['cm'] %>" rel="popover"><i class="icon-search"></i></a>
-                    </td>
-				</tr>
-			    <% }; %>
-			</table>
-			</div>
-		</script>
         <script type="text/template" id="confusion_matrix_template">
             <table>
                 <tbody>
@@ -223,7 +199,7 @@ title: Demo application GAL
                                 for (var k = 0; k < data.length; k++) {
                                     if (data[k]['from'] === categories[i] && data[k]['to'] === categories[j]) {
                                         %>
-                                        <td><%= data[k]['value'] %>%</td>
+                                        <td><%= Math.round(data[k]['value']*100) %>%</td>
                                         <%
                                         break;
                                     }

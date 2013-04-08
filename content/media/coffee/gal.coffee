@@ -2,6 +2,7 @@ class App.NominalClient extends App.Client
     jobs_url: "/jobs"
     data_dir: "/media/txt/jobs_data/"
     gold_data_dir: "/media/txt/jobs_gold_data/"
+    workers_confustion_matrix: "/workers/quality/matrix"
 
     _assign_to_json: (a) -> {worker: a[0], object: a[1], label: a[2]}
 
@@ -36,7 +37,18 @@ class App.NominalClient extends App.Client
     get_workers_prediction: (success) ->
         @workers_prediction = []
         @workers_headers = ["ExpectedCost", "MinCost", "MaxLikelihood"]
-        @_get_workers_prediction_rec(success, @workers_headers)
+        @_get_workers_prediction_rec(() =>
+            @_get(@_job_url() + @workers_confustion_matrix, {}, true,
+                (response) =>
+                    result = $.parseJSON(response.responseText)['result']
+                    for r in result
+                        @workers_prediction[r.workerName]["matrix"] =
+                        _.template($("#confusion_matrix_template").html(), {
+                            categories: r.value.categories,
+                            data: r.value.matrix});
+                    success()
+                , null, true)
+        , @workers_headers)
 
     _get_workers_prediction_rec: (success, cost_algorithms) ->
         cost_algorithm = cost_algorithms[0]
@@ -55,6 +67,8 @@ class App.NominalClient extends App.Client
                     success()
             , null, true)
 
+    # for input [{key: 'aaa', value: 'bbb'}, {key: 'ccc', value: 'ddd'}, name="EEE"]
+    # returns {'aaa': {"EEE": 'bbb'}, 'ccc': {"EEE": 'ddd'}}
     transpose_objects: (arg, key, value) ->
         ret = {}
         for a in arg[0]
