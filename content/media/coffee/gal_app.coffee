@@ -55,7 +55,15 @@ class GAL_Application extends App.Application
                 clickedAway = true
         )
         #populate summary tab
-        $("#summary").html(_.template($("#summary_template").html(), {}))
+        @client.get_job(
+            (response) ->
+                result = $.parseJSON(response.responseText)['result']
+                info = result
+                delete info['Initialization data']
+                $("#summary").html(_.template($("#summary_template").html(),
+                    {info: info}
+                ))
+        )
 
     _post_loading_test_data: () ->
         @_create_cost_matrix(@parse_assigns())

@@ -147,9 +147,15 @@ title: Demo application GAL
 	    	</div>
 	    </div>
 
-        <!-- Cost matrix table template. -->
+        <!-- Summary table template. -->
         <script type="text/template" id="summary_template">
             <div>
+                <dl>
+                    <% _.each(_.keys(info), function(key) { %>
+                        <dt><%= key %></dt>
+                        <dd><%= info[key] %></dd>
+                    <% }); %>
+                </dl>
                 <div class="span4" style="text-align: right; margin-left: auto; margin-right: 0">
                     <span id="download_zip_btn" class="btn btn-info" style="margin-top: 20px">Download results</span>
                 </div>

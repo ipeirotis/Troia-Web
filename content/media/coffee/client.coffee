@@ -46,7 +46,15 @@ class App.Client
 
 
     get_job: (success) ->
-        @_get(@_job_url(), {}, true, success, null, true)
+        @_get(@_job_url(), {}, true,
+            (response) =>
+                # XXX nasty fix for bug on loading historical job.
+                # Probably one can done it better.
+                @creation_data = $.parseJSON(response.responseText)['result']['Initialization data']
+                success(response)
+            null
+            true
+        )
 
     get_example_job: (type, data_success, gold_success, success) ->
         $.ajax(url: @data_dir + type)
