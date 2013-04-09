@@ -119,12 +119,12 @@ Send samples for which we know the correct label. This allows the algorithm to a
 
     curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/cjobs/<JOB_ID>/goldObjects" -d '{"objects":
     [{
-        "object": "http://google.com",
-        "label":{"value":10.219077484951955,"zeta":0.292643407722905}
+        "name": "http://google.com",
+        "goldLabel":{"value":10.219077484951955,"zeta":0.292643407722905}
     },
 	{
-        "object": "http://sunnyfun.com",
-        "label":{"value":8.219077484951955,"zeta":0.343407722905}
+        "name": "http://sunnyfun.com",
+        "goldLabel":{"value":8.219077484951955,"zeta":0.343407722905}
     }]}'
 
 Similarly as previously, as a result we get:
@@ -143,8 +143,8 @@ Send objects without labels
 
     curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/cjobs/<JOB_ID>/objects" -d '{"objects":
     [
-    	"object1", 
-    	"object2"
+    	{"name":"object1"}, 
+    	{"name":"object2"}
     ]}'
 
 Similarly as previously, we get the result:

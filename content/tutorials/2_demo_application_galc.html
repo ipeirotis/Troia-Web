@@ -6,8 +6,10 @@ title: Demo application GALC
 {% block extra_js %}
     <script src="/media/js/underscore.js"></script>
     <script src="/media/js/client.js"></script>
-    <script src="/media/js/utils.js"></script>
     <script src="/media/js/galc.js"></script>
+    <script src="/media/js/utils.js"></script>
+    <script src="/media/js/app.js"></script>
+    <script src="/media/js/galc_app.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -65,10 +67,6 @@ title: Demo application GALC
             </div>
             <div class="tab-pane" id="result">
                 <img src="/media/img/bigrotation.gif" id="img-load" />
-                    <div id="url">
-                        You can see later your results at:
-                        <pre></pre>
-                    </div>
                 <div id="response">
                     <div class="row" style="margin-left: auto; margin-right: auto; padding-right: 0;">
                         <div class="span8">
@@ -89,6 +87,10 @@ title: Demo application GALC
                             <div id="workers"></div>
                         </div>
                     </div>
+                </div>
+                <div id="url">
+                    You can see later your results at:
+                    <pre></pre>
                 </div>
             </div>
         </div>

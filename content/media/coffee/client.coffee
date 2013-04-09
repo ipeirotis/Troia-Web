@@ -1,30 +1,35 @@
 window.App = {}
 
-class Client
+class App.Client
     api_url: '/api'
     download_zip_url: "/prediction/zip"
+    assigns_url: "/assigns"
+    compute_url: "/compute"
+    gold_objects_url: "/goldObjects"
+    objects_prediction_url: "/objects/prediction/"
+    workers_prediction_url: "/workers/quality/estimated/"
+    creation_data: {}
 
     constructor: (@id = null) ->
-        @chunk_size = 80
-
-    generate_id: () ->
-        @id = "troia-web-test-" + new Date().getTime().toString() + "-" + parseInt(Math.random()*1000000000000)
+        @chunk_size = 500
 
     create: (success) ->
-        @_post(@jobs_url, {}, true,
+        settings = {contentType: 'application/json; charset=utf-8'}
+        @_post(@jobs_url, @_stringify(@creation_data), true,
             (response) =>
                 result = response.result.replace(/.*ID\:\s*/, ($0) -> '')
                 @id = result.replace(/.*ID\:\s*/, ($0) -> '')
                 success(response)
+            null, null, settings
         )
 
-    exists: () ->
-        ret = false
-        @_get(@jobs_url + @id, {}, false,
-            () -> ret = true,
-            () -> ret = false
-        )
-        return ret
+    exists: (exists_cb, not_exists_cb) ->
+        @_get(@_job_url(), {}, true, (response) ->
+            if $.parseJSON(response.responseText)["status"] == "OK"
+                exists_cb()
+            else
+                not_exists_cb()
+        , null, true)
 
     ping: () ->
         ret = false
@@ -36,20 +41,34 @@ class Client
         )
         return ret
 
-    compute: (success, iterations = 20) ->
-        @_post(@_job_url() + '/' + @compute_url,
-            {'iterations': iterations}, true, success, true)
+    compute: (success) ->
+        @_post(@_job_url() + @compute_url, {}, true, success, null, true)
+
 
     get_job: (success) ->
         @_get(@_job_url(), {}, true, success, null, true)
 
-    get_example_job: (type, data_success, gold_success) ->
-        $.ajax(
-            url: @data_dir + type)
-            .done(data_success)
-        $.ajax(
-            url: @gold_data_dir + type)
-            .done(gold_success)
+    get_example_job: (type, data_success, gold_success, success) ->
+        $.ajax(url: @data_dir + type)
+            .done((data) =>
+                data_success(data)
+                $.ajax(url: @gold_data_dir + type)
+                    .done((data) ->
+                        gold_success(data)
+                        success())
+                )
+
+    post_assigns: (assigns, success, partial_success) ->
+        assigns = {assigns: assigns.map(@_assign_to_json)}
+        settings = {contentType: 'application/json; charset=utf-8'}
+        @_post_in_chunks(@_job_url() + @assigns_url, assigns, 'assigns', true,
+            0, success, null, settings, @_stringify, partial_success)
+
+    post_gold_objects: (objects, success, partial_success) ->
+        objects = {objects: objects.map(@_gold_object_to_json)}
+        settings = {contentType: 'application/json; charset=utf-8'}
+        @_post_in_chunks(@_job_url() + @gold_objects_url, objects,
+            'objects', true, 0, success, null, settings, @_stringify, partial_success)
 
     download_zip: () ->
         @_get(@_job_url() + @download_zip_url, {}, true,
@@ -58,9 +77,50 @@ class Client
                 window.location.assign(result)
             , null, true)
 
+    get_assigns: (success) ->
+        @assigns = []
+        @_get(@_job_url() + @assigns_url, {}, true,
+            (response) =>
+                @assigns = $.parseJSON(response.responseText)['result']
+                success(response)
+            , null, true)
+
+    get_gold_objects: (success) ->
+        @gold_objects = []
+        @_get(@_job_url() + @gold_objects_url, {}, true,
+            (response) =>
+                @gold_objects = $.parseJSON(response.responseText)['result']
+                success(response)
+            , null, true)
+
+    get_objects_prediction: (success) ->
+        @objects_prediction = []
+        @_get(@_job_url() + @objects_prediction_url, {}, true,
+            (response) =>
+                @objects_prediction = $.parseJSON(response.responseText)['result']
+                success(response)
+            , null, true)
+
+    get_workers_prediction: (success) ->
+        @workers_prediction = []
+        @_get(@_job_url() + @workers_prediction_url, {}, true,
+            (response) =>
+                @workers_prediction = $.parseJSON(response.responseText)['result']
+                success(response)
+            , null, true)
+
+    get_prediction: (success_objects, success_workers, success) ->
+        @get_objects_prediction((response) =>
+            success_objects(response)
+            @get_workers_prediction((response) ->
+                success_workers(response)
+                success(response)
+            )
+        )
+
     _job_url: (id = @id) -> @jobs_url + '/' + id
 
-    _post_in_chunks: (url, data, axis, async, offset, success, error, settings, process) ->
+    _post_in_chunks: (url, data, axis, async, offset, success, error, settings, process, partial_cb) ->
         limit = Math.min(@chunk_size, data[axis].length - offset)
         # TODO currently it sends only the axis field.
         load = {}
@@ -68,9 +128,10 @@ class Client
         load = if process then process(load) else load
         @_post(url, load, async,
             (res) =>
+                partial_cb(Math.min(Math.floor(100*(offset+limit)/data[axis].length), 100))
                 if offset + limit < data[axis].length
                     @_post_in_chunks(url, data, axis, async, offset+limit,
-                        success, error, settings, process)
+                        success, error, settings, process, partial_cb)
                 else
                     success()
             , error, true, settings)
@@ -104,10 +165,10 @@ class Client
                 type: "get"
                 complete: (res) ->
                     json = $.parseJSON(res.responseText)
-                    if json.status is "OK"
-                        success(res)
-                    else
+                    if json.status is "NOT_READY"
                         setTimeout(timeout_func, 500)
+                    else
+                        success(res)
         setTimeout(timeout_func, 500)
 
     _jsonify: (data) ->
@@ -121,106 +182,3 @@ class Client
     _ajax_error: (jqXHR, textStatus, errorThrown) ->
         console.log jqXHR, textStatus, errorThrown
 
-
-class App.NominalClient extends Client
-    jobs_url: "/jobs"
-    assigns_url: "/assignedLabels"
-    compute_url: "/compute"
-    gold_labels_url: "/goldData"
-    data_prediction_url: "/prediction/data"
-    data_dir: "/media/txt/jobs_data/"
-    gold_data_dir: "/media/txt/jobs_gold_data/"
-
-    create: (categories, success) ->
-        @_post(@jobs_url, {'id': id, 'categories': categories},
-            true, success, false)
-
-    post_assigns: (assigns, success) ->
-        @_post_in_chunks("#{@jobs_cb}/#{@id}/#{@assigns_cb}", {'labels': assigns},
-            "labels", true, 0, success)
-
-    post_gold_labels: (labels, success) ->
-        if labels
-            @_post_in_chunks(@jobs_cb + @id + @gold_labels_cb, {'labels':
-                labels}, "labels", true, 0, success)
-
-    collect_predicted_labels: (success) ->
-        @predicted_labels = []
-        algorithms = ["DS", "MV"]
-        label_choosing_functions = ["MaxLikelihood", "MinCost"]
-        for alg in algorithms
-            for choose_func in label_choosing_functions
-                @get_predicted_labels(
-                    alg,
-                    choose_func,
-                    () =>
-                        @predicted_labels.length == algorithms.length * label_choosing_functions.length
-                    , success)
-
-    get_predicted_labels: (alg, label_choosing_func, success_cond, success) ->
-        @_get(@jobs_cb + @id + @data_prediction_cb, {
-            'algorithm': alg,
-            'labelChoosing': label_choosing_func
-            }, true,
-            (res) =>
-                json = $.parseJSON(res.responseText)
-                @predicted_labels.push(json)
-                if success_cond()
-                    success()
-            ,null, true)
-
-
-class App.ContinuousClient extends Client
-    jobs_url: "/cjobs"
-    assigns_url: "/assigns"
-    compute_url: "/compute"
-    gold_objects_url: "/goldObjects"
-    objects_prediction_url: "/objects/prediction/"
-    workers_prediction_url: "/workers/quality/estimated/"
-    data_dir: "/media/txt/cjobs_data/"
-    gold_data_dir: "/media/txt/cjobs_gold_data/"
-
-    post_assigns: (assigns, success) ->
-        assigns = assigns.map(
-            (a) -> {worker: a[0], object: a[1], label: {value: a[2]}})
-        assigns = {assigns: assigns}
-        settings = {contentType: 'application/json; charset=utf-8'}
-        @_post_in_chunks(@_job_url() + @assigns_url, assigns, 'assigns', true,
-            0, success, null, settings, @_stringify)
-
-    post_gold_objects: (objects, success) ->
-        objects = objects.map(
-            (o) -> {object: o[0], label: {value: o[1], zeta: o[2]}})
-        objects = {objects: objects}
-        settings = {contentType: 'application/json; charset=utf-8'}
-        @_post_in_chunks(@_job_url() + @gold_objects_url, objects,
-            'objects', true, 0, success, null, settings, @_stringify)
-
-    compute: (success, iterations = 20) ->
-        @_post(@_job_url() + @compute_url, {'iterations': iterations}, true,
-            success, null, true)
-
-    get_objects_prediction: (success) ->
-        @prediction = []
-        @_get(@_job_url() + @objects_prediction_url, {}, true,
-            (response) =>
-                @objects_prediction = $.parseJSON(response.responseText)['result']
-                success(response)
-            , null, true)
-
-    get_workers_prediction: (success) ->
-        @prediction = []
-        @_get(@_job_url() + @workers_prediction_url, {}, true,
-            (response) =>
-                @workers_prediction = $.parseJSON(response.responseText)['result']
-                success(response)
-            , null, true)
-
-    get_prediction: (success_objects, success_workers, success) ->
-        @get_objects_prediction((response) =>
-                success_objects(response)
-                @get_workers_prediction((response) ->
-                    success_workers(response)
-                    success(response)
-                )
-        )
