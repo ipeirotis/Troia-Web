@@ -18,21 +18,21 @@ To create new job enter:
 ::
 
 	curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs" -d '{
-		categories: ["porn", "notporn"],
-		categoryPriors: [
-		    {"categoryName": "porn", "value": 0.5},
-		    {"categoryName": "notporn", "value": 0.5}],
-		costMatrix: [
-		    {"from": "porn", "to": "notporn", "value": 1.0},
-		    {"from": "porn", "to": "porn", "value": 0.0},
-		    {"from": "notporn", "to": "porn", "value": 1.0},
-		    {"from": "notporn", "to": "notporn", "value": 0.0}],
-		algorithm: "BDS",
-		iterations: 10,
-		epsilon: 0.0001,
-		scheduler: "NormalScheduler",
-		calculator: "CostBased"
-	}'
+        categories: ["porn", "notporn"],
+        categoryPriors: [
+            {"categoryName": "porn", "value": 0.5},
+            {"categoryName": "notporn", "value": 0.5}],
+        costMatrix: [
+            {"from": "porn", "to": "notporn", "value": 1.0},
+            {"from": "porn", "to": "porn", "value": 0.0},
+            {"from": "notporn", "to": "porn", "value": 1.0},
+            {"from": "notporn", "to": "notporn", "value": 0.0}],
+        algorithm: "BDS",
+        iterations: 10,
+        epsilon: 0.0001,
+        scheduler: "NormalScheduler",
+        calculator: "CostBased"
+    }'
 
 There are couple of parameters needs explenation:
 
@@ -63,132 +63,134 @@ Load assigned labels
 Send labels that worker assigned to objects.
 ::
 
-    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/<JOB_ID>/assigns" -d '{assigns:
-    [{
-        "worker":"worker1",
-        "object":"http://sunnyfun.com",
-        "label":"porn"
-    },
-    {
-        "worker":"worker1",
-        "object":"http://sex-mission.com",
-        "label":"porn"
-    },
-    {
-        "worker":"worker1",
-        "object":"http://google.com",
-        "label":"porn"
-    },
-    {
-        "worker":"worker1",
-        "object":"http://youporn.com",
-        "label":"porn"
-    },
-    {
-        "worker":"worker1",
-        "object":"http://yahoo.com",
-        "label":"porn"
-    },
-    {
-        "worker":"worker2",
-        "object":"http://sunnyfun.com",
-        "label":"notporn"
-    },
-    {
-        "worker":"worker2",
-        "object":"http://sex-mission.com",
-        "label":"porn"
-    },
-    {
-        "worker":"worker2",
-        "object":"http://google.com",
-        "label":"notporn"
-    },
-    {
-        "worker":"worker2",
-        "object":"http://youporn.com",
-        "label":"porn"
-    },
-    {
-        "worker":"worker2",
-        "object":"http://yahoo.com",
-        "label":"porn"
-    },
-    {
-        "worker":"worker3",
-        "object":"http://sunnyfun.com",
-        "label":"notporn"
-    },
-    {
-        "worker":"worker3",
-        "object":"http://sex-mission.com",
-        "label":"porn"
-    },
-    {
-        "worker":"worker3",
-        "object":"http://google.com",
-        "label":"notporn"
-    },
-    {
-        "worker":"worker3",
-        "object":"http://youporn.com",
-        "label":"porn"
-    },
-    {
-        "worker":"worker3",
-        "object":"http://yahoo.com",
-        "label":"notporn"
-    },
-    {
-        "worker":"worker4",
-        "object":"http://sunnyfun.com",
-        "label":"notporn"
-    },
-    {
-        "worker":"worker4",
-        "object":"http://sex-mission.com",
-        "label":"porn"
-    },
-    {
-        "worker":"worker4",
-        "object":"http://google.com",
-        "label":"notporn"
-    },
-    {
-        "worker":"worker4",
-        "object":"http://youporn.com",
-        "label":"porn"
-    },
-    {
-        "worker":"worker4",
-        "object":"http://yahoo.com",
-        "label":"notporn"
-    },
-    {
-        "worker":"worker5",
-        "object":"http://sunnyfun.com",
-        "label":"porn"
-    },
-    {
-        "worker":"worker5",
-        "object":"http://sex-mission.com",
-        "label":"notporn"
-    },
-    {
-        "worker":"worker5",
-        "object":"http://google.com",
-        "label":"porn"
-    },
-    {
-        "worker":"worker5",
-        "object":"http://youporn.com",
-        "label":"notporn"
-    },
-    {
-        "worker":"worker5",
-        "object":"http://yahoo.com",
-        "label":"porn"
-    }]}'
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/<JOB_ID>/assigns" -d '{
+        assigns:
+            [{
+                "worker":"worker1",
+                "object":"http://sunnyfun.com",
+                "label":"porn"
+            },
+            {
+                "worker":"worker1",
+                "object":"http://sex-mission.com",
+                "label":"porn"
+            },
+            {
+                "worker":"worker1",
+                "object":"http://google.com",
+                "label":"porn"
+            },
+            {
+                "worker":"worker1",
+                "object":"http://youporn.com",
+                "label":"porn"
+            },
+            {
+                "worker":"worker1",
+                "object":"http://yahoo.com",
+                "label":"porn"
+            },
+            {
+                "worker":"worker2",
+                "object":"http://sunnyfun.com",
+                "label":"notporn"
+            },
+            {
+                "worker":"worker2",
+                "object":"http://sex-mission.com",
+                "label":"porn"
+            },
+            {
+                "worker":"worker2",
+                "object":"http://google.com",
+                "label":"notporn"
+            },
+            {
+                "worker":"worker2",
+                "object":"http://youporn.com",
+                "label":"porn"
+            },
+            {
+                "worker":"worker2",
+                "object":"http://yahoo.com",
+                "label":"porn"
+            },
+            {
+                "worker":"worker3",
+                "object":"http://sunnyfun.com",
+                "label":"notporn"
+            },
+            {
+                "worker":"worker3",
+                "object":"http://sex-mission.com",
+                "label":"porn"
+            },
+            {
+                "worker":"worker3",
+                "object":"http://google.com",
+                "label":"notporn"
+            },
+            {
+                "worker":"worker3",
+                "object":"http://youporn.com",
+                "label":"porn"
+            },
+            {
+                "worker":"worker3",
+                "object":"http://yahoo.com",
+                "label":"notporn"
+            },
+            {
+                "worker":"worker4",
+                "object":"http://sunnyfun.com",
+                "label":"notporn"
+            },
+            {
+                "worker":"worker4",
+                "object":"http://sex-mission.com",
+                "label":"porn"
+            },
+            {
+                "worker":"worker4",
+                "object":"http://google.com",
+                "label":"notporn"
+            },
+            {
+                "worker":"worker4",
+                "object":"http://youporn.com",
+                "label":"porn"
+            },
+            {
+                "worker":"worker4",
+                "object":"http://yahoo.com",
+                "label":"notporn"
+            },
+            {
+                "worker":"worker5",
+                "object":"http://sunnyfun.com",
+                "label":"porn"
+            },
+            {
+                "worker":"worker5",
+                "object":"http://sex-mission.com",
+                "label":"notporn"
+            },
+            {
+                "worker":"worker5",
+                "object":"http://google.com",
+                "label":"porn"
+            },
+            {
+                "worker":"worker5",
+                "object":"http://youporn.com",
+                "label":"notporn"
+            },
+            {
+                "worker":"worker5",
+                "object":"http://yahoo.com",
+                "label":"porn"
+            }]
+        }'
 
 As a result we get JSON:
 ::
@@ -222,15 +224,16 @@ Load gold labels
 Send samples for which we know correct label. That would allow algorithm to a better estimation of workers quality and what is connected with this better estimation of correct labels.
 ::
 
-    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/<JOB_ID>/goldObjects" -d '{objects:
-    [{
-        "goldLabel": "notporn",
-        "name": "http://google.com"
-    }]}'
+    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs/<JOB_ID>/goldObjects" -d '{
+        objects:
+            [{
+                "goldLabel": "notporn",
+                "name": "http://google.com"
+            }]
+        }'
 
 Similarly as previously, as a result we get:
 ::
-
 
     {
         "timestamp":"2012-12-29T13:15:41.299Z",
@@ -287,7 +290,7 @@ Estimated workers quality
 To see what are the workers qualities call:
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/workers/quality/estimated?costAlgorithm=<COST_ALGORITHM>"
+    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/workers/quality/estimated" -d "{costAlgorithm: <COST_ALGORITHM>}
 
 
 Where <COST_ALGORITHM> is an optional parameter (the default value is ExpectedCost) and represents the cost algorithm used to calculate the workers quality. Other cost algorithms are MaxLikelihood and MinCost.
@@ -319,7 +322,7 @@ Objects predictions
 In order to see what are the most likely categories for data, use:
 ::
 
-    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/objects/prediction?labelChoosing=<LABEL_CHOOSING_METHOD>"
+    curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/objects/prediction -d "{labelChoosing: <LABEL_CHOOSING_METHOD>}"
 
 Where <LABEL_CHOOSING_METHOD> can have two passible values: *MaxLikelihood* (default) and *MinCost*.
 
@@ -349,14 +352,20 @@ We can also see what is the label probability distribution for objects by callin
 Following the returned redirect uri we get result:
 ::
 
-	{
-	    "result": {
-	        "notporn": 1.0,
-	        "porn": 0.0
-	    },
-	    "status": "OK",
-	    "timestamp": "2013-01-17T13:55:59.188+01:00"
-	}
+    {
+        "result": [
+            {
+                "categoryName": "notporn",
+                "value": 1.0
+            },
+            {
+                "categoryName": "porn",
+                "value": 0.0
+            }
+        ],
+        "status": "OK",
+        "timestamp": "2013-01-17T13:55:59.188+01:00"
+    }
 
 {% endrestructuredtext %}
 {% endblock %}
