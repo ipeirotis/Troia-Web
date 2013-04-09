@@ -8,8 +8,9 @@ title: TROIA Server
 {% restructuredtext %}
 
 Before setting up Troia you have to configure environment on target computer
-so it can prepare and run this service. You have to download following software
+so it can prepare and run this service. You have to download the following software:
  
+* java - http://www.oracle.com/technetwork/java/javase/downloads/index.html
 * tomcat - http://tomcat.apache.org/
 * mysql - http://www.mysql.com/
 
@@ -32,50 +33,85 @@ As for servlet container you can use different one but this tutorial will be wri
 Setting up Tomcat
 -----------------
 
-To be able to use administrative functions of Tomcat you must create user with administrator privileges.
-You do that by modifying *tomcat-users.xml* file , if you are using Linux it's probably located at 
-*/etc/tomcat6/tomcat-users.xml* path. To create user with full required privileges you must add 
-following line into this file 
+You can find detailed documentation on installing tomcat `here <http://tomcat.apache.org/tomcat-6.0-doc/setup.html>:`
+
+In order to be able to use Tomcat's administrative functions, you must create an user with administrator privileges.
+You can do that by modifying *tomcat-users.xml* file. 
+
+* if you are using Linux, the file is probably located at */etc/tomcat6/tomcat-users.xml* path
+* on Windows, the file can be found at the location *<CATALINA_HOME>/conf/tomcat-users.xml*
+
+To create an user with full required privileges you must add the following line into this file
 
 ::
 
     <user username="administrator" password="drowssap" roles="admin,manager-gui" />
 
-This will create user *administrator* with password *drowssap* and all privileges that will be needed
-in this project.  
+This will create user *administrator* with password *drowssap* and all privileges needed for this project.
  
 Deploying WAR
 -------------
 
-To deploy .war file open your Tomcat web application manager that should be under */manager/html* location.
-Do if you are setting up this software on same computer that you are working on manager will be up at following
-address:
+To deploy the .war file, open Tomcat web application manager. If you are setting up Troia on the localhost and
+Tomcat runs on port 8080, web application manager will be up at the following address:
 
 ::
  
     http://localhost:8080/manager/html
 
-Then you should find part of manager that allows you to upload and deploy .war files from disk.
+Find the part of the manager that allows you to upload and deploy .war files from disk.
 After that you should simply choose .war that was generated in previous step and deploy it.
-To check if everything is working correctly you can go to *status* entry:
+If the deployment succeeds, you will see Troia listed under Applications panel and its status will be 'Running'. If you'll the visit following url:
 
 ::
   
     http://localhost:8080/troia-server-{{ app_version }}/status
 
-You can do this in your browser. As a result you should get JSON response saying that everything is OK.
+As a result you should get a JSON response saying that server is not initialized. We will initialize it after seeting up the database.
+
+Setting up the database
+-----------------------
+
+In order to create the database schema you have to run **Troia/troia-server/src/main/resources/troia.sql** script on the running
+mysql server instance. The result of the script should be a brand new database with all the necessary tables, fields and indexes.
 
 
-Setting up a DB
----------------
+Configuring server
+------------------
 
-To set up database you must use information from two files that are located in Troia/src/main/resources/ folder
+So, after deploying WAR and setting up the database, now it's time to configure server. To do so go to the following url:
 
-* dawidskene.properties - that contains information about connection
-* dawidprojects.sql - that contains database schema
+::
+  
+    http://localhost:8080/troia-server-{{ app_version }}/config
 
+Parameter meaning:
+
+    * CACHE_DUMP_TIME - for how long (in seconds) job should be stored in the cache
+    * CACHE_SIZE - how many jobs should be stored in the cache
+    * DB_NAME - the database name (make sure that it is the same as the one from troia.sql script)
+    * DB_PASSWORD - mysql user's password
+    * DB_URL - the url of mysql host machine (localhost if tomcat runs locally)
+    * DB_USER - mysql user who owns the database 
+    * DOWNLOADS_PATH - the path for downloading the zip archive containing the computation results
+    * EXECUTOR_THREADS_NUM - number of executor threads    
+    * RESPONSES_CACHE_SIZE - how many responses should be store in the cache    
+    * RESPONSES_DUMP_TIME - for how long (in seconds) responses should be stored in the cache    
+
+There is also checkbox "settings freezed?". Once freezed settings can't be changed (in order to change them you need to redeploy the WAR). That's for security reasons to prevent others from changing our settings. If settings are freezed we also can't see confidental data like database user and password.
+
+
+After filling the form, click Submit button. To check if everything is working correctly you can punch the following into the browser's url bar:
+
+::
+  
+    http://localhost:8080/troia-server-{{ app_version }}/status
+
+As a result you should get a JSON response saying that everything is OK.
+    
 **That covers all issues in regard of setting up Troia from precompiled WAR file, following part will instruct 
 you how to build your own WAR file from sources downloaded from GitHub.**
+
 
 Getting code
 ------------

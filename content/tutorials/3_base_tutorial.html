@@ -13,35 +13,37 @@ This tutorial would show you, step by step, how to play with Troia Server. We wi
 
 Create job
 ----------
-Job creation needs the following arguments:
 
-- **categories** (mandatory argument, should contain category names; may contain category priors (they should sum up to 1.0) and misclassification costs matrix; if priors would not be given there would be equal; if misclassification cost would not be given it would be 0/1 matrix (with zeros on the matrix diagonal))
-- **algorithm** used for executing the job tasks (optional argument, the default value is BDS)
-- **iterations** how many iterations should be done after calling compute (optional argument, the default value is 10)
-- **epsilon** another stop condition for the algorithm (optional argument, the default value is 1e-6)
-
-As an example, if you want to create a Batch Dawid Skene job with two categories, simply enter:
+To create new job enter:
 ::
 
-    curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs" -d '{categories:
-    [{
-        "prior":"0.5",
-        "name":"porn",
-        "misclassification_cost":
-        [
-            {"categoryName": "porn", "value": 0},
-            {"categoryName": "notporn", "value": 1}
-        ]
-    },
-    {
-        "prior":"0.5",
-        "name":"notporn",
-        "misclassification_cost":
-        [
-            {"categoryName": "porn", "value": 1},
-            {"categoryName": "notporn", "value": 0}
-        ]
-    }], algorithm:'BDS'}'
+	curl -X POST -H "Content-Type: application/json" "http://project-troia.com/api/jobs" -d '{
+		categories: ["porn", "notporn"],
+		categoryPriors: [
+		    {"categoryName": "porn", "value": 0.5},
+		    {"categoryName": "notporn", "value": 0.5}],
+		costMatrix: [
+		    {"from": "porn", "to": "notporn", "value": 1.0},
+		    {"from": "porn", "to": "porn", "value": 0.0},
+		    {"from": "notporn", "to": "porn", "value": 1.0},
+		    {"from": "notporn", "to": "notporn", "value": 0.0}],
+		algorithm: "BDS",
+		iterations: 10,
+		epsilon: 0.0001,
+		scheduler: "NormalScheduler",
+		calculator: "CostBased"
+	}'
+
+There are couple of parameters needs explenation:
+
+- **categories**: collection of categories names
+- **categoryPriors** (optional): the probability for a randomly chosen object to belong to a given category
+- **costMatrix** (optional): n x n matrix that stores the cost of a misclassification (n is number of categories). The value of the matrix in the [i,j] position is the cost for labeling an object that belongs to category i, as an object that belongs to category j. If not given the cost matrix would be instatitaed as 0-1 matrix with 0 values on the main diagonal.
+- **algorithm** (optional): type of algorithm; possible values are: blockingEM (aka BDS, default one), onlineEM (aka IDS), blockingMV (aka BMV), onlineMV (aka IMV).
+- **iterations** (optional): only for blocking algorithms, default is 10
+- **epsilon** (optional): only for blocking algotithms, default is 1e-6
+- **scheduler** (optional): type of used scheduler (more about scheduler in Scheduler Tutorial); possible values are NormalScheduler, CachedScheduler
+- **calculator** (optional): type of calculator used by scheduler;
 
 
 As a result we get the following JSON:
@@ -229,7 +231,7 @@ Send samples for which we know correct label. That would allow algorithm to a be
 Similarly as previously, as a result we get:
 ::
 
-    
+
     {
         "timestamp":"2012-12-29T13:15:41.299Z",
         "status":"OK",
@@ -251,7 +253,7 @@ As a result, as previously we get JSON containg redirect uri:
         "status":"OK",
         "redirect":"responses/<RESPONSE_ID>/POST/jobs/<JOB_ID>/compute"
     }
-    
+
 We can check if computation has ended by checking its status:
 ::
 
@@ -287,8 +289,9 @@ To see what are the workers qualities call:
 
     curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/workers/quality/estimated?costAlgorithm=<COST_ALGORITHM>"
 
-Where <COST_ALGORITHM> is an optional parameter (the default value is ExpectedCost) and represents the cost algorithm used to calculate the workers quality. Other cost algorithms are MaxLikelihood and MinCost. 
-Below are the qualities of workers for provided data. 
+
+Where <COST_ALGORITHM> is an optional parameter (the default value is ExpectedCost) and represents the cost algorithm used to calculate the workers quality. Other cost algorithms are MaxLikelihood and MinCost.
+Below are the qualities of workers for provided data.
 ::
 
 	{
@@ -310,8 +313,8 @@ Returned qualities coincide with our assumptions about the workers:
 - worker3 and worker4 are high-quality workers (quality = 1)
 - worker5 is malicious, giving always the incorrect answer, trying to fool the system (quality = 1 but the error rate - calculated based on the confusion matrix - is 1)
 
-Label predictions
-+++++++++++++++++
+Objects predictions
++++++++++++++++++++
 
 In order to see what are the most likely categories for data, use:
 ::
@@ -334,7 +337,7 @@ As usual we get JSON containing redirect uri. Folowing the link we get result si
 	   ],
 	   "status":"OK"
 	}
-	
+
 Label probability distribution for single object
 ++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -348,13 +351,13 @@ Following the returned redirect uri we get result:
 
 	{
 	    "result": {
-	        "notporn": 1.0, 
+	        "notporn": 1.0,
 	        "porn": 0.0
-	    }, 
-	    "status": "OK", 
+	    },
+	    "status": "OK",
 	    "timestamp": "2013-01-17T13:55:59.188+01:00"
 	}
-	
+
 {% endrestructuredtext %}
 {% endblock %}
 
