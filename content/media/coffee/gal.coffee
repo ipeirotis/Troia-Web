@@ -44,8 +44,8 @@ class App.NominalClient extends App.Client
                     for r in result
                         @workers_prediction[r.workerName]["matrix"] =
                         _.template($("#confusion_matrix_template").html(), {
-                            categories: r.value.categories,
-                            data: r.value.matrix});
+                            categories: @creation_data.categories,
+                            data: r.value});
                     success()
                 , null, true)
         , @workers_headers)
