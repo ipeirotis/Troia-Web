@@ -45,7 +45,7 @@ class App.Application
                 @disable_results_tab()
                 @load_test_data(1)
                 $('#id_data_choose').change(() =>
-                    @load_test_data($('#id_data_choose :selected').val());
+                    @load_test_data($('#id_data_choose :selected').val())
                 )
 
         $('a[data-toggle="tab"]').on('shown', (e) =>

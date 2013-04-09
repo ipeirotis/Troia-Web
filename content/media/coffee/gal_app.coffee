@@ -20,7 +20,7 @@ class GAL_Application extends App.Application
     _parse_cost_matrix: (categories) ->
         data = []
         k = 0
-        l = categories.length;
+        l = categories.length
         for input in $('#cost_matrix input')
             data.push({
                 "from": categories[Math.floor(k / l)],
@@ -31,18 +31,18 @@ class GAL_Application extends App.Application
 
     on_tab_change: (e) ->
         if e.target.getAttribute('href') == '#matrix'
-            @_create_cost_matrix(@parse_assigns());
+            @_create_cost_matrix(@parse_assigns())
 
     _post_populate_results_table: () ->
         #make confusion matrices clickable
-        clickedAway = false;
-        isVisible = false;
+        clickedAway = false
+        isVisible = false
         $("a[rel=popover]").popover({html: true, title: "Confusion matrix", placement: "left", trigger: "manual"}).click((e) ->
-            $("a[rel=popover]").not(@).popover('hide');
-            $(@).popover('show');
-            clickedAway = false;
-            isVisible = true;
-            e.preventDefault();
+            $("a[rel=popover]").not(@).popover('hide')
+            $(@).popover('show')
+            clickedAway = false
+            isVisible = true
+            e.preventDefault()
             $('.popover').bind('click',() ->
                 clickedAway = false
             )
@@ -54,6 +54,8 @@ class GAL_Application extends App.Application
             else
                 clickedAway = true
         )
+        #populate summary tab
+        $("#summary").html(_.template($("#summary_template").html(), {}))
 
     _post_loading_test_data: () ->
         @_create_cost_matrix(@parse_assigns())
@@ -66,43 +68,43 @@ class GAL_Application extends App.Application
         )
 
     _create_cost_matrix: (assigns) ->
-        $('#cost_matrix').empty();
-        row = [];
-        cell = [];
+        $('#cost_matrix').empty()
+        row = []
+        cell = []
         categories = @_categories_from_assigns(assigns)
 
-        tab = document.createElement('table');
-        tbo = document.createElement('tbody');
+        tab = document.createElement('table')
+        tbo = document.createElement('tbody')
 
         #header
-        row = document.createElement('tr');
-        row.appendChild(document.createElement('td'));
+        row = document.createElement('tr')
+        row.appendChild(document.createElement('td'))
         for cat in categories
-            cell = document.createElement('td');
-            cont = document.createTextNode(cat);
-            cell.appendChild(cont);
-            row.appendChild(cell);
-        tbo.appendChild(row);
+            cell = document.createElement('td')
+            cont = document.createTextNode(cat)
+            cell.appendChild(cont)
+            row.appendChild(cell)
+        tbo.appendChild(row)
 
         #body
         for cat1 in categories
-            row = document.createElement('tr');
-            cell= document.createElement('td');
-            cont = document.createTextNode(cat1);
-            cell.appendChild(cont);
-            row.appendChild(cell);
+            row = document.createElement('tr')
+            cell= document.createElement('td')
+            cont = document.createTextNode(cat1)
+            cell.appendChild(cont)
+            row.appendChild(cell)
 
             for cat2 in categories
-                cell = document.createElement('td');
-                cont = document.createElement('input');
-                $(cont).css('width', 'auto');
+                cell = document.createElement('td')
+                cont = document.createElement('input')
+                $(cont).css('width', 'auto')
                 $(cont).prop('value', if cat1 == cat2 then 0 else 1.0 / (categories.length - 1))
-                cell.appendChild(cont);
-                row.appendChild(cell);
-            tbo.appendChild(row);
-        tab.appendChild(tbo);
-        $('#cost_matrix')[0].appendChild(tab);
-        $('#cost_matrix input').numeric({ negative : false });
+                cell.appendChild(cont)
+                row.appendChild(cell)
+            tbo.appendChild(row)
+        tab.appendChild(tbo)
+        $('#cost_matrix')[0].appendChild(tab)
+        $('#cost_matrix input').numeric({ negative : false })
 
 
 a = new GAL_Application()

@@ -122,16 +122,17 @@ title: Demo application GAL
                     <div class="row" style="margin-left: auto; margin-right: auto; padding-right: 0;">
                         <div class="span8">
                             <ul class="nav nav-tabs" id="resultsTab">
-                                <li class="active"><a href="#objects" data-toggle="tab">Predicted labels</a></li>
+                                <li class="active"><a href="#summary" data-toggle="tab">Summary</a></li>
+                                <li><a href="#objects" data-toggle="tab">Predicted labels</a></li>
                                 <li><a href="#workers" data-toggle="tab">Workers stats</a></li>
                             </ul>
                         </div>
-                        <div class="span4" style="text-align: right; margin-left: auto; margin-right: 0">
-                            <span id="download_zip_btn" class="btn btn-info" style="margin-top: 20px">Download results</span>
-                        </div>
                     </div>
                     <div class="tab-content">
-                        <div class="tab-pane active" id="objects">
+                        <div class="tab-pane active" id="summary">
+                            <div id="summary"></div>
+                        </div>
+                        <div class="tab-pane" id="objects">
                             <div id="objects"></div>
                         </div>
                         <div class="tab-pane" id="workers">
@@ -147,9 +148,12 @@ title: Demo application GAL
 	    </div>
 
         <!-- Cost matrix table template. -->
-        <script type="text/template" id="cost_matrix_template">
-            <table>
-            </table>
+        <script type="text/template" id="summary_template">
+            <div>
+                <div class="span4" style="text-align: right; margin-left: auto; margin-right: 0">
+                    <span id="download_zip_btn" class="btn btn-info" style="margin-top: 20px">Download results</span>
+                </div>
+            </div>
         </script>
 
         <!-- Classes table template. -->
@@ -197,6 +201,8 @@ title: Demo application GAL
             </table>
             </div>
         </script>
+
+        <!-- Confusion matrix template. -->
         <script type="text/template" id="confusion_matrix_template">
             <table>
                 <tbody>
