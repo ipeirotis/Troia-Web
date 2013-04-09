@@ -22,32 +22,34 @@ title: Demo application GAL
 		    <li><a href="#result" data-toggle="tab">Results</a></li>
 	    </ul>
 	    <div class="tab-content">
-	    	<div class="tab-pane active" id="input">
-                <div>
-                    <div class="page-header">
-                        <h2>1. Algorithm</h2>
+            <div class="tab-pane active" id="input">
+                <div class="row" style="margin: inherit;">
+                    <div class="span6">
+                        <div class="page-header">
+                            <h2>1. Algorithm</h2>
+                        </div>
+                        <p>
+                            <select id="id_algorithm_choose" style="width: 300px;" class="select_down">
+                                <option value="BDS">Batch DawidSkene, blockingEM</option>
+                                <option value="IDS">Incremental DawidSkene, onlineEM</option>
+                                <option value="BMV">MajorityVote</option>
+                            </select>
+                        </p>
                     </div>
-                    <p>
-                        <select id="id_algorithm_choose" style="width: 300px;" class="select_down">
-                            <option value="BDS">Batch DawidSkene, blockingEM</option>
-                            <option value="IDS">Incremental DawidSkene, onlineEM</option>
-                            <option value="BMV">MajorityVote</option>
-                        </select>
-                    </p>
+                    <div class="span6">
+                        <div class="page-header">
+                            <h2>2. Initial data</h2>
+                        </div>
+                        <p>
+                            Data set:
+                            <select id="id_data_choose" style="width: 300px;" class="select_down">
+                                <option value="1">Small pack - 25 worker assigns, 1 gold item</option>
+                                <option value="2">Big pack - 5000 worker assigns, 30 gold items</option>
+                            </select>
+                        </p>
+                    </div>
                 </div>
-    		   	<div>
-		    		<div class="page-header">
-		    			<h2>2. Initial data</h2>
-		    		</div>
-		    		<p>
-		    			Data set:
-		    			<select id="id_data_choose" style="width: 300px;" class="select_down">
-		    				<option value="1">Small pack - 25 worker assigns, 1 gold item</option>
-							<option value="2">Big pack - 5000 worker assigns, 30 gold items</option>
-						</select>
-		    		</p>
-		    	</div>
-		    	<div>
+                <div class="row" style="margin: inherit;">
 		    		<div class="page-header">
 		    			<h2>3. Data</h2>
 		    		</div>
