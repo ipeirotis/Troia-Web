@@ -107,7 +107,7 @@ class App.Application
             @gold_objects_validation_message)
 
     populate_results_tables: () =>
-        @client.get_prediction(
+        @client.get_results(
             () =>
                 $("#objects").html(_.template(
                     $("#objects_template").html(),
@@ -118,9 +118,29 @@ class App.Application
                     $("#workers_template").html(),
                     {workers: @client.workers_prediction, headers: @client.workers_headers})
                 )
+
+            () =>
+                $("#job_summary").html(
+                    _.template($("#job_summary_template").html(),
+                        {summary: @client.summary}
+                    )
+                )
+                $("#objects_summary").html(
+                    _.template(
+                        $("#objects_summary_template").html(),
+                        {objects_summary: @client.objects_summary}
+                    )
+                )
+                $("#workers_summary").html(
+                    _.template(
+                        $("#workers_summary_template").html(),
+                        {workers_summary: @client.workers_summary}
+                    )
+                )
             () =>
                 $("#img-load").hide()
                 $("#response").show()
+                $("#download_zip_btn").show()
                 @_post_populate_results_table()
         )
 

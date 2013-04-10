@@ -130,7 +130,15 @@ title: Demo application GAL
                     </div>
                     <div class="tab-content">
                         <div class="tab-pane active" id="summary">
-                            <div id="summary"></div>
+                            <div id="summary">
+                                <div id="job_summary"></div>
+                                <div id="objects_summary"></div>
+                                <div id="workers_summary"></div>
+                                <!-- <div class="span4" style="text-align: right; margin-left: auto; margin-right: 0"> -->
+                                <div>
+                                    <span id="download_zip_btn" class="btn btn-info" style="display: none; margin-top: 20px">Download results</span>
+                                </div>
+                            </div>
                         </div>
                         <div class="tab-pane" id="objects">
                             <div id="objects"></div>
@@ -147,18 +155,42 @@ title: Demo application GAL
 	    	</div>
 	    </div>
 
-        <!-- Summary table template. -->
-        <script type="text/template" id="summary_template">
+        <!-- Job summary template. -->
+        <script type="text/template" id="job_summary_template">
             <div>
+                <h5>Job summary:</h5>
                 <dl>
-                    <% _.each(_.keys(info), function(key) { %>
+                    <% _.each(_.keys(summary), function(key) { %>
                         <dt><%= key %></dt>
-                        <dd><%= info[key] %></dd>
+                        <dd><%= summary[key] %></dd>
                     <% }); %>
                 </dl>
-                <div class="span4" style="text-align: right; margin-left: auto; margin-right: 0">
-                    <span id="download_zip_btn" class="btn btn-info" style="margin-top: 20px">Download results</span>
-                </div>
+            </div>
+        </script>
+
+        <!-- Objects summary template. -->
+        <script type="text/template" id="objects_summary_template">
+            <div>
+                <h5>Objects quality summary:</h5>
+                <dl>
+                    <% _.each(_.keys(objects_summary), function(key) { %>
+                        <dt><%= key %></dt>
+                        <dd><%= objects_summary[key] %></dd>
+                    <% }); %>
+                </dl>
+            </div>
+        </script>
+
+        <!-- Workers summary template. -->
+        <script type="text/template" id="workers_summary_template">
+            <div>
+                <h5>Workers quality summary:</h5>
+                <dl>
+                    <% _.each(_.keys(workers_summary), function(key) { %>
+                        <dt><%= key %></dt>
+                        <dd><%= workers_summary[key] %></dd>
+                    <% }); %>
+                </dl>
             </div>
         </script>
 

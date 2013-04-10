@@ -1,8 +1,11 @@
 class App.NominalClient extends App.Client
     jobs_url: "/jobs"
+    objects_summary_url: "/objects/quality/summary"
+    workers_summary_url: "/workers/quality/summary"
     data_dir: "/media/txt/jobs_data/"
     gold_data_dir: "/media/txt/jobs_gold_data/"
     workers_confustion_matrix: "/workers/quality/matrix"
+
 
     _assign_to_json: (a) -> {worker: a[0], object: a[1], label: a[2]}
 
@@ -66,6 +69,31 @@ class App.NominalClient extends App.Client
                         "value")
                     success()
             , null, true)
+
+    get_objects_summary: (success) ->
+        @_get(@_job_url() + @objects_summary_url, {}, true
+            (response) =>
+                result = $.parseJSON(response.responseText)['result']
+                @objects_summary = result
+                success(response)
+            null, true)
+
+    get_workers_summary: (success) ->
+        @_get(@_job_url() + @workers_summary_url, {}, true
+            (response) =>
+                result = $.parseJSON(response.responseText)['result']
+                @workers_summary = result
+                success(response)
+            null, true)
+
+    get_summary: (success) ->
+        @get_objects_summary (response) =>
+            @get_workers_summary (response) =>
+                if (not _.has(this, 'creation_data'))
+                    @get_job (response) ->
+                        success(response)
+                else
+                    success(response)
 
     # for input [{key: 'aaa', value: 'bbb'}, {key: 'ccc', value: 'ddd'}, name="EEE"]
     # returns {'aaa': {"EEE": 'bbb'}, 'ccc': {"EEE": 'ddd'}}

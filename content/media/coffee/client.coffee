@@ -50,7 +50,9 @@ class App.Client
             (response) =>
                 # XXX nasty fix for bug on loading historical job.
                 # Probably one can done it better.
-                @creation_data = $.parseJSON(response.responseText)['result']['Initialization data']
+                @summary = $.parseJSON(response.responseText)['result']
+                @creation_data = @summary['Initialization data']
+                delete @summary['Initialization data']
                 success(response)
             null
             true
@@ -125,6 +127,14 @@ class App.Client
                 success(response)
             )
         )
+
+    get_summary: (success) ->
+
+    get_results: (success_objects, success_workers, success_summary, success) ->
+        @get_prediction success_objects, success_workers, (response) =>
+            @get_summary (response) ->
+                success_summary(response)
+                success(response)
 
     _job_url: (id = @id) -> @jobs_url + '/' + id
 
