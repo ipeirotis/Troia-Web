@@ -30,7 +30,6 @@ class App.Application
                     () =>
                         # Show the results tab at first.
                         $('#menuTab li:nth-child(2) a').tab('show')
-                        $("#url").hide()
                         @populate_results_tables()
                         @client.get_assigns((res) =>
                             $('#id_data').val(@client.assigns.map(@client._assign_to_text).join('\n')))
@@ -140,7 +139,8 @@ class App.Application
             () =>
                 $("#img-load").hide()
                 $("#response").show()
-                $("#download_zip_btn").show()
+                $("#summary-inner").show()
+                # $("#download_zip_btn").show()
                 @_post_populate_results_table()
         )
 

@@ -11,3 +11,10 @@ class App.ContinuousClient extends App.Client
 
     _gold_object_to_text: (o) -> [o.name, o.goldLabel.value, o.goldLabel.zeta].join('\t')
 
+    get_summary: (success) ->
+        if (not _.has(this, 'creation_data'))
+            @get_job (response) ->
+                success(response)
+        else
+            success(response)
+

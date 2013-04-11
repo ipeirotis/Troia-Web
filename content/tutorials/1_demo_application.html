@@ -130,13 +130,39 @@ title: Demo application GAL
                     </div>
                     <div class="tab-content">
                         <div class="tab-pane active" id="summary">
-                            <div id="summary">
-                                <div id="job_summary"></div>
-                                <div id="objects_summary"></div>
-                                <div id="workers_summary"></div>
-                                <!-- <div class="span4" style="text-align: right; margin-left: auto; margin-right: 0"> -->
-                                <div>
-                                    <span id="download_zip_btn" class="btn btn-info" style="display: none; margin-top: 20px">Download results</span>
+                            <div id="summary-inner" style="display: none;">
+                                <div class="row" style="margin: inherit;">
+                                    <!-- <div class="span2"></div> -->
+                                    <div class="span8">
+                                        <div class="page-header">
+                                            <h2>Job summary:</h2>
+                                        </div>
+                                        <div id="job_summary"></div>
+                                    </div>
+                                    <div class="span4">
+                                    <!-- <div class="span4" style="text-align: right; margin-left: auto; margin-right: 0"> -->
+                                        <span id="download_zip_btn" class="btn btn-info" style="">Download results</span>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin: inherit;">
+                                    <div class="span6"> 
+                                        <div class="page-header">
+                                            <h2>Objects qualities summary:</h2>
+                                        </div>
+                                        <div id="objects_summary"></div>
+                                    </div>
+                                    <div class="span6">
+                                        <div class="page-header">
+                                            <h2>Workers qualities summary:</h2>
+                                        </div>
+                                        <div id="workers_summary"></div>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin: inherit;">
+                                    <div id="url" style="display: none; text-align: center;">
+                                        You can see later your results at:
+                                        <pre></pre>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -148,70 +174,93 @@ title: Demo application GAL
                         </div>
                     </div>
 		        </div>
-                <div id="url">
-                    You can see later your results at:
-                    <pre></pre>
-                </div>
 	    	</div>
 	    </div>
 
         <!-- Job summary template. -->
         <script type="text/template" id="job_summary_template">
             <div>
-                <h5>Job summary:</h5>
-                <dl>
-                    <% _.each(_.keys(summary), function(key) { %>
-                        <dt><%= key %></dt>
-                        <dd><%= summary[key] %></dd>
-                    <% }); %>
-                </dl>
+                <table>
+                    <thead>
+                        <tr>
+                            <% _.each(_.keys(summary), function(key) { %>
+                                <th><%= key %></th>
+                            <% }); %>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <% _.each(_.keys(summary), function(key) { %>
+                                <td><%= summary[key] %></td>
+                            <% }); %>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </script>
 
         <!-- Objects summary template. -->
         <script type="text/template" id="objects_summary_template">
             <div>
-                <h5>Objects quality summary:</h5>
-                <dl>
-                    <% _.each(_.keys(objects_summary), function(key) { %>
-                        <dt><%= key %></dt>
-                        <dd><%= objects_summary[key] %></dd>
-                    <% }); %>
-                </dl>
-            </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <% _.each(_.keys(objects_summary), function(key) { %>
+                                <th><%= key %></th>
+                            <% }); %>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <% _.each(_.keys(objects_summary), function(key) { %>
+                                <td><%= objects_summary[key] %></td>
+                            <% }); %>
+                        </tr>
+                    </tbody>
+                </table>
+            <div>
         </script>
 
         <!-- Workers summary template. -->
         <script type="text/template" id="workers_summary_template">
             <div>
-                <h5>Workers quality summary:</h5>
-                <dl>
-                    <% _.each(_.keys(workers_summary), function(key) { %>
-                        <dt><%= key %></dt>
-                        <dd><%= workers_summary[key] %></dd>
-                    <% }); %>
-                </dl>
+                <table>
+                    <thead>
+                        <tr>
+                            <% _.each(_.keys(workers_summary), function(key) { %>
+                                <th><%= key %></th>
+                            <% }); %>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <% _.each(_.keys(workers_summary), function(key) { %>
+                                <td><%= workers_summary[key] %></td>
+                            <% }); %>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </script>
 
         <!-- Classes table template. -->
 		<script type="text/template" id="objects_template">
 			<div>
-			<table class='table table-striped'>
-				<tr><th>Objects</th>
-				<% _.each(headers, function(h){  %>
-					<th width="150px"><%= h %></th>
-				<% }); %>
-				</tr>
-				<% _.each(_.keys(objects), function(k){ %>
-					<tr>
-						<td><%= k %></td>
-						<% _.each(headers, function(h){ %>
-						<td><%= objects[k][h] %></td>
-						<% }); %>
-					</tr>
-				<% }); %>
-			</table>
+                <table class='table table-striped'>
+                    <tr><th>Objects</th>
+                    <% _.each(headers, function(h){  %>
+                        <th width="150px"><%= h %></th>
+                    <% }); %>
+                    </tr>
+                    <% _.each(_.keys(objects), function(k){ %>
+                        <tr>
+                            <td><%= k %></td>
+                            <% _.each(headers, function(h){ %>
+                            <td><%= objects[k][h] %></td>
+                            <% }); %>
+                        </tr>
+                    <% }); %>
+                </table>
 			</div>
         </script>
 
