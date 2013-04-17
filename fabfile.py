@@ -461,7 +461,7 @@ def deploy_troia_server(confpath=None, blocking=True):
         if (before.ok and after.ok and after.json()['status'] == "NOT_INITIALIZED"):
             break
         time.sleep(5)
-    requests.post("http://{project_domain}/api/config".format(**conf), data={'freezed': 'on'})
+    requests.post("http://{project_domain}/api/config".format(**conf), data={'IS_FREEZED': 'on'})
 
 
 @task
