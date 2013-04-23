@@ -17,9 +17,10 @@ class App.Application
         App.set_textarea_maxrows(20000)
         id = App.get_url_parameter('id')
         @client = new @_client_type(id)
-        @client._ajax_error = (jqXHR, textStatus, errorThrown) ->
+        @client._ajax_error = (jqXHR, textStatus, errorThrown) =>
             console.log "error", errorThrown
-            @show_error("Troia server error (" + errorThrown.toString() + ").")
+            @show_error("Troia server error (" + errorThrown.toString() + "). " + $.parseJSON(jqXHR.responseText)["result"])
+            $('#send_data').removeClass('disabled').text("Process")
 
         $("#download_zip_btn").click(() =>
             @client.download_zip())

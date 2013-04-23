@@ -59,7 +59,7 @@ title: Demo application GAL
 								<!--<div class="span7">-->
 							    <li class="active"><a href="#data" data-toggle="tab">Data</a></li>
 							    <li><a href="#gold" data-toggle="tab">Gold data</a></li>
-							    <li><a href="#matrix" data-toggle="tab">Cost matrix</a></li>
+							    <li><a href="#matrix" data-toggle="tab">Categories</a></li>
 								<!--<div class="span7">-->
 						    </ul>
 							<div class="tab-content">
@@ -100,7 +100,12 @@ title: Demo application GAL
 									</div>
 								</div>
 								<div class="tab-pane" id="matrix" >
-									<div id="cost_matrix" class="span7"></div>
+                                    <div class="span7">
+                                        <h3>Cost matrix</h3>
+                                        <div id="cost_matrix"></div>
+                                        <h3>Category probabilities</h3>
+                                        <div id="category_priors"></div>
+                                    </div>
 									<div class="span5 well">
 										<p>Cost matrix is calculated automaticly based on categories you've entered. You can change the default values.</p>
 									</div>
@@ -145,7 +150,7 @@ title: Demo application GAL
                                     </div>
                                 </div>
                                 <div class="row" style="margin: inherit;">
-                                    <div class="span6"> 
+                                    <div class="span6">
                                         <div class="page-header">
                                             <h2>Objects qualities</h2>
                                         </div>
@@ -243,6 +248,47 @@ title: Demo application GAL
                             <% }); %>
                         </tr>
                     </tbody>
+                </table>
+            </div>
+        </script>
+
+        <!-- Cost matrix template -->
+        <script type="text/template" id="cost_matrix_template">
+            <div>
+                <table>
+                    <tr>
+                        <td></td>
+                        <% _.each(categories, function(c) { %>
+                            <td><%= c %></td>
+                        <% }); %>
+                    </tr>
+                    <% _.each(categories, function(c1) { %>
+                        <tr>
+                            <td><%= c1 %></td>
+                            <% _.each(categories, function(c2) {
+                                _.each(data, function(d) {
+                                    if (d['from'] === c1 && d['to'] === c2) { %>
+                                        <td><input style="width: auto;" value="<%= d['value'] %>"></td>
+                            <% }});}); %>
+                        </tr>
+                    <% }); %>
+                </table>
+            </div>
+        </script>
+
+        <!-- Category priors template -->
+        <script type="text/template" id="category_priors_template">
+            <div>
+                <table>
+                    <% _.each(categories, function(c) { %>
+                        <tr>
+                            <td><%= c %></td>
+                            <% _.each(data, function(d) {
+                                if (d['categoryName'] === c) { %>
+                                    <td><input style="width: auto;" value="<%= d['value'] %>" ></td>
+                            <% }}); %>
+                        </tr>
+                    <% }); %>
                 </table>
             </div>
         </script>
