@@ -7,31 +7,43 @@ class GAL_Application extends App.Application
         line.length != 2
 
     _before_create: () ->
-        categories = @_categories_from_assigns(@parse_assigns())
-        @client.creation_data['categories'] = categories
-        @client.creation_data['categoryPriors'] =
-            [{'categoryName': c, 'value': 1.0 / categories.length} for c in categories][0]
-        @client.creation_data['costMatrix'] = @_parse_cost_matrix(categories)
+        @categories = @_categories_from_assigns(@parse_assigns())
+        @client.creation_data['categories'] = @categories
+        @client.creation_data['categoryPriors'] = @_parse_category_priors()
+        @client.creation_data['costMatrix'] = @_parse_cost_matrix()
         @client.creation_data['algorithm'] = $('#id_algorithm_choose :selected').val()
 
     _categories_from_assigns: (assigns) ->
         _.uniq(a[2] for a in assigns)
 
-    _parse_cost_matrix: (categories) ->
+    _parse_cost_matrix: () ->
         data = []
         k = 0
-        l = categories.length
+        l = @categories.length
         for input in $('#cost_matrix input')
             data.push({
-                "from": categories[Math.floor(k / l)],
-                "to": categories[k % l],
+                "from": @categories[Math.floor(k / l)],
+                "to": @categories[k % l],
                 "value": parseFloat($(input).prop('value'))})
+            k += 1
+        return data
+
+    _parse_category_priors: () ->
+        data = []
+        k = 0
+        for input in $("#category_priors input")
+            data.push({
+                'categoryName': @categories[k],
+                'value': $(input).prop('value')
+                })
             k += 1
         return data
 
     on_tab_change: (e) ->
         if e.target.getAttribute('href') == '#matrix'
-            @_create_cost_matrix(@parse_assigns())
+            categories = @_categories_from_assigns(@parse_assigns())
+            if (!_.isEqual(categories.sort(), @categories.sort()))
+                @_post_loading_test_data()
 
     _post_populate_results_table: () ->
         #make confusion matrices clickable
@@ -56,53 +68,39 @@ class GAL_Application extends App.Application
         )
 
     _post_loading_test_data: () ->
-        @_create_cost_matrix(@parse_assigns())
+        @categories = @_categories_from_assigns(@parse_assigns())
+        @_create_cost_matrix()
+        @_create_category_priors()
 
     _post_loading_results: () ->
-        #select used algorithm
-        @client.get_job((response) ->
-            result = $.parseJSON(response.responseText)['result']
-            $('#id_algorithm_choose').val(result['Initialization data']['algorithm'])
+        @client.get_job((response) =>
+            #select used algorithm
+            init_data = $.parseJSON(response.responseText)['result']['Initialization data']
+            $('#id_algorithm_choose').val(init_data['algorithm'])
+            #create cost matrix and category priors table
+            @categories = init_data['categories']
+            @_create_cost_matrix(init_data['costMatrix'])
+            @_create_category_priors(init_data['categoryPriors'])
         )
 
-    _create_cost_matrix: (assigns) ->
-        $('#cost_matrix').empty()
-        row = []
-        cell = []
-        categories = @_categories_from_assigns(assigns)
+    _create_category_priors: (data = null) ->
+        if data == null
+            data = []
+            for c in @categories
+                data.push({'categoryName': c, 'value': 1.0/@categories.length})
+        $("#category_priors").html(_.template($("#category_priors_template").html(), {
+                            categories: @categories,
+                            data: data}))
 
-        tab = document.createElement('table')
-        tbo = document.createElement('tbody')
-
-        #header
-        row = document.createElement('tr')
-        row.appendChild(document.createElement('td'))
-        for cat in categories
-            cell = document.createElement('td')
-            cont = document.createTextNode(cat)
-            cell.appendChild(cont)
-            row.appendChild(cell)
-        tbo.appendChild(row)
-
-        #body
-        for cat1 in categories
-            row = document.createElement('tr')
-            cell= document.createElement('td')
-            cont = document.createTextNode(cat1)
-            cell.appendChild(cont)
-            row.appendChild(cell)
-
-            for cat2 in categories
-                cell = document.createElement('td')
-                cont = document.createElement('input')
-                $(cont).css('width', 'auto')
-                $(cont).prop('value', if cat1 == cat2 then 0 else 1.0 / (categories.length - 1))
-                cell.appendChild(cont)
-                row.appendChild(cell)
-            tbo.appendChild(row)
-        tab.appendChild(tbo)
-        $('#cost_matrix')[0].appendChild(tab)
-        $('#cost_matrix input').numeric({ negative : false })
+    _create_cost_matrix: (data = null) ->
+        if data == null
+            data = []
+            for c1 in @categories
+                for c2 in @categories
+                    data.push({'from': c1, 'to': c2, 'value': if c1 == c2 then 0.0 else 1.0})
+        $('#cost_matrix').html(_.template($("#cost_matrix_template").html(), {
+                            categories: @categories,
+                            data: data}))
 
 
 a = new GAL_Application()
