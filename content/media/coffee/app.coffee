@@ -45,7 +45,12 @@ class App.Application
                 @disable_results_tab()
                 @load_test_data(1)
                 $('#id_data_choose').change(() =>
-                    @load_test_data($('#id_data_choose :selected').val())
+                    value = $('#id_data_choose :selected').val()
+                    if value > 0
+                        @load_test_data(value)
+                    else
+                        $('#id_data').val("")
+                        $('#id_gold_data').val("")
                 )
 
         $('a[data-toggle="tab"]').on('shown', (e) =>
@@ -73,18 +78,24 @@ class App.Application
                 @_post_loading_test_data()
         )
 
-    _parse_input: (input_el, control_el, text_el, tab_el, condition, error_msg) ->
+    _parse_input: (input_el, control_el, text_el, tab_el, line_condition, line_error_msg, condition, error_msg) ->
         control_el.removeClass('error')
         text_el.text('')
         data = []
         for line, ind in input_el.val().split(/\n/)
             parsed_line = line.split(/\s+/)
-            if condition(parsed_line)
+            if line.length > 0 and line_condition(parsed_line)
                 control_el.addClass('error')
-                text_el.text(error_msg + ' Check your ' + (ind+1).toString() + ' line.')
+                text_el.text(line_error_msg + ' Check your ' + (ind+1).toString() + ' line.')
                 tab_el.tab('show')
                 return false
-            data.push(parsed_line)
+            if line.length > 0
+                data.push(parsed_line)
+        if condition and condition(data)
+            control_el.addClass('error')
+            text_el.text(error_msg)
+            tab_el.tab('show')
+            return false
         return data
 
     parse_assigns: () ->
@@ -95,7 +106,11 @@ class App.Application
             $('#dataTab li:nth-child(1) a')
             (line) ->
                 line.length != 3
-            'Only 3 words per line allowed.')
+            'Only 3 words per line allowed.'
+            (data) ->
+                data.length == 0
+            'There should be at least one assign.'
+            )
 
     parse_gold_labels: () =>
         @_parse_input(

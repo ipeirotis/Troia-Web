@@ -23,46 +23,66 @@ title: Demo application GALC
         <div class="tab-content">
             <div class="tab-pane active" id="input">
                 <div>
-                    <form id="data_form" class="form-horizontal" method="post">
-                        <ul class="nav nav-tabs" id="dataTab">
-                            <li class="active"><a href="#data" data-toggle="tab">Data</a></li>
-                            <li><a href="#gold" data-toggle="tab">Gold data</a></li>
-                        </ul>
-                        <div class="tab-content">
-                            <div class="tab-pane active" id="data">
-                                <div class="span7 wrapper">
-                                    <div class="control-group content2">
-                                        <textarea id="id_data" class="field span12" rows="15" cols="40" placeholder="worker object class"></textarea>
-                                        <span class="help-inline"></span>
-                                        <h3>Line format:</h3>
-                                        <pre>workerid[tab]objectid[tab]assignedlabel</pre>
+                    <div class="row" style="margin: inherit;">
+                        <div class="page-header">
+                            <h2>1. Initial data</h2>
+                        </div>
+                        <p>
+                            Data set:
+                            <select id="id_data_choose" style="width: 300px;" class="select_down">
+                                <option value="1">200 worker assigns, 10 gold item</option>
+                                <option value="0">Empty</option>
+                            </select>
+                        </p>
+                    </div>
+                    <div class="row" style="margin: inherit;">
+                        <div class="page-header">
+                            <h2>2. Data</h2>
+                        </div>
+                        <p>
+                            <form id="data_form" class="form-horizontal" method="post">
+                                <ul class="nav nav-tabs" id="dataTab">
+                                    <li class="active"><a href="#data" data-toggle="tab">Data</a></li>
+                                    <li><a href="#gold" data-toggle="tab">Gold data</a></li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div class="tab-pane active" id="data">
+                                        <div class="span7 wrapper">
+                                            <div class="control-group content2">
+                                                <textarea id="id_data" class="field span12" rows="15" cols="40" placeholder="worker object class"></textarea>
+                                                <span class="help-inline"></span>
+                                                <h3>Line format:</h3>
+                                                <pre>workerid[tab]objectid[tab]assignedlabel</pre>
+                                            </div>
+                                        </div>
+                                        <div class="span5 well">
+
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane" id="gold">
+                                        <div class="span7">
+                                            <div class="control-group">
+                                                <textarea id="id_gold_data" class="field span12" rows="15" cols="40" placeholder="object label zeta"></textarea>
+                                                <span class="help-inline"></span>
+                                                <h3>Line format:</h3>
+                                                <pre>objectid[tab]correctlabel[tab]zeta</pre>
+                                            </div>
+                                        </div>
+                                        <div class="span5 well">
+
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="span5 well">
+                                <div class="alert alert-error" style="display:none;">
+                                    <strong>Error!</strong><p>Troia server not responding.</p>
+                                </div>
+                                <div class="form-actions">
+                                    <span type="button" class="btn btn-info" id="send_data">Process</span>
+                                </div>
+                            </form>
+                        </p>
+                    </div>
 
-                                </div>
-                            </div>
-                            <div class="tab-pane" id="gold">
-                                <div class="span7">
-                                    <div class="control-group">
-                                        <textarea id="id_gold_data" class="field span12" rows="15" cols="40" placeholder="object label zeta"></textarea>
-                                        <span class="help-inline"></span>
-                                        <h3>Line format:</h3>
-                                        <pre>objectid[tab]correctlabel[tab]zeta</pre>
-                                    </div>
-                                </div>
-                                <div class="span5 well">
-
-                                </div>
-                            </div>
-                        </div>
-                        <div class="alert alert-error" style="display:none;">
-                            <strong>Error!</strong><p>Troia server not responding.</p>
-                        </div>
-                        <div class="form-actions">
-                            <span type="button" class="btn btn-info" id="send_data">Process</span>
-                        </div>
-                    </form>
                 </div>
             </div>
             <div class="tab-pane" id="result">
