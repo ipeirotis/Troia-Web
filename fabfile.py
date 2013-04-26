@@ -435,21 +435,21 @@ def deploy_troia_server(confpath=None, blocking=True):
     # Replace the properties with custom file.
     upload_template(
         os.path.join(CONF_ROOT, 'troia-server', 'troia.properties'),
-        '{troia_server_source}/troia-server/src/main/resources/troia.properties'.format(**conf),
+        '{troia_server_source}/service/src/main/resources/troia.properties'.format(**conf),
         context=conf)
     upload_template(
         os.path.join(CONF_ROOT, 'troia-server', 'log4j.properties'),
-        '{troia_server_source}/troia-server/src/main/resources/log4j.properties'.format(**conf),
+        '{troia_server_source}/service/src/main/resources/log4j.properties'.format(**conf),
         context=conf)
     # Clean and build the .war file.
-    with cd('{troia_server_source}/troia-server'.format(**conf)):
+    with cd('{troia_server_source}/service'.format(**conf)):
         mvn('clean')
         mvn('package -Dmaven.test.skip=true')
     before = requests.get('http://{project_domain}/api/status'.format(**conf))
     # Deploy the .war file.
     # execute(stop_tomcat)
     rm('{tomcat_root}/webapps/{troia_server_name}.war', recursive=True, force=True)
-    cp('{troia_server_source}/troia-server/target/{troia_server_war_name}.war',
+    cp('{troia_server_source}/service/target/{troia_server_war_name}.war',
         '{tomcat_root}/webapps/{troia_server_name}.war')
     # execute(start_tomcat)
     while blocking:
