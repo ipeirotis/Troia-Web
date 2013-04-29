@@ -18,6 +18,8 @@ class App.NominalClient extends App.Client
 
     _evaluation_object_to_json: (o) -> {name: o[0], evaluationLabel: o[1]}
 
+    _evaluation_object_to_text: (o) -> [o.name, o.evaluationLabel].join('\t')
+
     get_objects_prediction: (success) ->
         @objects_prediction = []
         @objects_headers = ["MaxLikelihood", "MinCost"]

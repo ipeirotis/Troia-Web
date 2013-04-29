@@ -15,6 +15,8 @@ class App.ContinuousClient extends App.Client
 
     _evaluation_object_to_json: (o) -> {name: o[0], evaluationLabel: {value: o[1], zeta: o[2]}}
 
+    _evaluation_object_to_text: (o) -> [o.name, o.evaluationLabel.value, o.evaluationLabel.zeta].join('\t')
+
     get_summary: (success) ->
         if (not _.has(this, 'creation_data'))
             @get_job (response) ->

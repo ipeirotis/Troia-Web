@@ -118,6 +118,17 @@ class App.Client
                 success(response)
             , null, true)
 
+    get_evaluation_objects: (success) ->
+        @evaluation_objects = []
+        @_get(@_job_url() + @evaluation_objects_url, {}, true,
+            (response) =>
+                @evaluation_objects = $.parseJSON(response.responseText)['result']
+                @evaluationObjects = {}
+                for l in @evaluation_objects
+                    @evaluationObjects[l.name] = l.evaluationLabel
+                success(response)
+            , null, true)
+
     get_objects_prediction: (success) ->
         @objects_prediction = []
         @_get(@_job_url() + @objects_prediction_url, {}, true,
