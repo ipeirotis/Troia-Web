@@ -60,7 +60,8 @@ title: Demo application GAL
 								<!--<div class="span7">-->
 							    <li class="active"><a href="#data" data-toggle="tab">Data</a></li>
 							    <li><a href="#gold" data-toggle="tab">Gold data</a></li>
-							    <li><a href="#matrix" data-toggle="tab">Categories</a></li>
+							    <li><a href="#evaluation" data-toggle="tab">Evaluation</a></li>
+                                <li><a href="#matrix" data-toggle="tab">Categories</a></li>
 								<!--<div class="span7">-->
 						    </ul>
 							<div class="tab-content">
@@ -97,9 +98,21 @@ title: Demo application GAL
 									</div>
 									<div class="span5 well">
 										<p>Optionally, you may also provide a few known ("gold") answers. See <a href="http://behind-the-enemy-lines.blogspot.com/2010/09/worker-evaluation-in-crowdsourcing-gold.html">Worker Evaluation in Crowdsourcing: Gold Data or Multiple Workers?</a> for a discussion on how much help we can get from the usage of the "gold" answers.</p>
-
 									</div>
 								</div>
+                                <div class="tab-pane" id="evaluation">
+                                    <div class="span7">
+                                        <div class="control-group">
+                                            <textarea id="id_evaluation_data" class="field span12" rows="15" cols="40" placeholder="object class"></textarea>
+                                            <span class="help-inline"></span>
+                                            <h3>Line format:</h3>
+                                            <pre>objectid[tab]correctlabel</pre>
+                                        </div>
+                                    </div>
+                                    <div class="span5 well">
+                                        <p>You may as well provide a few known answers to check how good is the algorithm answer.</p>
+                                    </div>
+                                </div>
 								<div class="tab-pane" id="matrix" >
                                     <div class="span7">
                                         <h3>Cost matrix</h3>
@@ -297,7 +310,7 @@ title: Demo application GAL
         <!-- Classes table template. -->
 		<script type="text/template" id="objects_template">
 			<div>
-                <table class='table table-striped'>
+                <table>
                     <tr><th>Objects</th>
                     <% _.each(headers, function(h){  %>
                         <th width="150px"><%= h %></th>
@@ -306,8 +319,18 @@ title: Demo application GAL
                     <% _.each(_.keys(objects), function(k){ %>
                         <tr>
                             <td><%= k %></td>
-                            <% _.each(headers, function(h){ %>
-                            <td><%= objects[k][h] %></td>
+                            <% _.each(headers, function(h){
+                                if (evaluation[k] !== undefined) {
+                                    if (evaluation[k] === objects[k][h]) { %>
+                                        <td class="correct">
+                                    <% } else { %>
+                                        <td class="not_correct">
+                                    <% } %>
+                                <% } else { %>
+                                    <td>
+                                <% } %>
+                                <%= objects[k][h] %>
+                            </td>
                             <% }); %>
                         </tr>
                     <% }); %>

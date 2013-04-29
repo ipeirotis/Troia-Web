@@ -4,6 +4,7 @@ class App.NominalClient extends App.Client
     workers_summary_url: "/workers/quality/summary"
     data_dir: "/media/txt/jobs_data/"
     gold_data_dir: "/media/txt/jobs_gold_data/"
+    evaluation_data_dir: "/media/txt/jobs_evaluation_data/"
     workers_confustion_matrix: "/workers/quality/matrix"
 
 
@@ -14,6 +15,8 @@ class App.NominalClient extends App.Client
     _gold_object_to_json: (o) -> {name: o[0], goldLabel: o[1]}
 
     _gold_object_to_text: (o) -> [o.name, o.goldLabel].join('\t')
+
+    _evaluation_object_to_json: (o) -> {name: o[0], evaluationLabel: o[1]}
 
     get_objects_prediction: (success) ->
         @objects_prediction = []

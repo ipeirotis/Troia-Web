@@ -1,9 +1,9 @@
 class GAL_Application extends App.Application
     _client_type: App.NominalClient
 
-    gold_objects_validation_message: "Only 2 words per line allowed."
+    objects_validation_message: "Only 2 words per line allowed."
 
-    gold_objects_validator: (line) ->
+    objects_validator: (line) ->
         line.length != 2
 
     _before_create: () ->

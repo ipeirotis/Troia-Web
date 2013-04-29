@@ -74,6 +74,8 @@ class App.Application
                 $('#id_data').val(data)
             (data) ->
                 $('#id_gold_data').val(data)
+            (data) ->
+                $('#id_evaluation_data').val(data)
             () =>
                 @_post_loading_test_data()
         )
@@ -118,15 +120,28 @@ class App.Application
             $("#gold .control-group")
             $("#gold span")
             $('#dataTab li:nth-child(2) a')
-            @gold_objects_validator
-            @gold_objects_validation_message)
+            @objects_validator
+            @objects_validation_message)
+
+    parse_evaluation_labels: () =>
+        @_parse_input(
+            $("#id_evaluation_data")
+            $("#evaluation .control-group")
+            $("#evaluation span")
+            $('#dataTab li:nth-child(3) a')
+            @objects_validator
+            @objects_validation_message)
+
 
     populate_results_tables: () =>
         @client.get_results(
             () =>
                 $("#objects").html(_.template(
                     $("#objects_template").html(),
-                    {objects: @client.objects_prediction, headers: @client.objects_headers})
+                    {
+                        objects: @client.objects_prediction,
+                        headers: @client.objects_headers,
+                        evaluation: @client.evaluationObjects})
                 )
             () =>
                 $("#workers").html(_.template(
@@ -164,6 +179,7 @@ class App.Application
         $(".alert").hide()
         assigns = @parse_assigns()
         gold_labels = @parse_gold_labels()
+        evaluation_labels = @parse_evaluation_labels()
         if assigns and gold_labels
             button_text = $('#send_data').text()
             $('#send_data').addClass('disabled').text('Sending data..')
@@ -175,15 +191,21 @@ class App.Application
                         @client.post_gold_objects(
                             gold_labels
                             () =>
-                                $("#url pre").text(App.get_job_url(@client.id))
-                                $("#url").show()
-                                $("#img-load").show()
-                                $("#response").hide()
-                                $('#send_data').text('Computing..')
-                                $('#menuTab li:nth-child(2) a').attr("data-toggle", "tab").tab('show')
-                                @client.compute(() =>
-                                    $('#send_data').removeClass('disabled').text(button_text)
-                                    @populate_results_tables()
+                                @client.post_evaluation_objects(
+                                    evaluation_labels
+                                    () =>
+                                        $("#url pre").text(App.get_job_url(@client.id))
+                                        $("#url").show()
+                                        $("#img-load").show()
+                                        $("#response").hide()
+                                        $('#send_data').text('Computing..')
+                                        $('#menuTab li:nth-child(2) a').attr("data-toggle", "tab").tab('show')
+                                        @client.compute(() =>
+                                            $('#send_data').removeClass('disabled').text(button_text)
+                                            @populate_results_tables()
+                                        )
+                                    (p) =>
+                                        @show_loading_indicator(p)
                                 )
                             (p) =>
                                 @show_loading_indicator(p)

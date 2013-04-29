@@ -6,6 +6,7 @@ class App.Client
     assigns_url: "/assigns"
     compute_url: "/compute"
     gold_objects_url: "/goldObjects"
+    evaluation_objects_url: "/evaluationObjects"
     objects_prediction_url: "/objects/prediction/"
     workers_prediction_url: "/workers/quality/estimated/"
     creation_data: {}
@@ -58,14 +59,19 @@ class App.Client
             true
         )
 
-    get_example_job: (type, data_success, gold_success, success) ->
+    get_example_job: (type, data_success, gold_success, evaluation_success, success) ->
         $.ajax(url: @data_dir + type)
             .done((data) =>
                 data_success(data)
                 $.ajax(url: @gold_data_dir + type)
-                    .done((data) ->
+                    .done((data) =>
                         gold_success(data)
-                        success())
+                        $.ajax(url: @evaluation_data_dir + type)
+                            .done((data) ->
+                                evaluation_success(data)
+                                success()
+                                )
+                        )
                 )
 
     post_assigns: (assigns, success, partial_success) ->
@@ -74,11 +80,20 @@ class App.Client
         @_post_in_chunks(@_job_url() + @assigns_url, assigns, 'assigns', true,
             0, success, null, settings, @_stringify, partial_success)
 
-    post_gold_objects: (objects, success, partial_success) ->
-        objects = {objects: objects.map(@_gold_object_to_json)}
+    _post_objects: (objects, success, partial_success, map_func, url) ->
+        objects = {objects: objects.map(map_func)}
         settings = {contentType: 'application/json; charset=utf-8'}
-        @_post_in_chunks(@_job_url() + @gold_objects_url, objects,
+        @_post_in_chunks(@_job_url() + url, objects,
             'objects', true, 0, success, null, settings, @_stringify, partial_success)
+
+    post_gold_objects: (objects, success, partial_success) ->
+        @_post_objects(objects, success, partial_success, @_gold_object_to_json, @gold_objects_url)
+
+    post_evaluation_objects: (objects, success, partial_success) ->
+        @evaluationObjects = {}
+        for obj in objects
+            @evaluationObjects[obj[0]] = obj[1]
+        @_post_objects(objects, success, partial_success, @_evaluation_object_to_json, @evaluation_objects_url)
 
     download_zip: () ->
         @_get(@_job_url() + @download_zip_url, {}, true,
