@@ -442,7 +442,7 @@ def deploy_troia_server(confpath=None, blocking=True):
         '{troia_server_source}/service/src/main/resources/log4j.properties'.format(**conf),
         context=conf)
     # Clean and build the .war file.
-    with cd('{troia_server_source}/service'.format(**conf)):
+    with cd('{troia_server_source}'.format(**conf)):
         mvn('clean')
         mvn('package -Dmaven.test.skip=true')
     before = requests.get('http://{project_domain}/api/status'.format(**conf))
