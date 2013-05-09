@@ -31,7 +31,7 @@ To create new job enter:
         iterations: 10,
         epsilon: 0.0001,
         scheduler: "NormalScheduler",
-        calculator: "CostBased"
+        prioritycalculator: "CostBased"
     }'
 
 There are couple of parameters needs explenation:
@@ -43,7 +43,7 @@ There are couple of parameters needs explenation:
 - **iterations** (optional): only for blocking algorithms, default is 10
 - **epsilon** (optional): only for blocking algotithms, default is 1e-6
 - **scheduler** (optional): type of used scheduler (more about scheduler in Scheduler Tutorial); possible values are NormalScheduler, CachedScheduler
-- **calculator** (optional): type of calculator used by scheduler;
+- **prioritycalculator** (optional): type of calculator used by scheduler;
 
 
 As a result we get the following JSON:
