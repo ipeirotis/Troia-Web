@@ -36,16 +36,21 @@ ValueTypeListView = Backbone.View.extend({
     },
     render_chart: function(){
     	add_multiline_chart(
-    			this.place, 
+    			this.place,
     			this.datafile,
     			this.dataset_name,
-    			this.y_axis_txt, 
-    			_.map(_.filter(this.collection.models, function(m) {return m.get('checked')}), function(v) { return v.get("name")}));
+    			this.y_axis_txt,
+    			_.map(
+    				_.filter(this.collection.models, function(m) {
+    					return m.get('checked')}), function(v) {
+    				return v.get("name")}),
+    			this.full_metric_list
+		);
     }
 });
 
 var color = d3.scale.category20();
-var add_multiline_chart = function(place, datafile, dataset_name, y_axis_txt, to_view){ 
+var add_multiline_chart = function(place, datafile, dataset_name, y_axis_txt, to_view, full_list){
 	var margin = {top: 5, right: 0, bottom: 100, left: 50};
 	var width = 700 - margin.left - margin.right;
 	var height = 400 - margin.top - margin.bottom;
@@ -63,7 +68,7 @@ var add_multiline_chart = function(place, datafile, dataset_name, y_axis_txt, to
 	var yAxis = d3.svg.axis()
 	    .scale(y)
 	    .orient("left");
-	
+
 	var line = d3.svg.line()
 		.x(function(d) { return x(d.date) + x.rangeBand()/2 ; })
 		.y(function(d) { return y(d.value); });
@@ -77,8 +82,7 @@ var add_multiline_chart = function(place, datafile, dataset_name, y_axis_txt, to
 
 	d3.tsv(datafile, function(error, data) {
 	    data = data.slice(-10);
-	    color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
-		
+	    color.domain(full_list);
 		var values = color.domain().map(function(name) {
 			return {
 				name: name,
@@ -86,11 +90,11 @@ var add_multiline_chart = function(place, datafile, dataset_name, y_axis_txt, to
 					return {date: d.date, value: +d[name]};
 				})};
 		});
-		
+
 		values = _.filter(values, function(v){
 			return _.contains(to_view, v.name);
 		});
-		
+
 		x.domain(data.map(function(d) { return d.date; }));
 		y.domain([d3.min(values, function(c) { return d3.min(c.values, function(v) { return v.value; }); }) - 0.05,
 		          d3.max(values, function(c) { return d3.max(c.values, function(v) { return v.value; }); }) + 0.05]);
@@ -99,12 +103,12 @@ var add_multiline_chart = function(place, datafile, dataset_name, y_axis_txt, to
 			.attr("class", "x axis")
 			.attr("transform", "translate(0," + height + ")")
 			.call(xAxis)
-		.selectAll("text")  
+		.selectAll("text")
             .style("text-anchor", "end")
             .attr("dx", "-.8em")
             .attr("dy", ".15em")
             .attr("transform", function(d) {
-                return "rotate(-55)" 
+                return "rotate(-55)"
                 });
 
 		svg.append("g")
@@ -127,26 +131,25 @@ var add_multiline_chart = function(place, datafile, dataset_name, y_axis_txt, to
 	});
 }
 
-var datasets =['adult', 'barzan', 'small', 'medium', 'big']; 
+var datasets =['adult', 'barzan', 'small', 'medium', 'big'];
 var chart_settings = {
 	"data_cost": {
-		"metrics" : ["Estm_DS_ExpectedCost", "Estm_DS_MinCost", "Estm_DS_MaxLikelihood", 
-		             "Estm_MV_ExpectedCost", "Estm_MV_MinCost", "Estm_MV_MaxLikelihood", 
-		             "Estm_NoVote_ExpectedCost", "Estm_NoVote_MinCost", "Estm_NoVote_MaxLikelihood", 
-		             "Eval_DS_MaxLikelihood", "Eval_DS_MinCost", "Eval_DS_Soft", 
-		             "Eval_MV_MaxLikelihood", "Eval_MV_MinCost", "Eval_MV_Soft"],
+		"metrics" : ["Estm_DS_MinCost",
+		             "Estm_MV_MinCost",
+		             "Estm_NoVote_ExpectedCost", "Estm_NoVote_MinCost", "Estm_NoVote_MaxLikelihood",
+		             "Eval_DS_MinCost",
+		             "Eval_MV_MinCost"],
 		"txt": "Average data cost"
-	}, 
+	},
 	"data_quality": {
-		"metrics" : ["Estm_DS_ExpectedCost", "Estm_DS_MinCost", "Estm_DS_MaxLikelihood", 
-		             "Estm_MV_ExpectedCost", "Estm_MV_MinCost", "Estm_MV_MaxLikelihood", 
-		             "Eval_DS_MaxLikelihood", "Eval_DS_MinCost", "Eval_DS_Soft",
-		             "Eval_MV_MaxLikelihood", "Eval_MV_MinCost", "Eval_MV_Soft"],
+		"metrics" : ["Estm_DS_MinCost",
+		             "Estm_MV_MinCost",
+		             "Eval_DS_MinCost",
+		             "Eval_MV_MinCost"],
 		"txt": "Average data quality"
 	},
 	"worker_quality": {
-		"metrics" : ["Estm_DS_ExpectedCost", "Estm_DS_MinCost", "Estm_DS_MaxLikelihood",
-		             "Eval_DS_ExpectedCost", "Eval_DS_MinCost", "Eval_DS_MaxLikelihood"],
+		"metrics" : ["Estm_DS_ExpectedCost", "Eval_DS_ExpectedCost"],
 		"txt": "Average workers quality"
 	}
 }
@@ -161,27 +164,31 @@ for (var t in datasets){
 		var cb_place = "#" + cb_place_id;
 		var datafile = "/media/csv/" + chart_type + "_"+datasets[t]+".csv";
 		var y_axis_txt = chart_settings[chart_type]["txt"];
-		
+
 		d3.select(uberplace).append("div").html(chart_template({
-		    'chart_title': y_axis_txt, 
-		    "chart_div_id": place_id, 
+		    'chart_title': y_axis_txt,
+		    "chart_div_id": place_id,
 		    "checkboxes_div_id": cb_place_id}));
+		metrics = chart_settings[chart_type]["metrics"];
 		add_multiline_chart(
-			place, 
+			place,
 			datafile,
-			datasets[t], 
-			y_axis_txt, 
-			chart_settings[chart_type]["metrics"]
+			datasets[t],
+			y_axis_txt,
+			metrics,
+			metrics
 		);
-		
+
 		var vts = new ValueTypes();
 		var vtsv = new ValueTypeListView({collection: vts});
 		vtsv.dataset_name = datasets[t];
 		vtsv.place = place;
 		vtsv.datafile = datafile;
 		vtsv.y_axis_txt = y_axis_txt;
+		vtsv.full_metric_list = metrics;
 		values = [];
-		_.each(chart_settings[chart_type]["metrics"], function(v){
+		color.domain(metrics);
+		_.each(metrics, function(v){
 			values.push({"name": v, "checked": true, "color": color(v)});
 		});
 		vts.add(values);
