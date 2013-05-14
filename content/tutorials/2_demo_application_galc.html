@@ -180,9 +180,9 @@ title: Demo application GALC
                 </tr>
                 <% _.each(objects, function(o) { %>
                 <tr>
-                    <td><%= o.object.name %></td>
-                    <td><%= o.est_value %></td>
-                    <td><%= o.est_zeta %></td>
+                    <td><%= o.object %></td>
+                    <td><%= o.prediction.est_value %></td>
+                    <td><%= o.prediction.est_zeta %></td>
                 </tr>
                 <% }); %>
             </table>
@@ -201,9 +201,9 @@ title: Demo application GALC
                 <% _.each(workers, function(w) { %>
                 <tr>
                     <td><%= w.worker %></td>
-                    <td><%= w.est_mu %></td>
-                    <td><%= w.est_rho %></td>
-                    <td><%= w.est_sigma %></td>
+                    <td><%= w.quality.est_mu %></td>
+                    <td><%= w.quality.est_rho %></td>
+                    <td><%= w.quality.est_sigma %></td>
                     <!-- <td>&nbsp;</td> -->
                 </tr>
                 <% }); %>
