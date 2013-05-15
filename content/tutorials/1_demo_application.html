@@ -312,10 +312,11 @@ title: Demo application GAL
 			<div>
                 <table>
                     <tr><th>Objects</th>
-                    <% _.each(headers, function(h){  %>
+                    <th>Predicted label</th>
+                    <!-- TROIA-368 <% _.each(headers, function(h){  %>
                         <th width="150px"><%= h %></th>
                     <% }); %>
-                    </tr>
+                    </tr> -->
                     <% _.each(_.keys(objects), function(k){ %>
                         <tr>
                             <td><%= k %></td>
@@ -342,17 +343,21 @@ title: Demo application GAL
         <script type="text/template" id="workers_template">
             <div>
             <table class='table table-striped'>
-                <tr><th>Workers</th>
-                <% _.each(headers, function(h){  %>
-                    <th width="150px"><%= h %></th>
-                <% }); %>
-                <th width="150px">Confusion Matrix</th>
+                <tr>
+                    <th rowspan="2">Workers</th>
+                    <th colspan="2">Quality</th>
+                    <th rowspan="2" width="150px">Confusion Matrix</th>
+                </tr>
+                <tr>
+                    <% _.each(headers, function(h){  %>
+                        <td width="150px"><%= h %></td>
+                    <% }); %>
                 </tr>
                 <% _.each(_.keys(workers), function(k){ %>
                     <tr>
                         <td><%= k %></td>
                         <% _.each(headers, function(h){ %>
-                        <td><%= workers[k][h] %></td>
+                        <td><%= 100*workers[k][h] %>%</td>
                         <% }); %>
                         <td>
                             <a href="#" class="btn-small" data-content="<%= workers[k]['matrix'] %>" rel="popover"><i class="icon-search"></i></a>

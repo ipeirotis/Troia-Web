@@ -22,7 +22,7 @@ class App.NominalClient extends App.Client
 
     get_objects_prediction: (success) ->
         @objects_prediction = []
-        @objects_headers = ["MaxLikelihood", "MinCost"]
+        @objects_headers = ["MinCost"]#TROIA-368["MaxLikelihood", "MinCost"]
         @_get_objects_prediction_rec(success, @objects_headers)
 
     _get_objects_prediction_rec: (success, label_choosing_functions) ->
@@ -44,7 +44,7 @@ class App.NominalClient extends App.Client
 
     get_workers_prediction: (success) ->
         @workers_prediction = []
-        @workers_headers = ["ExpectedCost", "MinCost", "MaxLikelihood"]
+        @workers_headers = ["ExpectedCost", "MinCost"]#TROIA-368["ExpectedCost", "MinCost", "MaxLikelihood"]
         @_get_workers_prediction_rec(() =>
             @_get(@_job_url() + @workers_confustion_matrix, {}, true,
                 (response) =>
