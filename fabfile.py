@@ -420,7 +420,7 @@ def disable_troia_web(confpath=None):
 
 
 @task
-def deploy_troia_server(confpath=None, blocking=True):
+def deploy_troia_server(confpath=None, blocking=False):
     """Deploys the Troia-Server project (generic)."""
     readconf(confpath)
     clone_or_update('{troia_server_source}', '{troia_server_repo}',
@@ -461,7 +461,6 @@ def deploy_troia_server(confpath=None, blocking=True):
         if (before.ok and after.ok and after.json()['status'] == "NOT_INITIALIZED"):
             break
         time.sleep(5)
-    requests.post("http://{project_domain}/api/config".format(**conf), data={'IS_FREEZED': 'on'})
 
 
 @task
