@@ -53,6 +53,7 @@ class App.Application
                     else
                         $('#id_data').val("")
                         $('#id_gold_data').val("")
+                        $('#id_evaluation_data').val("")
                 )
 
         $('a[data-toggle="tab"]').on('shown', (e) =>

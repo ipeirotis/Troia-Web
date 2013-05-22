@@ -78,7 +78,7 @@ class App.NominalClient extends App.Client
     get_objects_summary: (success) ->
         @_get(@_job_url() + @objects_summary_url, {}, true
             (response) =>
-                result = $.parseJSON(response.responseText)['result']
+                result = _.omit($.parseJSON(response.responseText)['result'], "MaxLikelihood")
                 @objects_summary = result
                 success(response)
             null, true)
@@ -86,7 +86,7 @@ class App.NominalClient extends App.Client
     get_workers_summary: (success) ->
         @_get(@_job_url() + @workers_summary_url, {}, true
             (response) =>
-                result = $.parseJSON(response.responseText)['result']
+                result = _.omit($.parseJSON(response.responseText)['result'], "MaxLikelihood")
                 @workers_summary = result
                 success(response)
             null, true)
