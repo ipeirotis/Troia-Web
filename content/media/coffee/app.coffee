@@ -31,13 +31,13 @@ class App.Application
                     () =>
                         # Show the results tab at first.
                         $('#menuTab li:nth-child(2) a').tab('show')
-                        @populate_results_tables()
+                        @client.get_evaluation_objects((res) =>
+                            @populate_results_tables())
+                            $('#id_evaluation_data').val(@client.evaluation_objects.map(@client._evaluation_object_to_text).join('\n'))
                         @client.get_assigns((res) =>
                             $('#id_data').val(@client.assigns.map(@client._assign_to_text).join('\n')))
                         @client.get_gold_objects((res) =>
                             $('#id_gold_data').val(@client.gold_objects.map(@client._gold_object_to_text).join('\n')))
-                        @client.get_evaluation_objects((res) =>
-                            $('#id_evaluation_data').val(@client.evaluation_objects.map(@client._evaluation_object_to_text).join('\n')))
                         @_post_loading_results()
                     () =>
                         @show_error("Sorry, id=" + id + " hasn't been found.")
