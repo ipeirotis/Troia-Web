@@ -32,8 +32,8 @@ class App.Application
                         # Show the results tab at first.
                         $('#menuTab li:nth-child(2) a').tab('show')
                         @client.get_evaluation_objects((res) =>
-                            @populate_results_tables())
-                            $('#id_evaluation_data').val(@client.evaluation_objects.map(@client._evaluation_object_to_text).join('\n'))
+                            @populate_results_tables()
+                            $('#id_evaluation_data').val(@client.evaluation_objects.map(@client._evaluation_object_to_text).join('\n')))
                         @client.get_assigns((res) =>
                             $('#id_data').val(@client.assigns.map(@client._assign_to_text).join('\n')))
                         @client.get_gold_objects((res) =>
