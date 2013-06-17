@@ -6,7 +6,6 @@ class App.NominalClient extends App.Client
     gold_data_dir: "/media/txt/jobs_gold_data/"
     evaluation_data_dir: "/media/txt/jobs_evaluation_data/"
     workers_confustion_matrix: "/workers/quality/matrix"
-    workers_payment: "/workers/quality/payment"
 
 
     _assign_to_json: (a) -> {worker: a[0], object: a[1], label: a[2]}
@@ -49,17 +48,13 @@ class App.NominalClient extends App.Client
         @_get_workers_prediction_rec(() =>
             @_get(@_job_url() + @workers_confustion_matrix, {}, true,
                 (response) =>
-                    for r in $.parseJSON(response.responseText)['result']
+                    result = $.parseJSON(response.responseText)['result']
+                    for r in result
                         @workers_prediction[r.workerName]["matrix"] =
-                            _.template($("#confusion_matrix_template").html(), {
-                                categories: @creation_data.categories,
-                                data: r.value})
-                    @_get(@_job_url() + @workers_payment, {}, true,
-                        (response) =>
-                            for r in $.parseJSON(response.responseText)['result']
-                                @workers_prediction[r.workerName]["payment"] = r.value
-                            success()
-                        , null, true)
+                        _.template($("#confusion_matrix_template").html(), {
+                            categories: @creation_data.categories,
+                            data: r.value})
+                    success()
                 , null, true)
         , @workers_headers)
 

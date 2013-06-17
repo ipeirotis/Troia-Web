@@ -347,7 +347,6 @@ title: Demo application GAL
                     <th rowspan="2">Workers</th>
                     <th colspan="2">Quality</th>
                     <th rowspan="2" width="150px">Confusion Matrix</th>
-                    <th rowspan="2" width="100px">Payment</th>
                 </tr>
                 <tr>
                     <% _.each(headers, function(h){  %>
@@ -363,7 +362,6 @@ title: Demo application GAL
                         <td>
                             <a href="#" class="btn-small" data-content="<%= workers[k]['matrix'] %>" rel="popover"><i class="icon-search"></i></a>
                         </td>
-                        <td><%= workers[k].payment %></td>
                     </tr>
                 <% }); %>
             </table>
