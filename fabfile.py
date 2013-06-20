@@ -458,7 +458,8 @@ def deploy_troia_server(confpath=None, blocking=False):
         print after.content
         if not before.ok and after.ok:
             break
-        if (before.ok and after.ok and after.json()['status'] == "NOT_INITIALIZED"):
+        if (before.ok and after.ok and 
+            before.json()['result']['deploy_time'] != after.json()['result']['deploy_time']):
             break
         time.sleep(5)
 
