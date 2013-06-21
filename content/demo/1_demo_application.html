@@ -341,28 +341,23 @@ title: Discrete Labels
         <!-- Workers table template. -->
         <script type="text/template" id="workers_template">
             <div>
-            <table class='table table-striped'>
+            <table>
                 <tr>
-                    <th rowspan="2">Workers</th>
-                    <th colspan="2">Quality</th>
-                    <th rowspan="2" width="150px">Confusion Matrix</th>
-                    <th rowspan="2" width="100px">Payment</th>
-                </tr>
-                <tr>
-                    <% _.each(headers, function(h){  %>
-                        <td width="150px"><%= h %></td>
-                    <% }); %>
+                    <th>Workers</th>
+                    <th>Quality</th>
+                    <th width="70px">Payment</th>
+                    <th width="70px">Details</th>
                 </tr>
                 <% _.each(_.keys(workers), function(k){ %>
                     <tr>
                         <td><%= k %></td>
                         <% _.each(headers, function(h){ %>
-                        <td><%= 100*workers[k][h] %>%</td>
+                            <td style="background-color: hsl(<%= parseInt(120 * workers[k][h])%>, 100%, 50%)"><%= parseInt(100*workers[k][h]) %>% </td>
                         <% }); %>
+                        <td><%= Math.round(100*workers[k].payment)/100 %> </td>
                         <td>
                             <a href="#" class="btn-small" data-content="<%= workers[k]['matrix'] %>" rel="popover"><i class="icon-search"></i></a>
                         </td>
-                        <td><%= workers[k].payment %></td>
                     </tr>
                 <% }); %>
             </table>

@@ -49,7 +49,7 @@ class GAL_Application extends App.Application
         #make confusion matrices clickable
         clickedAway = false
         isVisible = false
-        $("a[rel=popover]").popover({html: true, title: "Confusion matrix", placement: "left", trigger: "manual"}).click((e) ->
+        $("a[rel=popover]").popover({html: true, title: "Confusion matrix", placement: "right", trigger: "manual"}).click((e) ->
             $("a[rel=popover]").not(@).popover('hide')
             $(@).popover('show')
             clickedAway = false

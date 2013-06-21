@@ -45,7 +45,7 @@ class App.NominalClient extends App.Client
 
     get_workers_prediction: (success) ->
         @workers_prediction = []
-        @workers_headers = ["ExpectedCost", "MinCost"]#TROIA-368["ExpectedCost", "MinCost", "MaxLikelihood"]
+        @workers_headers = ["MinCost"]#TROIA-368["ExpectedCost", "MinCost", "MaxLikelihood"]
         @_get_workers_prediction_rec(() =>
             @_get(@_job_url() + @workers_confustion_matrix, {}, true,
                 (response) =>
