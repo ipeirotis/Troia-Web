@@ -1,0 +1,14 @@
+---
+extends: skeleton/_base.html
+title: Advanced tutorials
+---
+
+{% block content %}
+<ul>
+    {% for res in site.content.node_from_relative_path("advanced_tutorials").walk_resources()|sort(reverse=False,attribute='full_url') %}
+        <li><a href="{{ res.full_url }}" >{{ res.meta.title }}</a></li>
+    {% endfor %}
+</ul>
+
+{% endblock %}
+

@@ -4,19 +4,12 @@
     <div class="true_footer">
         <a href="/" class="logo"></a>
         {% for item in menu %}
-            <div class="footer_menu{{ loop.index }}">
+            <div class="footer_menu">
                 <h4>{{ item.name }}</h4>
-                {% for res in site.content.node_from_relative_path(item.url).walk_resources()|sort(reverse=true) %}
+                {% for res in site.content.node_from_relative_path(item.url).walk_resources()|sort(reverse=False,attribute='full_url') %}
                 <a href="{{ res.full_url }}" {% if resource.url == res.url %}class="active"{% endif %}>{{ res.meta.title }}</a>
                 {% endfor %}
             </div>
-        {% endfor %}    
-        <div>
-            <h4>Source Code</h4>
-            <a href="https://github.com/ipeirotis/Troia-Server">Server</a>
-            <a href="https://github.com/ipeirotis/Troia-Web">Website</a>
-        </div>
-                
+        {% endfor %}
     </div>
-
 </footer>
