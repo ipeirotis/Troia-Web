@@ -9,7 +9,7 @@ title: Scheduler tutorial
 
 What is this tutorial about?
 ============================
-The purpose of this tutorial is to explain how the scheduler functions are used in Troia. 
+The purpose of this tutorial is to explain how the scheduler functions are used in Troia.
 API calls will be done using `cURL <http://curl.haxx.se/>`_
 
 There are two types of schedulers implemented into Troia:
@@ -20,7 +20,7 @@ There are two types of schedulers implemented into Troia:
 In order to be able to set up the priority of each object and to return the object with the highest priority, schedulers need to calculate object priority. There are two types of calculators used:
 
 	- CostBased - the object with the highest priority is the object with highest cost
-	- AssignCount - the object with highest priority is the object with the smallest number of assigns
+	- AssignCount - the object with highest priority is the object with the smallest number of assigned labels
 
 For simplicity reasons, the examples below will use cost calculator method AssignCount.
 
@@ -38,9 +38,9 @@ To create new job enter:
 		    {"categoryName": "porn", "value": 0.5},
 		    {"categoryName": "notporn", "value": 0.5}],
 		costMatrix: [
-		    {"from": "porn", "to": "notporn", "value": 1.0}, 
-		    {"from": "porn", "to": "porn", "value": 0.0}, 
-		    {"from": "notporn", "to": "porn", "value": 1.0}, 
+		    {"from": "porn", "to": "notporn", "value": 1.0},
+		    {"from": "porn", "to": "porn", "value": 0.0},
+		    {"from": "notporn", "to": "porn", "value": 1.0},
 		    {"from": "notporn", "to": "notporn", "value": 0.0}],
 		algorithm: "BDS",
 		iterations: 10,
@@ -105,10 +105,10 @@ Send labels that worker assigned to objects.
     {
         "workerName":"worker3",
         "objectName":"object3",
-        "categoryName":"notporn"   
+        "categoryName":"notporn"
     }]'
 
-As a result we get the result JSON and if we follow the redirect we get the confirmation that the assigns were added 
+As a result we get the result JSON and if we follow the redirect we get the confirmation that the assigned labels were added
 ::
 
     {
@@ -124,7 +124,7 @@ So we have the following set of assigned labels:
 
 Get the object with highest priority
 ------------------------------------
-We require the object with highest priority calling 
+We require the object with highest priority calling
 ::
 
     curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/nextObject"
@@ -133,16 +133,16 @@ As a result, we get the following JSON:
 ::
 
     {
-        "executionTime": 0.0, 
-        "timestamp": "2013-04-05T14:54:19.235+03:00", 
-        "status": "OK", 
-        "result": 
+        "executionTime": 0.0,
+        "timestamp": "2013-04-05T14:54:19.235+03:00",
+        "status": "OK",
+        "result":
         {
         	"name": "object3"
         }
     }
-    
-Expected? Yes, because object3 has the least amount of assigns and thus the highest priority, according to AssignCount calculator.
+
+Expected? Yes, because object3 has the least amount of assigned labels and thus the highest priority, according to AssignCount calculator.
 
 Now, let's see what happens if we call the second time
 ::
@@ -153,10 +153,10 @@ As a result, as previously, we get the JSON:
 ::
 
     {
-        "executionTime": 0.0, 
-        "timestamp": "2013-04-05T14:54:19.235+03:00", 
-        "status": "OK", 
-        "result": 
+        "executionTime": 0.0,
+        "timestamp": "2013-04-05T14:54:19.235+03:00",
+        "status": "OK",
+        "result":
         {
         	"name": "object2"
         }
@@ -173,8 +173,8 @@ Now, if we add a new label, the object priorities are recomputed. So if we call:
         "objectName":"object3",
         "categoryName":"porn"
     }]'
-    
-And then 
+
+And then
 
 ::
 
@@ -184,10 +184,10 @@ We will retrieve
 ::
 
     {
-        "executionTime": 0.0, 
-        "timestamp": "2013-04-05T14:54:19.235+03:00", 
-        "status": "OK", 
-        "result": 
+        "executionTime": 0.0,
+        "timestamp": "2013-04-05T14:54:19.235+03:00",
+        "status": "OK",
+        "result":
         {
         	"name": "object3"
         }
@@ -208,9 +208,9 @@ To create new job enter:
 		    {"categoryName": "porn", "value": 0.5},
 		    {"categoryName": "notporn", "value": 0.5}],
 		costMatrix: [
-		    {"from": "porn", "to": "notporn", "value": 1.0}, 
-		    {"from": "porn", "to": "porn", "value": 0.0}, 
-		    {"from": "notporn", "to": "porn", "value": 1.0}, 
+		    {"from": "porn", "to": "notporn", "value": 1.0},
+		    {"from": "porn", "to": "porn", "value": 0.0},
+		    {"from": "notporn", "to": "porn", "value": 1.0},
 		    {"from": "notporn", "to": "notporn", "value": 0.0}],
 		algorithm: "BDS",
 		iterations: 10,
@@ -263,7 +263,7 @@ Send labels that worker assigned to objects.
         "categoryName":"porn"
     }]'
 
-As a result we get the result JSON and if we follow the redirect we get the confirmation that the assigns were added 
+As a result we get the result JSON and if we follow the redirect we get the confirmation that the assigned labels were added
 ::
 
     {
@@ -278,7 +278,7 @@ So we have the following assigned labels:
 
 Get the object with highest priority
 ------------------------------------
-We require the object with highest priority by calling 
+We require the object with highest priority by calling
 ::
 
     curl -X GET "http://project-troia.com/api/jobs/<JOB_ID>/nextObject"
@@ -287,16 +287,16 @@ As a result, we get the following JSON:
 ::
 
     {
-        "executionTime": 0.0, 
-        "timestamp": "2013-04-05T14:54:19.235+03:00", 
-        "status": "OK", 
-        "result": 
+        "executionTime": 0.0,
+        "timestamp": "2013-04-05T14:54:19.235+03:00",
+        "status": "OK",
+        "result":
         {
         	"name": "object1"
         }
     }
-    
-Expected? Yes, because object1 has the least amount of assigns and thus the highest priority, according to AssignCount calculator
+
+Expected? Yes, because object1 has the least amount of assigned labels and thus the highest priority, according to AssignCount calculator
 
 Now, let's see what happens if we call the second time
 ::
@@ -307,16 +307,16 @@ We get the following JSON:
 ::
 
     {
-        "executionTime": 0.0, 
-        "timestamp": "2013-04-05T14:54:19.235+03:00", 
-        "status": "OK", 
-        "result": 
+        "executionTime": 0.0,
+        "timestamp": "2013-04-05T14:54:19.235+03:00",
+        "status": "OK",
+        "result":
         {
         	"name": "object1"
-        }	
+        }
     }
 
-This is also fine because there were no assigns added and object1 still has the highest priority 
+This is also fine because there were no assigned labels added and object1 still has the highest priority
 
 If we add a another assigned label
 ::
@@ -327,7 +327,7 @@ If we add a another assigned label
         "objectName":"object3",
         "categoryName":"porn"
     }]'
-    
+
 When we call
 ::
 
@@ -337,17 +337,17 @@ We get the JSON:
 ::
 
     {
-        "executionTime": 0.0, 
-        "timestamp": "2013-04-05T14:54:19.235+03:00", 
-        "status": "OK", 
-        "result": 
+        "executionTime": 0.0,
+        "timestamp": "2013-04-05T14:54:19.235+03:00",
+        "status": "OK",
+        "result":
         {
         	"name": "object3"
         }
     }
 
-This is a proof that the object priorities are recomputed when new assigns are added
- 
+This is a proof that the object priorities are recomputed when new assigned labels are added
+
 {% endrestructuredtext %}
 {% endblock %}
 

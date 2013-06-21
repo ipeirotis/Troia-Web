@@ -10,7 +10,7 @@ title: Advanced tutorial
 What this tutorial is about?
 ============================
 In this tutorial we will present more advanced features of Troia.
-We will cover topics like incremental version of algorithm, marking objects as gold or checking which samples might require more assigns.
+We will cover topics like incremental version of algorithm, marking objects as gold or checking which samples might require more assigned labels.
 
 As in base tutorial we will use `cURL <http://curl.haxx.se/>`_ to communicate with Troia Server API.
 Also we will use the same dataset in examples.
@@ -118,13 +118,13 @@ And in result we should get:
 Marking object as gold
 ----------------------
 
-Sometimes during collecting assigns we get to know true label for some sample.
+Sometimes during collecting assigned labels we get to know true label for some sample.
 This is knowledge that we might use to increase accuracy of Troia.
 
-Lets initialize job with cost matrix and assigns from example.
+Lets initialize job with cost matrix and assigned labels from example.
 We will work on *incremental* version as it doesn't require forcing computations.
 
-We check workers qualities just after putting assigns:
+We check workers qualities just after putting assigned labels:
 
 ::
 
@@ -175,15 +175,15 @@ And asking again for results we should get different results:
     }
 
 
-Checking whether samples require more assigns
----------------------------------------------
+Checking whether samples require more assigned labels
+-----------------------------------------------------
 
-Troia can determine whether there are samples for which we should provide more assigns in order to acquire more accurate results.
+Troia can determine whether there are samples for which we should provide more assigned labels in order to acquire more accurate results.
 To do this we can use *data cost* functions.
 It is related to fact that we can assign to different errors different costs.
 For example predicting not porn site as porn is not as big problem as predicting porn site as not porn in case of program which should protect kids computer.
 
-For our purposes of determining samples which require more assigns we will use variation called *expectedCost*.
+For our purposes of determining samples which require more assigned labels we will use variation called *expectedCost*.
 This value for given object describes cost value that algorithm *expects* it will generate.
 Lower value means that algorithm is more sure of its prediction and that it less require more data.
 

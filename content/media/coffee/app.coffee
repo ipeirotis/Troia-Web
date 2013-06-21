@@ -45,7 +45,7 @@ class App.Application
                 )
             else
                 @disable_results_tab()
-                @load_test_data(1)
+                # @load_test_data(1)
                 $('#id_data_choose').change(() =>
                     value = $('#id_data_choose :selected').val()
                     if value > 0
@@ -66,7 +66,7 @@ class App.Application
         $(".alert").show()
 
     show_loading_indicator: (percentage) ->
-        $('#send_data').text("Sending assigns (" + percentage.toString() + "%)...")
+        $('#send_data').text("Sending assigned labels (" + percentage.toString() + "%)...")
 
     disable_results_tab: () ->
         $("#menuTab li:nth-child(2) a").attr("data-toggle", "").css("cursor",  "not-allowed")

@@ -24,31 +24,28 @@ title: Discrete Labels
 	    <div class="tab-content">
             <div class="tab-pane active" id="input">
                 <div class="row" style="margin: inherit;">
-                    <div class="span6">
-                        <div class="page-header">
-                            <h2>1. Algorithm</h2>
-                        </div>
-                        <p>
-                            <select id="id_algorithm_choose" style="width: 300px;" class="select_down">
-                                <option value="BDS">Batch DawidSkene, blockingEM</option>
-                                <option value="IDS">Incremental DawidSkene, onlineEM</option>
-                                <option value="BMV">MajorityVote</option>
-                            </select>
-                        </p>
+                    <div class="page-header">
+                        <h2>1. Algorithm</h2>
                     </div>
-                    <div class="span6">
-                        <div class="page-header">
-                            <h2>2. Initial data</h2>
-                        </div>
-                        <p>
-                            Data set:
-                            <select id="id_data_choose" style="width: 300px;" class="select_down">
-                                <option value="1">Small pack - 25 worker assigns, 1 gold item</option>
-                                <option value="2">Big pack - 5000 worker assigns, 30 gold items</option>
-                                <option value="0">Empty</option>
-                            </select>
-                        </p>
+                    <p>
+                        <select id="id_algorithm_choose" style="width: 300px;" class="select_down">
+                            <option value="BDS">EM Algorithm</option>
+                            <option value="BMV">Majority Vote</option>
+                        </select>
+                    </p>
+                </div>
+                <div class="row" style="margin: inherit;">
+                    <div class="page-header">
+                        <h2>2. Select Existing Data Set</h2>
                     </div>
+                    <p>
+                        Data set:
+                        <select id="id_data_choose" style="width: 300px;" class="select_down">
+                            <option value="0">Empty</option>
+                            <option value="1">Small: 25 assigned labels, 1 gold</option>
+                            <option value="2">Large: 5000 assigned labels, 30 golds</option>
+                        </select>
+                    </p>
                 </div>
                 <div class="row" style="margin: inherit;">
 		    		<div class="page-header">
@@ -140,11 +137,13 @@ title: Discrete Labels
 	    		<div id="response">
                     <div class="row" style="margin-left: auto; margin-right: auto; padding-right: 0;">
                         <div class="span8">
-                            <ul class="nav nav-tabs" id="resultsTab">
-                                <li class="active"><a href="#summary" data-toggle="tab">Summary</a></li>
-                                <li><a href="#objects" data-toggle="tab">Predicted labels</a></li>
-                                <li><a href="#workers" data-toggle="tab">Workers stats</a></li>
-                            </ul>
+                            <p>
+                                <ul class="nav nav-tabs" id="resultsTab">
+                                    <li class="active"><a href="#summary" data-toggle="tab">Summary</a></li>
+                                    <li><a href="#objects" data-toggle="tab">Predicted labels</a></li>
+                                    <li><a href="#workers" data-toggle="tab">Workers stats</a></li>
+                                </ul>
+                            </p>
                         </div>
                     </div>
                     <div class="tab-content">
