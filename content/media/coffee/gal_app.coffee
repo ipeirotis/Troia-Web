@@ -46,10 +46,19 @@ class GAL_Application extends App.Application
                 @_post_loading_test_data()
 
     _post_populate_results_table: () ->
+        @client.get_workers_confusion_matrices()
+        @client.get_workers_details()
+        @client.get_workers_payment()
         #make confusion matrices clickable
         clickedAway = false
         isVisible = false
-        $("a[rel=popover]").popover({html: true, title: "Confusion matrix", placement: "right", trigger: "manual"}).click((e) ->
+        $("a[rel=popover]").popover({
+            html: true,
+            title: "Confusion matrix",
+            placement: "right",
+            trigger: "manual",
+            content: () ->
+                $("#" + @.id + "_info").html() }).click((e) ->
             $("a[rel=popover]").not(@).popover('hide')
             $(@).popover('show')
             clickedAway = false

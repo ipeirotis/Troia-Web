@@ -5,9 +5,10 @@ class App.NominalClient extends App.Client
     data_dir: "/media/txt/jobs_data/"
     gold_data_dir: "/media/txt/jobs_gold_data/"
     evaluation_data_dir: "/media/txt/jobs_evaluation_data/"
-    workers_confustion_matrix: "/workers/quality/matrix"
+    workers_confusion_matrix: "/workers/quality/matrix"
     workers_payment: "/workers/quality/payment"
-
+    workers_details: "/workers/"
+    worker_payment: (wid) -> "/workers/" + wid + "/quality/payment"
 
     _assign_to_json: (a) -> {worker: a[0], object: a[1], label: a[2]}
 
@@ -46,22 +47,36 @@ class App.NominalClient extends App.Client
     get_workers_prediction: (success) ->
         @workers_prediction = []
         @workers_headers = ["MinCost"]#TROIA-368["ExpectedCost", "MinCost", "MaxLikelihood"]
-        @_get_workers_prediction_rec(() =>
-            @_get(@_job_url() + @workers_confustion_matrix, {}, true,
+        @_get_workers_prediction_rec(success, @workers_headers)
+
+    get_workers_payment: () ->
+        for wp in _.keys(@workers_prediction)
+            @_get(@_job_url() + @worker_payment(wp), {}, true,
                 (response) =>
-                    for r in $.parseJSON(response.responseText)['result']
-                        @workers_prediction[r.workerName]["matrix"] =
-                            _.template($("#confusion_matrix_template").html(), {
-                                categories: @creation_data.categories,
-                                data: r.value})
-                    @_get(@_job_url() + @workers_payment, {}, true,
-                        (response) =>
-                            for r in $.parseJSON(response.responseText)['result']
-                                @workers_prediction[r.workerName]["payment"] = r.value
-                            success()
-                        , null, true)
+                    result = $.parseJSON(response.responseText)['result']
+                    $("#" + result.workerName + "_payment").text(Math.round(100*result.value)/100)
                 , null, true)
-        , @workers_headers)
+
+    get_workers_confusion_matrices: () ->
+        @_get(@_job_url() + @workers_confusion_matrix, {}, true,
+            (response) =>
+                for r in $.parseJSON(response.responseText)['result']
+                    $("#" + r.workerName + "_confusion_matrix").html(
+                        _.template($("#confusion_matrix_template").html(), {
+                                categories: @creation_data.categories,
+                                data: r.value}))
+            , null, true)
+
+    get_workers_details: () ->
+        @_get(@_job_url() + @workers_details, {}, true,
+            (response) =>
+                for r in $.parseJSON(response.responseText)['result']
+                    $("#" + r.workerName + "_details").html(
+                        _.template($("#worker_details_template").html(), {
+                                assigns: r.value.assigns,
+                                gold_tests: r.value.goldTests,
+                                correct_gold_tests: r.value.correctGoldTests}))
+            , null, true)
 
     _get_workers_prediction_rec: (success, cost_algorithms) ->
         cost_algorithm = cost_algorithms[0]

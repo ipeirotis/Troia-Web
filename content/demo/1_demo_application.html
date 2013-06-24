@@ -354,9 +354,24 @@ title: Discrete Labels
                         <% _.each(headers, function(h){ %>
                             <td style="background-color: hsl(<%= parseInt(120 * workers[k][h])%>, 100%, 50%)"><%= parseInt(100*workers[k][h]) %>% </td>
                         <% }); %>
-                        <td><%= Math.round(100*workers[k].payment)/100 %> </td>
                         <td>
-                            <a href="#" class="btn-small" data-content="<%= workers[k]['matrix'] %>" rel="popover"><i class="icon-search"></i></a>
+                            <div id="<%= k %>_payment"><img src="/media/img/smallrotation.gif"/></div>
+                        </td>
+                        <td>
+                            <a href="#"
+                                id="<%= k %>"
+                                class="btn-small"
+                                rel="popover">
+                                <i class="icon-search"></i>
+                            </a>
+                            <div style="display: none">
+                                <div id="<%= k %>_info">
+                                    Consfusion matrix:
+                                    <div id="<%= k %>_confusion_matrix"><img src="/media/img/smallrotation.gif"/></div>
+                                    Worker details:
+                                    <div id="<%= k %>_details"><img src="/media/img/smallrotation.gif"/></div>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 <% }); %>
@@ -392,6 +407,12 @@ title: Discrete Labels
                     <% } %>
                 </tbody>
             </table>
+        </script>
+
+        <!-- worker details template -->
+        <script type="text/template" id="worker_details_template">
+            Assigned labels: <%= assigns %>
+            Gold tests: <%= correct_gold_tests %> / <%= gold_tests %>
         </script>
     </div>
 </div>
