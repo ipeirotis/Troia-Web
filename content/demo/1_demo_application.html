@@ -182,8 +182,8 @@ title: Discrete Labels
                     <li>Number of objects: <%= summary.objects %></li>
                     <li>Assigned labels: <%= summary.assigns %></li>
                     <li>Gold labels: <%= summary.goldObjects %></li>
-                    <li>Data labeling quality: <%= objects_quality_summary.MinCost * 100 %>% (cost: <%= objects_cost_summary.MinCost %>, base cost: <%= objects_cost_summary.Spammer %>)</li>
-                    <li>Workers quality: <%= workers_summary.MinCost * 100 %>%</li>
+                    <li>Data labeling quality: <a href="#" onclick="$('#resultsTab a')[1].click()"><%= objects_quality_summary.MinCost * 100 %>%</a> (cost: <%= objects_cost_summary.MinCost %>, base cost: <%= objects_cost_summary.Spammer %>)</li>
+                    <li>Workers quality: <a href="#" onclick="$('#resultsTab a')[2].click()"><%= workers_summary.MinCost * 100 %>%</a></li>
                 </ul>
             </div>
         </script>
