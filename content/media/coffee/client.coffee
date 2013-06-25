@@ -215,12 +215,6 @@ class App.Client
                         success(res)
         setTimeout(timeout_func, 500)
 
-    _jsonify: (data) ->
-        result = {}
-        for k, v of data
-            result[k] = if k isnt "id" then JSON.stringify(v) else v
-        return result
-
     _stringify: (data) -> JSON.stringify(data)
 
     _ajax_error: (jqXHR, textStatus, errorThrown) ->
