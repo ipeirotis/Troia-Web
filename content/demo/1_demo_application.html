@@ -150,39 +150,14 @@ title: Discrete Labels
                         <div class="tab-pane active" id="summary">
                             <div id="summary-inner" style="display: none;">
                                 <div class="row" style="margin: inherit;">
-                                    <!-- <div class="span2"></div> -->
-                                    <div class="span8">
-                                        <div class="page-header">
-                                            <h2>Job summary</h2>
-                                        </div>
-                                        <div id="job_summary"></div>
-                                    </div>
-                                    <div class="span4">
-                                    <!-- <div class="span4" style="text-align: right; margin-left: auto; margin-right: 0"> -->
-                                        <span id="download_zip_btn" class="btn btn-info" style="">Download results</span>
-                                    </div>
+                                    <div id="job_summary"></div>
                                 </div>
                                 <div class="row" style="margin: inherit;">
-                                    <div class="span6">
-                                        <div class="page-header">
-                                            <h2>Objects qualities</h2>
-                                        </div>
-                                        <div id="objects_summary"></div>
-                                    </div>
-                                <!-- </div> -->
-                                <!-- <div class="row" style="margin: inherit;"> -->
-                                    <div class="span6">
-                                        <div class="page-header">
-                                            <h2>Workers qualities</h2>
-                                        </div>
-                                        <div id="workers_summary"></div>
-                                    </div>
+                                    <span id="download_zip_btn" class="btn btn-info" style="">Download results</span>
                                 </div>
                                 <div class="row" style="margin: inherit;">
                                     <div id="url" style="display: none;">
-                                        <div class="page-header">
-                                            <h2>You can see later your results at</h2>
-                                        </div>
+                                        <h3>You can see later your results at:</h3>
                                         <pre style="text-align: center;"></pre>
                                     </div>
                                 </div>
@@ -202,66 +177,14 @@ title: Discrete Labels
         <!-- Job summary template. -->
         <script type="text/template" id="job_summary_template">
             <div>
-                <table>
-                    <thead>
-                        <tr>
-                            <% _.each(_.keys(summary), function(key) { %>
-                                <th><%= key %></th>
-                            <% }); %>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <% _.each(_.keys(summary), function(key) { %>
-                                <td><%= summary[key] %></td>
-                            <% }); %>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </script>
-
-        <!-- Objects summary template. -->
-        <script type="text/template" id="objects_summary_template">
-            <div>
-                <table>
-                    <thead>
-                        <tr>
-                            <% _.each(_.keys(objects_summary), function(key) { %>
-                                <th><%= key %></th>
-                            <% }); %>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <% _.each(_.keys(objects_summary), function(key) { %>
-                                <td><%= objects_summary[key] %></td>
-                            <% }); %>
-                        </tr>
-                    </tbody>
-                </table>
-            <div>
-        </script>
-
-        <!-- Workers summary template. -->
-        <script type="text/template" id="workers_summary_template">
-            <div>
-                <table>
-                    <thead>
-                        <tr>
-                            <% _.each(_.keys(workers_summary), function(key) { %>
-                                <th><%= key %></th>
-                            <% }); %>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <% _.each(_.keys(workers_summary), function(key) { %>
-                                <td><%= workers_summary[key] %></td>
-                            <% }); %>
-                        </tr>
-                    </tbody>
-                </table>
+                <ul>
+                    <li>Number of workers: <%= summary.workers %></li>
+                    <li>Number of objects: <%= summary.objects %></li>
+                    <li>Assigned labels: <%= summary.assigns %></li>
+                    <li>Gold labels: <%= summary.goldObjects %></li>
+                    <li>Data labeling quality: <%= objects_quality_summary.MinCost * 100 %>% (cost: <%= objects_cost_summary.MinCost %>, base cost: <%= objects_cost_summary.Spammer %>)</li>
+                    <li>Workers quality: <%= workers_summary.MinCost * 100 %>%</li>
+                </ul>
             </div>
         </script>
 
@@ -316,7 +239,7 @@ title: Discrete Labels
                         <th width="150px"><%= h %></th>
                     <% }); %>
                     </tr> -->
-                    <% _.each(_.keys(objects), function(k){ %>
+                    <% _.each(_.keys(objects).sort(), function(k){ %>
                         <tr>
                             <td><%= k %></td>
                             <% _.each(headers, function(h){
@@ -348,7 +271,7 @@ title: Discrete Labels
                     <th width="70px">Payment</th>
                     <th width="70px">Details</th>
                 </tr>
-                <% _.each(_.keys(workers), function(k){ %>
+                <% _.each(_.keys(workers).sort(), function(k){ %>
                     <tr>
                         <td><%= k %></td>
                         <% _.each(headers, function(h){ %>
@@ -368,10 +291,11 @@ title: Discrete Labels
                                 <div id="<%= k %>_info">
                                     <span style="font-size: 15px">Consfusion matrix:</span>
                                     <div id="<%= k %>_confusion_matrix"><img src="/media/img/smallrotation.gif"/></div>
-                                    <span style="font-size: 15px">Worker details:</span>
-                                    <div id="<%= k %>_details"><img src="/media/img/smallrotation.gif"/></div>
-                                    <div>Cost: <span id="<%= k %>_cost"><img src="/media/img/smallrotation.gif"/></span></div>
-                                    <div>Strategic spammer base cost: <span class="spammer_cost"><img src="/media/img/smallrotation.gif"/></span></div>
+                                    <span style="font-size: 13px">
+                                        <div id="<%= k %>_details"><img src="/media/img/smallrotation.gif"/></div>
+                                        <div>Cost: <span id="<%= k %>_cost"><img src="/media/img/smallrotation.gif"/></span></div>
+                                        <div>Strategic spammer cost: <span class="spammer_cost"><img src="/media/img/smallrotation.gif"/></span></div>
+                                    </span>
                                 </div>
                             </div>
                         </td>

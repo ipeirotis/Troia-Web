@@ -87,7 +87,7 @@ class GAL_Application extends App.Application
     _post_loading_results: () ->
         @client.get_job((response) =>
             #select used algorithm
-            init_data = $.parseJSON(response.responseText)['result']['Initialization data']
+            init_data = $.parseJSON(response.responseText)['result']['initializationData']
             $('#id_algorithm_choose').val(init_data['algorithm'])
             #create cost matrix and category priors table
             @categories = init_data['categories']

@@ -154,20 +154,11 @@ class App.Application
 
             () =>
                 $("#job_summary").html(
-                    _.template($("#job_summary_template").html(),
-                        {summary: @client.summary}
-                    )
-                )
-                $("#objects_summary").html(
-                    _.template(
-                        $("#objects_summary_template").html(),
-                        {objects_summary: @client.objects_summary}
-                    )
-                )
-                $("#workers_summary").html(
-                    _.template(
-                        $("#workers_summary_template").html(),
-                        {workers_summary: @client.workers_summary}
+                    _.template($("#job_summary_template").html(), {
+                        summary: @client.summary,
+                        objects_quality_summary: @client.objects_quality_summary,
+                        objects_cost_summary: @client.objects_cost_summary,
+                        workers_summary: @client.workers_summary,}
                     )
                 )
             () =>

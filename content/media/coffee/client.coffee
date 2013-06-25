@@ -52,8 +52,8 @@ class App.Client
                 # XXX nasty fix for bug on loading historical job.
                 # Probably one can done it better.
                 @summary = $.parseJSON(response.responseText)['result']
-                @creation_data = @summary['Initialization data']
-                delete @summary['Initialization data']
+                @creation_data = @summary['initializationData']
+                delete @summary['initializationData']
                 success(response)
             null
             true

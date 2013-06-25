@@ -1,6 +1,7 @@
 class App.NominalClient extends App.Client
     jobs_url: "/jobs"
-    objects_summary_url: "/objects/quality/summary"
+    objects_quality_summary_url: "/objects/quality/summary"
+    objects_cost_summary_url: "/objects/cost/summary"
     workers_summary_url: "/workers/quality/summary"
     data_dir: "/media/txt/jobs_data/"
     gold_data_dir: "/media/txt/jobs_gold_data/"
@@ -104,18 +105,26 @@ class App.NominalClient extends App.Client
             , null, true)
 
     get_objects_summary: (success) ->
-        @_get(@_job_url() + @objects_summary_url, {}, true
+        @_get(@_job_url() + @objects_quality_summary_url, {}, true
             (response) =>
-                result = _.omit($.parseJSON(response.responseText)['result'], "MaxLikelihood")
-                @objects_summary = result
-                success(response)
+                @objects_quality_summary = {}
+                for func, val of $.parseJSON(response.responseText)['result']
+                    @objects_quality_summary[func] = @_round(val, 2)
+                @_get(@_job_url() + @objects_cost_summary_url, {}, true
+                    (response) =>
+                        @objects_cost_summary = {}
+                        for func, val of $.parseJSON(response.responseText)['result']
+                            @objects_cost_summary[func] = @_round(val, 2)
+                        success(response)
+                    null, true)
             null, true)
 
     get_workers_summary: (success) ->
         @_get(@_job_url() + @workers_summary_url, {}, true
             (response) =>
-                result = _.omit($.parseJSON(response.responseText)['result'], "MaxLikelihood")
-                @workers_summary = result
+                @workers_summary = {}
+                for func, val of $.parseJSON(response.responseText)['result']
+                    @workers_summary[func] = @_round(val, 2)
                 success(response)
             null, true)
 
