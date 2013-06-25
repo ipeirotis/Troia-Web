@@ -366,10 +366,12 @@ title: Discrete Labels
                             </a>
                             <div style="display: none">
                                 <div id="<%= k %>_info">
-                                    Consfusion matrix:
+                                    <span style="font-size: 15px">Consfusion matrix:</span>
                                     <div id="<%= k %>_confusion_matrix"><img src="/media/img/smallrotation.gif"/></div>
-                                    Worker details:
+                                    <span style="font-size: 15px">Worker details:</span>
                                     <div id="<%= k %>_details"><img src="/media/img/smallrotation.gif"/></div>
+                                    <div>Cost: <span id="<%= k %>_cost"><img src="/media/img/smallrotation.gif"/></span></div>
+                                    <div>Strategic spammer base cost: <span class="spammer_cost"><img src="/media/img/smallrotation.gif"/></span></div>
                                 </div>
                             </div>
                         </td>
@@ -411,8 +413,8 @@ title: Discrete Labels
 
         <!-- worker details template -->
         <script type="text/template" id="worker_details_template">
-            Assigned labels: <%= assigns %>
-            Gold tests: <%= correct_gold_tests %> / <%= gold_tests %>
+            <div>Assigned labels: <%= assigns %></div>
+            <div>Gold tests: <%= correct_gold_tests %> / <%= gold_tests %></div>
         </script>
     </div>
 </div>

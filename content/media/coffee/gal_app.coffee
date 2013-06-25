@@ -49,6 +49,9 @@ class GAL_Application extends App.Application
         @client.get_workers_confusion_matrices()
         @client.get_workers_details()
         @client.get_workers_payment()
+        @client.get_workers_cost()
+        @client.get_job((response) =>
+            $(".spammer_cost").text($.parseJSON(response.responseText)['result']['strategicSpammerCost']))
         #make confusion matrices clickable
         clickedAway = false
         isVisible = false

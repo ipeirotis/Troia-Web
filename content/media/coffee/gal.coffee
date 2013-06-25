@@ -8,6 +8,7 @@ class App.NominalClient extends App.Client
     workers_confusion_matrix: "/workers/quality/matrix"
     workers_payment: "/workers/quality/payment"
     workers_details: "/workers/"
+    workers_cost: "/workers/cost/estimated"
     worker_payment: (wid) -> "/workers/" + wid + "/quality/payment"
 
     _assign_to_json: (a) -> {worker: a[0], object: a[1], label: a[2]}
@@ -49,12 +50,29 @@ class App.NominalClient extends App.Client
         @workers_headers = ["MinCost"]#TROIA-368["ExpectedCost", "MinCost", "MaxLikelihood"]
         @_get_workers_prediction_rec(success, @workers_headers)
 
+    _get_workers_prediction_rec: (success, cost_algorithms) ->
+        cost_algorithm = cost_algorithms[0]
+        @_get(@_job_url() + @workers_prediction_url, {'costAlgorithm': cost_algorithm}, true,
+            (response) =>
+                result = $.parseJSON(response.responseText)['result']
+                result["name"] = cost_algorithm
+                @workers_prediction.push(result)
+                if (cost_algorithms.length > 1)
+                    @_get_workers_prediction_rec(success, cost_algorithms[1..])
+                else
+                    @workers_prediction = @transpose_objects(
+                        @workers_prediction,
+                        "workerName",
+                        "value")
+                    success()
+            , null, true)
+
     get_workers_payment: () ->
         for wp in _.keys(@workers_prediction)
             @_get(@_job_url() + @worker_payment(wp), {}, true,
                 (response) =>
                     result = $.parseJSON(response.responseText)['result']
-                    $("#" + result.workerName + "_payment").text(Math.round(100*result.value)/100)
+                    $("#" + result.workerName + "_payment").text(@_round(result.value, 2))
                 , null, true)
 
     get_workers_confusion_matrices: () ->
@@ -78,21 +96,11 @@ class App.NominalClient extends App.Client
                                 correct_gold_tests: r.value.correctGoldTests}))
             , null, true)
 
-    _get_workers_prediction_rec: (success, cost_algorithms) ->
-        cost_algorithm = cost_algorithms[0]
-        @_get(@_job_url() + @workers_prediction_url, {'costAlgorithm': cost_algorithm}, true,
+    get_workers_cost: () ->
+        @_get(@_job_url() + @workers_cost, {}, true,
             (response) =>
-                result = $.parseJSON(response.responseText)['result']
-                result["name"] = cost_algorithm
-                @workers_prediction.push(result)
-                if (cost_algorithms.length > 1)
-                    @_get_workers_prediction_rec(success, cost_algorithms[1..])
-                else
-                    @workers_prediction = @transpose_objects(
-                        @workers_prediction,
-                        "workerName",
-                        "value")
-                    success()
+                for r in $.parseJSON(response.responseText)['result']
+                    $("#" + r.workerName + "_cost").text(@_round(r.value, 2))
             , null, true)
 
     get_objects_summary: (success) ->
@@ -128,5 +136,8 @@ class App.NominalClient extends App.Client
             ret[a[key]] = {}
         for res in arg
             for a in res
-                ret[a[key]][res.name] =  if typeof a[value] == "number" then Math.round(a[value]*100)/100 else a[value]
+                ret[a[key]][res.name] =  if typeof a[value] == "number" then @_round(a[value], 2) else a[value]
         return ret
+
+    _round: (value, digits) ->
+        Math.round(value*Math.pow(10, digits))/Math.pow(10, digits)
