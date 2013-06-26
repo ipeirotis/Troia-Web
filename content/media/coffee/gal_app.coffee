@@ -42,7 +42,7 @@ class GAL_Application extends App.Application
     on_tab_change: (e) ->
         if e.target.getAttribute('href') == '#matrix'
             categories = @_categories_from_assigns(@parse_assigns())
-            if (!_.isEqual(categories.sort(), @categories.sort()))
+            if (!_.isEmpty(categories) and !_.isEqual(categories.sort(), @categories.sort()))
                 @_post_loading_test_data()
 
     _post_populate_results_table: () ->

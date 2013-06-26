@@ -290,7 +290,7 @@ title: Discrete Labels
                     <tr>
                         <td><%= k %></td>
                         <% _.each(headers, function(h){ %>
-                            <td style="background-color: hsl(<%= parseInt(120 * workers[k][h])%>, 100%, 50%)"><%= parseInt(100*workers[k][h]) %>% </td>
+                            <td style="background-color: hsl(<%= Math.max(0, parseInt(120 * workers[k][h]))%>, 100%, 50%)"><%= parseInt(100*workers[k][h]) %>% </td>
                         <% }); %>
                         <td>
                             <div id="<%= k %>_payment"><img src="/media/img/smallrotation.gif"/></div>
