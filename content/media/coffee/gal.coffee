@@ -131,10 +131,7 @@ class App.NominalClient extends App.Client
     get_summary: (success) ->
         @get_objects_summary (response) =>
             @get_workers_summary (response) =>
-                if (not _.has(this, 'creation_data'))
-                    @get_job (response) ->
-                        success(response)
-                else
+                @get_job (response) ->
                     success(response)
 
     # for input [{key: 'aaa', value: 'bbb'}, {key: 'ccc', value: 'ddd'}, name="EEE"]
