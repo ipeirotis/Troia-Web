@@ -26,7 +26,7 @@ class App.Client
 
     exists: (exists_cb, not_exists_cb) ->
         @_get(@_job_url(), {}, true, (response) ->
-            if $.parseJSON(response.responseText)["status"] == "OK"
+            if response["status"] == "OK"
                 exists_cb()
             else
                 not_exists_cb()
@@ -51,7 +51,7 @@ class App.Client
             (response) =>
                 # XXX nasty fix for bug on loading historical job.
                 # Probably one can done it better.
-                @summary = $.parseJSON(response.responseText)['result']
+                @summary = response['result']
                 @creation_data = @summary['initializationData']
                 delete @summary['initializationData']
                 success(response)
@@ -98,7 +98,7 @@ class App.Client
     download_zip: () ->
         @_get(@_job_url() + @download_zip_url, {}, true,
             (response) =>
-                result = $.parseJSON(response.responseText)['result']
+                result = response['result']
                 window.location.assign(result)
             , null, true)
 
@@ -106,7 +106,7 @@ class App.Client
         @assigns = []
         @_get(@_job_url() + @assigns_url, {}, true,
             (response) =>
-                @assigns = $.parseJSON(response.responseText)['result']
+                @assigns = response['result']
                 success(response)
             , null, true)
 
@@ -114,7 +114,7 @@ class App.Client
         @gold_objects = []
         @_get(@_job_url() + @gold_objects_url, {}, true,
             (response) =>
-                @gold_objects = $.parseJSON(response.responseText)['result']
+                @gold_objects = response['result']
                 success(response)
             , null, true)
 
@@ -122,7 +122,7 @@ class App.Client
         @evaluation_objects = []
         @_get(@_job_url() + @evaluation_objects_url, {}, true,
             (response) =>
-                @evaluation_objects = $.parseJSON(response.responseText)['result']
+                @evaluation_objects = response['result']
                 @evaluationObjects = {}
                 for l in @evaluation_objects
                     @evaluationObjects[l.name] = l.evaluationLabel
@@ -133,7 +133,7 @@ class App.Client
         @objects_prediction = []
         @_get(@_job_url() + @objects_prediction_url, {}, true,
             (response) =>
-                @objects_prediction = $.parseJSON(response.responseText)['result']
+                @objects_prediction = response['result']
                 success(response)
             , null, true)
 
@@ -141,7 +141,7 @@ class App.Client
         @workers_prediction = []
         @_get(@_job_url() + @workers_prediction_url, {}, true,
             (response) =>
-                @workers_prediction = $.parseJSON(response.responseText)['result']
+                @workers_prediction = response['result']
                 success(response)
             , null, true)
 
@@ -208,11 +208,11 @@ class App.Client
                 url: @api_url + "/" + response.redirect
                 type: "get"
                 complete: (res) ->
-                    json = $.parseJSON(res.responseText)
+                    json = $.parseJSON(res.responseText.replace(/NaN/g, null))
                     if json.status is "NOT_READY"
                         setTimeout(timeout_func, 500)
                     else
-                        success(res)
+                        success(json)
         setTimeout(timeout_func, 500)
 
     _stringify: (data) -> JSON.stringify(data)

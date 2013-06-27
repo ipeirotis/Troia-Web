@@ -51,7 +51,7 @@ class GAL_Application extends App.Application
         @client.get_workers_payment()
         @client.get_workers_cost()
         @client.get_job((response) =>
-            $(".spammer_cost").text($.parseJSON(response.responseText)['result']['strategicSpammerCost']))
+            $(".spammer_cost").text(response['result']['strategicSpammerCost']))
         #make confusion matrices clickable
         clickedAway = false
         isVisible = false
@@ -87,7 +87,7 @@ class GAL_Application extends App.Application
     _post_loading_results: () ->
         @client.get_job((response) =>
             #select used algorithm
-            init_data = $.parseJSON(response.responseText)['result']['initializationData']
+            init_data = response['result']['initializationData']
             $('#id_algorithm_choose').val(init_data['algorithm'])
             #create cost matrix and category priors table
             @categories = init_data['categories']

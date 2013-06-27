@@ -33,7 +33,7 @@ class App.NominalClient extends App.Client
         choose_func = label_choosing_functions[0]
         @_get(@_job_url() + @objects_prediction_url, {'labelChoosing': choose_func}, true,
             (response) =>
-                result = $.parseJSON(response.responseText)['result']
+                result = response['result']
                 result['name'] = choose_func
                 @objects_prediction.push(result)
                 if (label_choosing_functions.length > 1)
@@ -55,7 +55,7 @@ class App.NominalClient extends App.Client
         cost_algorithm = cost_algorithms[0]
         @_get(@_job_url() + @workers_prediction_url, {'costAlgorithm': cost_algorithm}, true,
             (response) =>
-                result = $.parseJSON(response.responseText)['result']
+                result = response['result']
                 result["name"] = cost_algorithm
                 @workers_prediction.push(result)
                 if (cost_algorithms.length > 1)
@@ -72,14 +72,15 @@ class App.NominalClient extends App.Client
         for wp in _.keys(@workers_prediction)
             @_get(@_job_url() + @worker_payment(wp), {}, true,
                 (response) =>
-                    result = $.parseJSON(response.responseText)['result']
-                    $("#" + result.workerName + "_payment").text(@_round(result.value, 2))
+                    result = response['result']
+                    if result?
+                        $("#" + result.workerName + "_payment").text(@_round(result.value, 2))
                 , null, true)
 
     get_workers_confusion_matrices: () ->
         @_get(@_job_url() + @workers_confusion_matrix, {}, true,
             (response) =>
-                for r in $.parseJSON(response.responseText)['result']
+                for r in response['result']
                     $("#" + r.workerName + "_confusion_matrix").html(
                         _.template($("#confusion_matrix_template").html(), {
                                 categories: @creation_data.categories,
@@ -89,7 +90,7 @@ class App.NominalClient extends App.Client
     get_workers_details: () ->
         @_get(@_job_url() + @workers_details, {}, true,
             (response) =>
-                for r in $.parseJSON(response.responseText)['result']
+                for r in response['result']
                     $("#" + r.workerName + "_details").html(
                         _.template($("#worker_details_template").html(), {
                                 assigns: r.value.assigns,
@@ -100,7 +101,7 @@ class App.NominalClient extends App.Client
     get_workers_cost: () ->
         @_get(@_job_url() + @workers_cost, {}, true,
             (response) =>
-                for r in $.parseJSON(response.responseText)['result']
+                for r in response['result']
                     $("#" + r.workerName + "_cost").text(@_round(r.value, 2))
             , null, true)
 
@@ -108,12 +109,12 @@ class App.NominalClient extends App.Client
         @_get(@_job_url() + @objects_quality_summary_url, {}, true
             (response) =>
                 @objects_quality_summary = {}
-                for func, val of $.parseJSON(response.responseText)['result']
+                for func, val of response['result']
                     @objects_quality_summary[func] = @_round(val, 2)
                 @_get(@_job_url() + @objects_cost_summary_url, {}, true
                     (response) =>
                         @objects_cost_summary = {}
-                        for func, val of $.parseJSON(response.responseText)['result']
+                        for func, val of response['result']
                             @objects_cost_summary[func] = @_round(val, 2)
                         success(response)
                     null, true)
@@ -123,7 +124,7 @@ class App.NominalClient extends App.Client
         @_get(@_job_url() + @workers_summary_url, {}, true
             (response) =>
                 @workers_summary = {}
-                for func, val of $.parseJSON(response.responseText)['result']
+                for func, val of response['result']
                     @workers_summary[func] = @_round(val, 2)
                 success(response)
             null, true)
