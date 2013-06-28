@@ -259,7 +259,7 @@ title: Discrete Labels
                         </tr> -->
                 </thead>
                 <tbody class="list">
-                    <% _.each(_.keys(objects).sort(), function(k){ %>
+                    <% _.each(_.sortBy(_.keys(objects), function(num){ if (isNaN(parseInt(num))){ return num; } else { return parseInt(num); }}), function(k){ %>
                         <tr>
                             <td class="object_name"><%= k %></td>
                             <% _.each(headers, function(h){
@@ -295,7 +295,7 @@ title: Discrete Labels
                     </tr>
                 </thead>
                 <tbody class="list">
-                <% _.each(_.keys(workers).sort(), function(k){ %>
+                <% _.each(_.sortBy(_.keys(workers), function(num){ return num; }), function(k){ %>
                     <tr>
                         <td class="worker_name"><%= k %></td>
                         <% _.each(headers, function(h){ %>
