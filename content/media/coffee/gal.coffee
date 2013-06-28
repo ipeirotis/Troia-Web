@@ -107,7 +107,7 @@ class App.NominalClient extends App.Client
                     $("#" + r.workerName + "_cost").text(@_round(r.value, 2))
             , null, true)
 
-    get_objects_summary: (success) ->
+    get_summary: (success) ->
         @_many_async_get_calls([
             {
                 url: @estimated_objects_quality_summary_url,
@@ -133,33 +133,27 @@ class App.NominalClient extends App.Client
                     @evaluated_objects_quality_summary = {}
                     for func, val of response['result']
                         @evaluated_objects_quality_summary[func] = @_round(val, 2)
+            },
+            {
+                url: @estimated_workers_quality_summary_url,
+                data: {},
+                success: (response) =>
+                    @estimated_workers_summary = {}
+                    for func, val of response['result']
+                        @estimated_workers_summary[func] = @_round(val, 2)
+            },
+            {
+                url: @evaluated_workers_quality_summary_url,
+                data: {},
+                success: (response) =>
+                    @evaluated_workers_summary = {}
+                    for func, val of response['result']
+                        @evaluated_workers_summary[func] = @_round(val, 2)
             }],
-            success)
-
-    get_workers_summary: (success) ->
-        @_many_async_get_calls([{
-            url: @estimated_workers_quality_summary_url,
-            data: {},
-            success: (response) =>
-                @estimated_workers_summary = {}
-                for func, val of response['result']
-                    @estimated_workers_summary[func] = @_round(val, 2)
-        },
-        {
-            url: @evaluated_workers_quality_summary_url,
-            data: {},
-            success: (response) =>
-                @evaluated_workers_summary = {}
-                for func, val of response['result']
-                    @evaluated_workers_summary[func] = @_round(val, 2)
-        }],
-        success)
-
-    get_summary: (success) ->
-        @get_objects_summary (response) =>
-            @get_workers_summary (response) =>
+            () =>
                 @get_job (response) ->
                     success(response)
+            )
 
     # for input [{key: 'aaa', value: 'bbb'}, {key: 'ccc', value: 'ddd'}, name="EEE"]
     # returns {'aaa': {"EEE": 'bbb'}, 'ccc': {"EEE": 'ddd'}}
