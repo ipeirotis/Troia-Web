@@ -10,6 +10,7 @@ title: Continuous Labels
     <script src="/media/js/utils.js"></script>
     <script src="/media/js/app.js"></script>
     <script src="/media/js/galc_app.js"></script>
+    <script src="/media/js/list.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -28,7 +29,6 @@ title: Continuous Labels
                             <h2>1. Initial data</h2>
                         </div>
                         <p>
-                            Data set:
                             <select id="id_data_choose" style="width: 300px;" class="select_down">
                                 <option value="0">Empty</option>
                                 <option value="1">200 assigned labels, 10 golds</option>
@@ -106,7 +106,7 @@ title: Continuous Labels
                         <div class="span8">
                             <ul class="nav nav-tabs" id="resultsTab">
                                 <li class="active"><a href="#summary" data-toggle="tab">Summary</a></li>
-                                <li><a href="#labels" data-toggle="tab">Predicted labels</a></li>
+                                <li><a href="#objects" data-toggle="tab">Predicted labels</a></li>
                                 <li><a href="#workers" data-toggle="tab">Workers stats</a></li>
                             </ul>
                         </div>
@@ -115,29 +115,20 @@ title: Continuous Labels
                         <div class="tab-pane active" id="summary">
                             <div id="summary-inner" style="display: none;">
                                 <div class="row" style="margin: inherit;">
-                                    <!-- <div class="span2"></div> -->
-                                    <div class="span8">
-                                        <div class="page-header">
-                                            <h2>Job summary</h2>
-                                        </div>
-                                        <div id="job_summary"></div>
-                                    </div>
-                                    <div class="span4">
-                                    <!-- <div class="span4" style="text-align: right; margin-left: auto; margin-right: 0"> -->
-                                        <span id="download_zip_btn" class="btn btn-info" style="">Download results</span>
-                                    </div>
+                                    <div id="job_summary"></div>
+                                </div>
+                                <div class="row" style="margin: inherit;">
+                                    <span id="download_zip_btn" class="btn btn-info" style="">Download results</span>
                                 </div>
                                 <div class="row" style="margin: inherit;">
                                     <div id="url" style="display: none;">
-                                        <div class="page-header">
-                                            <h2>You can see later your results at</h2>
-                                        </div>
+                                        <h3>You can see later your results at:</h3>
                                         <pre style="text-align: center;"></pre>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="tab-pane" id="labels">
+                        <div class="tab-pane" id="objects">
                             <div id="objects"></div>
                         </div>
                         <div class="tab-pane" id="workers">
@@ -150,63 +141,71 @@ title: Continuous Labels
 
         <!-- Job summary template. -->
         <script type="text/template" id="job_summary_template">
-            <div>
-                <table>
-                    <thead>
-                        <tr>
-                            <% _.each(_.keys(summary), function(key) { %>
-                                <th><%= key %></th>
-                            <% }); %>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <% _.each(_.keys(summary), function(key) { %>
-                                <td><%= summary[key] %></td>
-                            <% }); %>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <table id="summary_list">
+                <tr>
+                    <td>Number of workers</td>
+                    <td><%= summary.workers %></td>
+                </tr>
+                <tr>
+                    <td>Number of objects</td>
+                    <td><%= summary.objects %></td>
+                </tr>
+                <tr>
+                    <td>Assigned labels</td>
+                    <td><%= summary.assigns %></td>
+                </tr>
+                <tr>
+                    <td>Gold labels</td>
+                    <td><%= summary.goldObjects %></td>
+                </tr>
+            </table>
         </script>
 
         <!-- Objects table template. -->
         <script type="text/template" id="objects_template">
-            <table class='table table-striped'>
-                <tr>
-                    <th>Name</th>
-                    <th>Estimated value</th>
-                    <th>Estimated Zeta</th>
-                </tr>
-                <% _.each(objects, function(o) { %>
-                <tr>
-                    <td><%= o.object %></td>
-                    <td><%= o.prediction.est_value %></td>
-                    <td><%= o.prediction.est_zeta %></td>
-                </tr>
-                <% }); %>
+            <table id="objects_table">
+                <thead>
+                    <tr>
+                        <th>Object <input type="text" class="search" placeholder="search" /></th>
+                        <th>Estimated value</th>
+                        <th>Estimated Zeta</th>
+                    </tr>
+                </thead>
+                <tbody class="list">
+                    <% _.each(objects, function(o) { %>
+                        <tr>
+                            <td class="object_name"><%= o.object %></td>
+                            <td><%= o.prediction.est_value %></td>
+                            <td><%= o.prediction.est_zeta %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
             </table>
         </script>
 
         <!-- Workers table template. -->
         <script type="text/template" id="workers_template">
-            <table class='table table-striped'>
-                <tr>
-                    <th>Name</th>
-                    <th>Estimated mu</th>
-                    <th>Estimated rho</th>
-                    <th>Estimated sigma</th>
-                    <!-- TODO show zetas <th>Zeta</th> -->
-                </tr>
-                <% _.each(workers, function(w) { %>
-                <tr>
-                    <td><%= w.worker %></td>
-                    <td><%= w.quality.est_mu %></td>
-                    <td><%= w.quality.est_rho %></td>
-                    <td><%= w.quality.est_sigma %></td>
-                    <!-- <td>&nbsp;</td> -->
-                </tr>
-                <% }); %>
+            <table id="workers_table">
+                <thead>
+                    <tr>
+                        <th>Worker <input type="text" class="search" placeholder="search" /></th>
+                        <th>Estimated mu</th>
+                        <th>Estimated rho</th>
+                        <th>Estimated sigma</th>
+                        <!-- TODO show zetas <th>Zeta</th> -->
+                    </tr>
+                </thead>
+                <tbody class="list">
+                    <% _.each(workers, function(w) { %>
+                        <tr>
+                            <td class="worker_name"><%= w.worker %></td>
+                            <td><%= w.quality.est_mu %></td>
+                            <td><%= w.quality.est_rho %></td>
+                            <td><%= w.quality.est_sigma %></td>
+                            <!-- <td>&nbsp;</td> -->
+                        </tr>
+                    <% }); %>
+                </tbody>
             </table>
         </script>
 

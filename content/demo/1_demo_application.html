@@ -176,32 +176,32 @@ title: Discrete Labels
 
         <!-- Job summary template. -->
         <script type="text/template" id="job_summary_template">
-                <table id="summary_list">
-                    <tr>
-                        <td>Number of workers</td>
-                        <td><%= summary.workers %></td>
-                    </tr>
-                    <tr>
-                        <td>Number of objects</td>
-                        <td><%= summary.objects %></td>
-                    </tr>
-                    <tr>
-                        <td>Assigned labels</td>
-                        <td><%= summary.assigns %></td>
-                    </tr>
-                    <tr>
-                        <td>Gold labels</td>
-                        <td><%= summary.goldObjects %></td>
-                    </tr>
-                    <tr>
-                        <td>Data labeling quality</td>
-                        <td><a href="#" onclick="$('#resultsTab a')[1].click()"><%= objects_quality_summary.MinCost * 100 %>%</a> (cost: <%= objects_cost_summary.MinCost %>, base cost: <%= objects_cost_summary.Spammer %>)</td>
-                    </tr>
-                    <tr>
-                        <td>Workers quality</td>
-                        <td><a href="#" onclick="$('#resultsTab a')[2].click()"><%= workers_summary.MinCost * 100 %>%</a></td>
-                    </tr>
-                </table>
+            <table id="summary_list">
+                <tr>
+                    <td>Number of workers</td>
+                    <td><%= summary.workers %></td>
+                </tr>
+                <tr>
+                    <td>Number of objects</td>
+                    <td><%= summary.objects %></td>
+                </tr>
+                <tr>
+                    <td>Assigned labels</td>
+                    <td><%= summary.assigns %></td>
+                </tr>
+                <tr>
+                    <td>Gold labels</td>
+                    <td><%= summary.goldObjects %></td>
+                </tr>
+                <tr>
+                    <td>Data labeling quality</td>
+                    <td><a href="#" onclick="$('#resultsTab a')[1].click()"><%= objects_quality_summary.MinCost * 100 %>%</a> (cost: <%= objects_cost_summary.MinCost %>, base cost: <%= objects_cost_summary.Spammer %>)</td>
+                </tr>
+                <tr>
+                    <td>Workers quality</td>
+                    <td><a href="#" onclick="$('#resultsTab a')[2].click()"><%= workers_summary.MinCost * 100 %>%</a></td>
+                </tr>
+            </table>
         </script>
 
         <!-- Cost matrix template -->

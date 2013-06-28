@@ -13,12 +13,13 @@ class GALC_Application extends App.Application
                     $("#objects_template").html(),
                     {objects: @client.objects_prediction, headers: @client.objects_headers})
                 )
+                new List('objects_table', {valueNames: ['object_name']})
             () =>
                 $("#workers").html(_.template(
                     $("#workers_template").html(),
                     {workers: @client.workers_prediction, headers: @client.workers_headers})
                 )
-
+                new List('workers_table', {valueNames: ['worker_name']})
             () =>
                 $("#job_summary").html(
                     _.template($("#job_summary_template").html(),
