@@ -160,9 +160,12 @@ class App.Application
                 $("#job_summary").html(
                     _.template($("#job_summary_template").html(), {
                         summary: @client.summary,
-                        objects_quality_summary: @client.objects_quality_summary,
-                        objects_cost_summary: @client.objects_cost_summary,
-                        workers_summary: @client.workers_summary,}
+                        estimated_objects_quality_summary: @client.estimated_objects_quality_summary,
+                        evaluated_objects_quality_summary: @client.evaluated_objects_quality_summary,
+                        estimated_objects_cost_summary: @client.estimated_objects_cost_summary,
+                        estimated_workers_summary: @client.estimated_workers_summary,
+                        evaluated_workers_summary: @client.evaluated_workers_summary,
+                        evaluated: not _.isEmpty(@client.evaluationObjects)}
                     )
                 )
             () =>

@@ -1,8 +1,10 @@
 class App.NominalClient extends App.Client
     jobs_url: "/jobs"
-    objects_quality_summary_url: "/objects/quality/summary"
-    objects_cost_summary_url: "/objects/cost/summary"
-    workers_summary_url: "/workers/quality/summary"
+    estimated_objects_quality_summary_url: "/objects/quality/estimated/summary"
+    evaluated_objects_quality_summary_url: "/objects/quality/evaluated/summary"
+    estimated_objects_cost_summary_url: "/objects/cost/estimated/summary"
+    estimated_workers_quality_summary_url: "/workers/quality/estimated/summary"
+    evaluated_workers_quality_summary_url: "/workers/quality/evaluated/summary"
     data_dir: "/media/txt/jobs_data/"
     gold_data_dir: "/media/txt/jobs_gold_data/"
     evaluation_data_dir: "/media/txt/jobs_evaluation_data/"
@@ -106,28 +108,52 @@ class App.NominalClient extends App.Client
             , null, true)
 
     get_objects_summary: (success) ->
-        @_get(@_job_url() + @objects_quality_summary_url, {}, true
-            (response) =>
-                @objects_quality_summary = {}
-                for func, val of response['result']
-                    @objects_quality_summary[func] = @_round(val, 2)
-                @_get(@_job_url() + @objects_cost_summary_url, {}, true
-                    (response) =>
-                        @objects_cost_summary = {}
-                        for func, val of response['result']
-                            @objects_cost_summary[func] = @_round(val, 2)
-                        success(response)
-                    null, true)
-            null, true)
+        @_many_async_get_calls([
+            {
+                url: @estimated_objects_quality_summary_url,
+                data: {},
+                success: (response) =>
+                    @estimated_objects_quality_summary = {}
+                    for func, val of response['result']
+                        @estimated_objects_quality_summary[func] = @_round(val, 2)
+
+            },
+            {
+                url: @estimated_objects_cost_summary_url,
+                data: {},
+                success: (response) =>
+                    @estimated_objects_cost_summary = {}
+                    for func, val of response['result']
+                        @estimated_objects_cost_summary[func] = @_round(val, 2)
+            },
+            {
+                url: @evaluated_objects_quality_summary_url,
+                data: {},
+                success: (response) =>
+                    @evaluated_objects_quality_summary = {}
+                    for func, val of response['result']
+                        @evaluated_objects_quality_summary[func] = @_round(val, 2)
+            }],
+            success)
 
     get_workers_summary: (success) ->
-        @_get(@_job_url() + @workers_summary_url, {}, true
-            (response) =>
-                @workers_summary = {}
+        @_many_async_get_calls([{
+            url: @estimated_workers_quality_summary_url,
+            data: {},
+            success: (response) =>
+                @estimated_workers_summary = {}
                 for func, val of response['result']
-                    @workers_summary[func] = @_round(val, 2)
-                success(response)
-            null, true)
+                    @estimated_workers_summary[func] = @_round(val, 2)
+        },
+        {
+            url: @evaluated_workers_quality_summary_url,
+            data: {},
+            success: (response) =>
+                @evaluated_workers_summary = {}
+                for func, val of response['result']
+                    @evaluated_workers_summary[func] = @_round(val, 2)
+        }],
+        success)
 
     get_summary: (success) ->
         @get_objects_summary (response) =>

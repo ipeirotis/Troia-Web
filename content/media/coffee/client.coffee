@@ -220,3 +220,18 @@ class App.Client
     _ajax_error: (jqXHR, textStatus, errorThrown) ->
         console.log jqXHR, textStatus, errorThrown
 
+    _many_async_get_calls: (calls, success) ->
+        k = calls.length
+        for call in calls
+            do (call) =>
+                @_get(
+                    @_job_url() + call.url
+                    call.data
+                    true
+                    (response) =>
+                        call.success(response)
+                        k -= 1
+                        if (k == 0)
+                            success()
+                    null
+                    true)
