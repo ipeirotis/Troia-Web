@@ -11,6 +11,7 @@ title: Discrete Labels
     <script src="/media/js/utils.js"></script>
     <script src="/media/js/app.js"></script>
     <script src="/media/js/gal_app.js"></script>
+    <script src="/media/js/list.min.js"</script>
 {% endblock %}
 
 {% block content %}
@@ -169,8 +170,8 @@ title: Discrete Labels
                             <div id="workers"></div>
                         </div>
                     </div>
-		        </div>
-	    	</div>
+                </div>
+            </div>
 	    </div>
 
         <!-- Job summary template. -->
@@ -245,18 +246,22 @@ title: Discrete Labels
         </script>
 
         <!-- Classes table template. -->
-		<script type="text/template" id="objects_template">
-			<div>
-                <table>
-                    <tr><th>Objects</th>
-                    <th>Predicted label</th>
-                    <!-- TROIA-368 <% _.each(headers, function(h){  %>
-                        <th width="150px"><%= h %></th>
-                    <% }); %>
-                    </tr> -->
+        <script type="text/template" id="objects_template">
+        <div id="objects_table">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="300px">Objects <input type="text" class="search" placeholder="search" /></th>
+                        <th>Predicted label</th>
+                        <!-- TROIA-368 <% _.each(headers, function(h){  %>
+                            <th width="150px"><%= h %></th>
+                        <% }); %>
+                        </tr> -->
+                </thead>
+                <tbody class="list">
                     <% _.each(_.keys(objects).sort(), function(k){ %>
                         <tr>
-                            <td><%= k %></td>
+                            <td class="object_name"><%= k %></td>
                             <% _.each(headers, function(h){
                                 if (evaluation[k] !== undefined) {
                                     if (evaluation[k] === objects[k][h]) { %>
@@ -272,23 +277,27 @@ title: Discrete Labels
                             <% }); %>
                         </tr>
                     <% }); %>
-                </table>
-			</div>
+                </tbody>
+            </table>
+        </div>
         </script>
 
         <!-- Workers table template. -->
         <script type="text/template" id="workers_template">
-            <div>
+        <div id="workers_table">
             <table>
-                <tr>
-                    <th>Workers</th>
-                    <th>Quality</th>
-                    <th width="70px">Payment</th>
-                    <th width="70px">Details</th>
-                </tr>
+                <thead>
+                    <tr>
+                        <th width="300px">Workers <input type="text" class="search" placeholder="search" /></th>
+                        <th>Quality</th>
+                        <th width="70px">Payment</th>
+                        <th width="70px">Details</th>
+                    </tr>
+                </thead>
+                <tbody class="list">
                 <% _.each(_.keys(workers).sort(), function(k){ %>
                     <tr>
-                        <td><%= k %></td>
+                        <td class="worker_name"><%= k %></td>
                         <% _.each(headers, function(h){ %>
                             <td style="background-color: hsl(<%= Math.max(0, parseInt(120 * workers[k][h]))%>, 100%, 50%)"><%= parseInt(100*workers[k][h]) %>% </td>
                         <% }); %>
@@ -316,8 +325,9 @@ title: Discrete Labels
                         </td>
                     </tr>
                 <% }); %>
+                </tbody>
             </table>
-            </div>
+        </div>
         </script>
 
         <!-- Confusion matrix template. -->

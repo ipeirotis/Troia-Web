@@ -146,11 +146,15 @@ class App.Application
                         headers: @client.objects_headers,
                         evaluation: @client.evaluationObjects})
                 )
+                options =
+                    valueNames: ['object_name']
+                new List('objects_table', options)
             () =>
                 $("#workers").html(_.template(
                     $("#workers_template").html(),
                     {workers: @client.workers_prediction, headers: @client.workers_headers})
                 )
+                new List('workers_table', {valueNames: ['worker_name']})
 
             () =>
                 $("#job_summary").html(
