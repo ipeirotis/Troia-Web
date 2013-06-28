@@ -28,30 +28,33 @@ title: Discrete Labels
                     <div class="page-header">
                         <h2>1. Algorithm</h2>
                     </div>
-                    <p>
-                        <select id="id_algorithm_choose" style="width: 300px;" class="select_down">
+                    <div class="span4">
+                        <select id="id_algorithm_choose" style="width: 200px;" class="select_down">
                             <option value="BDS">EM Algorithm</option>
                             <option value="BMV">Majority Vote</option>
                         </select>
-                    </p>
+                    </div>
+                    <div id="id_algorithm_info" class="span7 prompt">
+                    </div>
                 </div>
                 <div class="row" style="margin: inherit;">
                     <div class="page-header">
                         <h2>2. Select Existing Data Set</h2>
                     </div>
-                    <p>
-                        <select id="id_data_choose" style="width: 300px;" class="select_down">
+                    <div class="span4">
+                        <select id="id_data_choose" style="width: 200px;" class="select_down">
                             <option value="0">Empty</option>
                             <option value="1">Small: 25 assigned labels, 1 gold</option>
                             <option value="2">Large: 5000 assigned labels, 30 golds</option>
                         </select>
-                    </p>
+                    </div>
+                    <div id="id_data_info" class="span7 prompt">
+                    </div>
                 </div>
                 <div class="row" style="margin: inherit;">
 		    		<div class="page-header">
 		    			<h2>3. Data</h2>
 		    		</div>
-		    		<p>
 		    			<form id="data_form" class="form-horizontal" method="post">
 							<ul class="nav nav-tabs" id="dataTab">
 								<!--<div class="span7">-->
@@ -71,17 +74,8 @@ title: Discrete Labels
 											<pre>workerid[tab]objectid[tab]assignedlabel</pre>
 										</div>
 									</div>
-									<div class="span5 well">
+									<div class="span5 well prompt">
 										<p>You can use the form below to calculate the quality of the workers that submit answers to your tasks on Mechanical Turk.</p>
-										<p>The pre-populated example has five workers (worker1 to worker5), five objects (url1 to url5), and two classes (porn and notporn). The correct (but unknown) label for url1, url3, and url5 is notporn; for url2 and url4 is porn.</p>
-										<p>The workers have varying levels of quality.</p>
-										<ul>
-											<li>worker1 is lazy, and gives the answer porn all the time</li>
-											<li>worker2 is ok but not great. For example, labeled object5 as porn even though it is notporn</li>
-											<li>worker3 and worker4 are high-quality workers</li>
-											<li>worker5 is malicious, giving always the incorrect answer, trying to fool the system</li>
-										</ul>
-
 									</div>
 								</div>
 								<div class="tab-pane" id="gold">
@@ -93,7 +87,7 @@ title: Discrete Labels
 											<pre>objectid[tab]correctlabel</pre>
 										</div>
 									</div>
-									<div class="span5 well">
+									<div class="span5 well prompt">
 										<p>Optionally, you may also provide a few known ("gold") answers. See <a href="http://behind-the-enemy-lines.blogspot.com/2010/09/worker-evaluation-in-crowdsourcing-gold.html">Worker Evaluation in Crowdsourcing: Gold Data or Multiple Workers?</a> for a discussion on how much help we can get from the usage of the "gold" answers.</p>
 									</div>
 								</div>
@@ -106,7 +100,7 @@ title: Discrete Labels
                                             <pre>objectid[tab]correctlabel</pre>
                                         </div>
                                     </div>
-                                    <div class="span5 well">
+                                    <div class="span5 well prompt">
                                         <p>You may as well provide a few known answers to check how good is the algorithm answer.</p>
                                     </div>
                                 </div>
@@ -117,7 +111,7 @@ title: Discrete Labels
                                         <h3>Category probabilities</h3>
                                         <div id="category_priors"></div>
                                     </div>
-									<div class="span5 well">
+									<div class="span5 well prompt">
 										<p>Cost matrix is calculated automaticly based on categories you've entered. You can change the default values.</p>
 									</div>
 								</div>
@@ -129,7 +123,6 @@ title: Discrete Labels
 								<span type="button" class="btn btn-info" id="send_data">Process</span>
 							</div>
 						</form>
-		    		</p>
 		    	</div>
 	    	</div>
 	    	<div class="tab-pane" id="result">

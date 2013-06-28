@@ -48,12 +48,7 @@ class App.Application
                 # @load_test_data(1)
                 $('#id_data_choose').change(() =>
                     value = $('#id_data_choose :selected').val()
-                    if value > 0
-                        @load_test_data(value)
-                    else
-                        $('#id_data').val("")
-                        $('#id_gold_data').val("")
-                        $('#id_evaluation_data').val("")
+                    @load_test_data(value)
                 )
 
         $('a[data-toggle="tab"]').on('shown', (e) =>
@@ -72,16 +67,23 @@ class App.Application
         $("#menuTab li:nth-child(2) a").attr("data-toggle", "").css("cursor",  "not-allowed")
 
     load_test_data: (type) ->
-        @client.get_example_job(type,
-            (data) ->
-                $('#id_data').val(data)
-            (data) ->
-                $('#id_gold_data').val(data)
-            (data) ->
-                $('#id_evaluation_data').val(data)
-            () =>
-                @_post_loading_test_data()
-        )
+        _check_data = (data) =>
+            if not _.isObject(data) then data else ""
+        $.ajax(url: @data_dir + type).always((data) =>
+            empty = _.isObject(data) or _.isEmpty(data)
+            $('#id_data').val(_check_data(data))
+            $.ajax(url: @gold_data_dir + type).always((data) =>
+                $('#id_gold_data').val(_check_data(data))
+                $.ajax(url: @evaluation_data_dir + type).always((data) =>
+                    $('#id_evaluation_data').val(_check_data(data))
+                    $.ajax(url: @data_info_dir + type).always((data) =>
+                        $('#id_data_info').html(_check_data(data))
+                        if not empty
+                            @_post_loading_test_data()
+                        )
+                    )
+                )
+            )
 
     _parse_input: (input_el, control_el, text_el, tab_el, line_condition, line_error_msg, condition, error_msg) ->
         control_el.removeClass('error')

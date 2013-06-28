@@ -1,8 +1,5 @@
 class App.ContinuousClient extends App.Client
     jobs_url: "/jobs"
-    data_dir: "/media/txt/cjobs_data/"
-    gold_data_dir: "/media/txt/cjobs_gold_data/"
-    evaluation_data_dir: "/media/txt/cjobs_evaluation_data/"
     creation_data: {'algorithm': 'GALC'}
 
     _assign_to_json: (a) -> {worker: a[0], object: a[1], label: {value: a[2]}}

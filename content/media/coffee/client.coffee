@@ -59,21 +59,6 @@ class App.Client
             true
         )
 
-    get_example_job: (type, data_success, gold_success, evaluation_success, success) ->
-        $.ajax(url: @data_dir + type)
-            .done((data) =>
-                data_success(data)
-                $.ajax(url: @gold_data_dir + type)
-                    .done((data) =>
-                        gold_success(data)
-                        $.ajax(url: @evaluation_data_dir + type)
-                            .done((data) ->
-                                evaluation_success(data)
-                                success()
-                                )
-                        )
-                )
-
     post_assigns: (assigns, success, partial_success) ->
         assigns = {assigns: assigns.map(@_assign_to_json)}
         settings = {contentType: 'application/json; charset=utf-8'}

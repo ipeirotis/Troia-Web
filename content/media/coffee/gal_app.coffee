@@ -2,6 +2,10 @@ class GAL_Application extends App.Application
     _client_type: App.NominalClient
 
     objects_validation_message: "Only 2 words per line allowed."
+    data_dir: "/media/txt/jobs_data/"
+    data_info_dir: "/media/txt/jobs_data_info/"
+    gold_data_dir: "/media/txt/jobs_gold_data/"
+    evaluation_data_dir: "/media/txt/jobs_evaluation_data/"
 
     objects_validator: (line) ->
         line.length != 2
