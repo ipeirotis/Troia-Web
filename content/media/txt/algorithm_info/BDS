@@ -1,0 +1,8 @@
+Expectation - maximization algorithm roughly based on the algorithm from the paper: Maximum Likelihood Estimation of Observer Error-Rates Using the EM Algorithm, Applied Statistics, Vol. 28, No. 1. (1979), pp. 20-28 by Dawid and Skene.
+The original algorithm relied purely on redundant labels to estimate the most likely category of each example, and, in parallel, estimate the confusion matrix for each worker. The steps were the following:
+<ol>
+    <li>Using the labels assigned by the workers, estimate the most likely "correct" category for each object.</li>
+    <li>Based on the estimated "correct" answer for each object, compute the confusion matrix for each worker by comparing the assigned labels with the "correct" ones.</li>
+    <li>Taking into consideration the confusion matrix of each worker, recompute the most likely "correct" label for each object.</li>
+    <li>Go to step 2, until convergence.</li>
+</ul>

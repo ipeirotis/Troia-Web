@@ -1,9 +1,7 @@
-<p>This example has five workers (worker1 to worker5), five objects, and two classes (porn and notporn).</p>
-<p>The workers have varying levels of quality.</p>
-    <ul>
-        <li>worker1 is lazy, and gives the answer porn all the time</li>
-        <li>worker2 is ok but not great. For example, labeled object5 as porn even though it is notporn</li>
-        <li>worker3 and worker4 are high-quality workers</li>
-        <li>worker5 is malicious, giving always the incorrect answer, trying to fool the system</li>
-    </ul>
-</p>
+This example has five workers (worker1 to worker5), five objects, and two classes (porn and notporn). The workers have varying levels of quality:
+<ul>
+    <li>worker1 is lazy, and gives the answer porn all the time</li>
+    <li>worker2 is ok but not great. For example, labeled object5 as porn even though it is notporn</li>
+    <li>worker3 and worker4 are high-quality workers</li>
+    <li>worker5 is malicious, giving always the incorrect answer, trying to fool the system</li>
+</ul>

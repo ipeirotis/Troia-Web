@@ -1,5 +1,7 @@
 class App.Application
 
+    algorithm_info_dir: "/media/txt/algorithm_info/"
+
     _post_loading_test_data: () ->
 
     _before_create: () ->
@@ -50,6 +52,13 @@ class App.Application
                     value = $('#id_data_choose :selected').val()
                     @load_test_data(value)
                 )
+                $('#id_algorithm_choose').change(() =>
+                    value = $('#id_algorithm_choose :selected').val()
+                    $.ajax(url: @algorithm_info_dir + value).always((data) =>
+                        $('#id_algorithm_info').html(if not _.isObject(data) then data else "")
+                    )
+                )
+                $("#id_algorithm_choose").change()
 
         $('a[data-toggle="tab"]').on('shown', (e) =>
             $(".alert").hide()
