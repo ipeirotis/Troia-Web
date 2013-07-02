@@ -54,8 +54,10 @@ class App.Application
                 )
                 $('#id_algorithm_choose').change(() =>
                     value = $('#id_algorithm_choose :selected').val()
-                    $.ajax(url: @algorithm_info_dir + value).always((data) =>
-                        $('#id_algorithm_info').html(if not _.isObject(data) then data else "")
+                    $('#id_algorithm_info').slideUp(400, ()=>
+                        $.ajax(url: @algorithm_info_dir + value).always((data) =>
+                            $('#id_algorithm_info').html(if not _.isObject(data) then data else "").slideDown()
+                        )
                     )
                 )
                 $("#id_algorithm_choose").change()
@@ -78,17 +80,19 @@ class App.Application
     load_test_data: (type) ->
         _check_data = (data) =>
             if not _.isObject(data) then data else ""
-        $.ajax(url: @data_dir + type).always((data) =>
-            empty = _.isObject(data) or _.isEmpty(data)
-            $('#id_data').val(_check_data(data))
-            $.ajax(url: @gold_data_dir + type).always((data) =>
-                $('#id_gold_data').val(_check_data(data))
-                $.ajax(url: @evaluation_data_dir + type).always((data) =>
-                    $('#id_evaluation_data').val(_check_data(data))
-                    $.ajax(url: @data_info_dir + type).always((data) =>
-                        $('#id_data_info').html(_check_data(data))
-                        if not empty
-                            @_post_loading_test_data()
+        $('#id_data_info').slideUp(400, ()=>
+            $.ajax(url: @data_dir + type).always((data) =>
+                empty = _.isObject(data) or _.isEmpty(data)
+                $('#id_data').val(_check_data(data))
+                $.ajax(url: @gold_data_dir + type).always((data) =>
+                    $('#id_gold_data').val(_check_data(data))
+                    $.ajax(url: @evaluation_data_dir + type).always((data) =>
+                        $('#id_evaluation_data').val(_check_data(data))
+                        $.ajax(url: @data_info_dir + type).always((data) =>
+                            $('#id_data_info').html(_check_data(data)).slideDown()
+                            if not empty
+                                @_post_loading_test_data()
+                            )
                         )
                     )
                 )
