@@ -142,13 +142,17 @@ class App.Application
             @objects_validation_message)
 
     parse_evaluation_labels: () =>
-        @_parse_input(
-            $("#id_evaluation_data")
-            $("#evaluation .control-group")
-            $("#evaluation span")
-            $('#dataTab li:nth-child(3) a')
-            @objects_validator
-            @objects_validation_message)
+        if ($("#id_evaluation_data").length > 0)
+            @_parse_input(
+                $("#id_evaluation_data")
+                $("#evaluation .control-group")
+                $("#evaluation span")
+                $('#dataTab li:nth-child(3) a')
+                @objects_validator
+                @objects_validation_message)
+        else
+            []
+
 
 
     populate_results_tables: () =>

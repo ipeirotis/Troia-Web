@@ -46,7 +46,6 @@ title: Continuous Labels
                                 <ul class="nav nav-tabs" id="dataTab">
                                     <li class="active"><a href="#data" data-toggle="tab">Data</a></li>
                                     <li><a href="#gold" data-toggle="tab">Gold data</a></li>
-                                    <li><a href="#evaluation" data-toggle="tab">Evaluation</a></li>
                                 </ul>
                                 <div class="tab-content">
                                     <div class="tab-pane active" id="data">
@@ -55,7 +54,7 @@ title: Continuous Labels
                                                 <textarea id="id_data" class="field span12" rows="15" cols="40" placeholder="worker object class"></textarea>
                                                 <span class="help-inline"></span>
                                                 <h3>Line format:</h3>
-                                                <pre>workerid[tab]objectid[tab]assignedlabel</pre>
+                                                <pre>workerid[whitechar]objectid[whitechar]assignedlabel</pre>
                                             </div>
                                         </div>
                                         <div class="span5 well prompt">
@@ -68,24 +67,11 @@ title: Continuous Labels
                                                 <textarea id="id_gold_data" class="field span12" rows="15" cols="40" placeholder="object label zeta"></textarea>
                                                 <span class="help-inline"></span>
                                                 <h3>Line format:</h3>
-                                                <pre>objectid[tab]correctlabel[tab]zeta</pre>
+                                                <pre>objectid[whitechar]correctlabel[whitechar]zeta</pre>
                                             </div>
                                         </div>
                                         <div class="span5 well prompt">
 
-                                        </div>
-                                    </div>
-                                    <div class="tab-pane" id="evaluation">
-                                        <div class="span7">
-                                            <div class="control-group">
-                                                <textarea id="id_evaluation_data" class="field span12" rows="15" cols="40" placeholder="object label zeta"></textarea>
-                                                <span class="help-inline"></span>
-                                                <h3>Line format:</h3>
-                                                <pre>objectid[tab]correctlabel[tab]zeta</pre>
-                                            </div>
-                                        </div>
-                                        <div class="span5 well prompt">
-                                            <p>You may as well provide a few known answers to check how good is the algorithm answer.</p>
                                         </div>
                                     </div>
                                 </div>
