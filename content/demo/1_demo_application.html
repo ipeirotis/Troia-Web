@@ -187,7 +187,7 @@ title: Discrete Labels
                     <td><%= summary.goldObjects %></td>
                 </tr>
                 <tr>
-                    <td>Data labeling quality <% if (evaluated) { %> (estimated) <% } %></td>
+                    <td>Data labeling quality (estimated)</td>
                     <td>
                         <a href="#" onclick="$('#resultsTab a')[1].click()">
                             <%= estimated_objects_quality_summary.MinCost * 100 %>%
@@ -195,27 +195,33 @@ title: Discrete Labels
                     </td>
                 </tr>
                 <tr>
-                    <td>Workers quality <% if (evaluated) { %> (estimated) <% } %></td>
+                    <td>Workers quality (estimated)</td>
                     <td>
                         <a href="#" onclick="$('#resultsTab a')[2].click()">
                             <%= estimated_workers_summary.MinCost * 100 %>%
                         </a>
                     </td>
                 </tr>
-                <% if (evaluated) { %>
                 <tr>
                     <td>Data labeling quality (evaluated)</td>
                     <td>
+                        <% if (evaluated) { %>
                         <%= evaluated_objects_quality_summary.MinCost * 100 %>%
+                        <% } else { %>
+                            No evaluation data
+                        <% } %>
                     </td>
                 </tr>
                 <tr>
                     <td>Workers quality (evaluated)</td>
                     <td>
+                        <% if (evaluated) { %>
                         <%= evaluated_workers_summary.MinCost * 100 %>%
+                        <% } else { %>
+                            No evaluation data
+                        <% } %>
                     </td>
                 </tr>
-                <% } %>
             </table>
         </script>
 
