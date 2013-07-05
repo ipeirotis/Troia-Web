@@ -21,7 +21,7 @@ class App.Application
         @client = new @_client_type(id)
         @client._ajax_error = (jqXHR, textStatus, errorThrown) =>
             console.log "error", errorThrown
-            @show_error("Troia server error (" + errorThrown.toString() + "). " + $.parseJSON(jqXHR.responseText)["result"])
+            @show_error("Troia server error (#{ errorThrown }). " + $.parseJSON(jqXHR.responseText)["result"])
             $('#send_data').removeClass('disabled').text("Process")
 
         $("#download_zip_btn").click(() =>
@@ -42,7 +42,7 @@ class App.Application
                             $('#id_gold_data').val(@client.gold_objects.map(@client._gold_object_to_text).join('\n')))
                         @_post_loading_results()
                     () =>
-                        @show_error("Sorry, id=" + id + " hasn't been found.")
+                        @show_error("Sorry, id=#{ id } hasn't been found.")
                         @disable_results_tab()
                 )
             else
@@ -71,8 +71,8 @@ class App.Application
         $(".alert p").text(txt)
         $(".alert").show()
 
-    show_loading_indicator: (percentage) ->
-        $('#send_data').text("Sending assigned labels (" + percentage.toString() + "%)...")
+    show_loading_indicator: (collection_name, percentage) ->
+        $('#send_data').text("Sending #{ collection_name } (#{ percentage }%)...")
 
     disable_results_tab: () ->
         $("#menuTab li:nth-child(2) a").attr("data-toggle", "").css("cursor",  "not-allowed")
@@ -106,7 +106,7 @@ class App.Application
             parsed_line = line.split(/\s+/)
             if line.length > 0 and line_condition(parsed_line)
                 control_el.addClass('error')
-                text_el.text(line_error_msg + ' Check your ' + (ind+1).toString() + ' line.')
+                text_el.text("#{ line_error_msg } Check your #{ ind + 1 } line.")
                 tab_el.tab('show')
                 return false
             if line.length > 0
@@ -202,7 +202,7 @@ class App.Application
         evaluation_labels = @parse_evaluation_labels()
         if assigns and gold_labels
             button_text = $('#send_data').text()
-            $('#send_data').addClass('disabled').text('Sending data..')
+            $('#send_data').addClass('disabled').text('Creating job..')
             @_before_create()
             @client.create(() =>
                 @client.post_assigns(
@@ -225,13 +225,13 @@ class App.Application
                                             @populate_results_tables()
                                         )
                                     (p) =>
-                                        @show_loading_indicator(p)
+                                        @show_loading_indicator("evaluation labels", p)
                                 )
                             (p) =>
-                                @show_loading_indicator(p)
+                                @show_loading_indicator("gold labels", p)
                         )
                     (p) =>
-                        @show_loading_indicator(p)
+                        @show_loading_indicator("assigned labels", p)
                 )
             )
         # Assign the function to the next next click event.
